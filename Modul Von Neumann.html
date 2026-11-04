@@ -1,0 +1,868 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Modul Von Neumann</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: dark hero band, sticky tab bar, one section visible at a time in a 1080px column; simulator is a three-pane workbench (program/RAM, machine blocks, log). */
+:root{
+  --bg:#f1f5f8; --surface:#ffffff; --surface2:#e8eef3; --ink:#0f2230; --muted:#51677a; --line:#cbd8e1;
+  --hero:#0f2230; --hero-ink:#e9f2f7; --hero-mute:#9fb6c6;
+  --cpu:#0b7573; --cpu-soft:#d3eeed; --mem:#2750b8; --mem-soft:#dce5fb;
+  --io:#a85f00; --io-soft:#fae7c9; --bus:#c42a66; --bus-soft:#fadbe7;
+  --ok:#1c7c3f; --ok-soft:#d8f0e0; --bad:#b3261e; --bad-soft:#f8dcd9;
+  --accent:#0b7573; --on-accent:#ffffff;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a141d; --surface:#122230; --surface2:#182d3d; --ink:#e6eef3; --muted:#92a8b8; --line:#26394a;
+  --hero:#06101a; --hero-ink:#e9f2f7; --hero-mute:#8fa7b8;
+  --cpu:#3fc7c4; --cpu-soft:#0f3a3a; --mem:#86a2f4; --mem-soft:#1a2a55;
+  --io:#f0a43a; --io-soft:#3d2a0b; --bus:#f06b9b; --bus-soft:#4a1a2c;
+  --ok:#55c982; --ok-soft:#123a22; --bad:#ff8a80; --bad-soft:#4a1a17;
+  --accent:#3fc7c4; --on-accent:#062524; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a141d; --surface:#122230; --surface2:#182d3d; --ink:#e6eef3; --muted:#92a8b8; --line:#26394a;
+  --hero:#06101a; --hero-ink:#e9f2f7; --hero-mute:#8fa7b8;
+  --cpu:#3fc7c4; --cpu-soft:#0f3a3a; --mem:#86a2f4; --mem-soft:#1a2a55;
+  --io:#f0a43a; --io-soft:#3d2a0b; --bus:#f06b9b; --bus-soft:#4a1a2c;
+  --ok:#55c982; --ok-soft:#123a22; --bad:#ff8a80; --bad-soft:#4a1a17;
+  --accent:#3fc7c4; --on-accent:#062524; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;padding-inline:0}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:1.7rem;font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:700}
+h4{font-size:1rem;font-weight:700}
+p{margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+.wrap{max-width:1080px;margin-inline:auto;padding-inline:16px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-lg{display:flex;flex-direction:column;gap:28px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.grid>*,.row>*{min-width:0}
+.muted{color:var(--muted)}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* hero */
+.hero{background:var(--hero);color:var(--hero-ink);padding-block:34px 28px;border-bottom:4px solid var(--accent)}
+.hero h1{font-size:clamp(1.9rem,5.5vw,3.2rem);font-weight:800;letter-spacing:-.02em;max-width:18ch}
+.hero .sub{color:var(--hero-mute);margin-top:10px;max-width:60ch}
+.hero .eyebrow{color:var(--hero-mute);margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{border:1px solid color-mix(in srgb,var(--hero-ink) 28%,transparent);border-radius:4px;padding:3px 10px;font-size:.85rem;color:var(--hero-ink)}
+.hero-grid{display:grid;gap:22px;grid-template-columns:1.3fr 1fr;align-items:end}
+@media(max-width:760px){.hero-grid{grid-template-columns:1fr}}
+.pulse{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-family:var(--f-mono);font-size:.72rem;text-align:center}
+.pulse div{border:1px solid color-mix(in srgb,var(--hero-ink) 30%,transparent);padding:10px 4px;border-radius:3px}
+.pulse .busbar{grid-column:1/-1;border:0;padding:0;height:8px;background:repeating-linear-gradient(90deg,var(--bus) 0 14px,transparent 14px 22px);background-size:44px 8px;animation:flow 1.2s linear infinite;border-radius:2px}
+@keyframes flow{to{background-position:44px 0}}
+@media (prefers-reduced-motion:reduce){.pulse .busbar{animation:none}}
+
+/* tabs */
+.tabbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin}
+.tab{flex:0 0 auto;border:0;background:transparent;color:var(--muted);font:600 .95rem var(--f-body);padding:13px 14px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible,.part:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.theme-btn{margin-left:auto;flex:0 0 auto}
+main{padding-block:28px 56px}
+section[data-sec]{display:flex;flex-direction:column;gap:22px}
+
+/* surfaces */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px}
+.card.flat{background:var(--surface2);border-color:transparent}
+.band{border-left:4px solid var(--accent);padding:2px 0 2px 14px}
+.kv{display:grid;grid-template-columns:minmax(120px,200px) 1fr;gap:0}
+.kv>div{padding:9px 0;border-bottom:1px solid var(--line)}
+.kv>div:nth-child(odd){color:var(--muted);font-weight:600}
+@media(max-width:560px){.kv{grid-template-columns:1fr}.kv>div:nth-child(odd){border-bottom:0;padding-bottom:0}}
+.tag{display:inline-block;border-radius:4px;padding:1px 8px;font-size:.82rem;font-weight:600;background:var(--cpu-soft);color:var(--cpu)}
+.tag.mem{background:var(--mem-soft);color:var(--mem)}.tag.io{background:var(--io-soft);color:var(--io)}
+.tag.bus{background:var(--bus-soft);color:var(--bus)}.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.dpl{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.dpl:last-child{border-bottom:0}
+.dpl b{font-family:var(--f-mono);color:var(--accent)}
+
+/* buttons & inputs */
+.btn{font:600 .95rem var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:5px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.small{padding:4px 10px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:8px 10px;width:100%}
+textarea{min-height:92px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--accent)}
+label.f{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.92rem}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+.chk:last-child{border-bottom:0}
+.chk input{margin-top:5px;accent-color:var(--accent);flex:0 0 auto}
+.chk.done span{color:var(--muted);text-decoration:line-through}
+
+/* diagram */
+.scroll-x{overflow-x:auto}
+.diagram{min-width:620px;width:100%;height:auto;display:block}
+.part{cursor:pointer}
+.part rect.b{stroke-width:2;transition:filter .15s}
+.part:hover rect.b,.part[aria-pressed="true"] rect.b{filter:brightness(.92);stroke-width:3.5}
+.d-text{font-family:var(--f-body);font-size:14px;font-weight:600;fill:var(--ink);pointer-events:none}
+.d-sub{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted);pointer-events:none}
+.c-cpu{fill:var(--cpu-soft);stroke:var(--cpu)}.c-mem{fill:var(--mem-soft);stroke:var(--mem)}
+.c-io{fill:var(--io-soft);stroke:var(--io)}.c-bus{fill:var(--bus-soft);stroke:var(--bus)}
+.c-in{fill:var(--surface);stroke:var(--cpu)}
+.info{border-left:4px solid var(--accent);padding-left:14px}
+.info h3{margin-bottom:6px}
+
+/* simulator */
+.workbench{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr)}
+@media(max-width:900px){.workbench{grid-template-columns:1fr}}
+.ram{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:.82rem}
+.ram td,.ram th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
+.ram tr.pc td{background:var(--cpu-soft);font-weight:600}
+.ram tr.gap td{color:var(--muted);text-align:center}
+.ram td:first-child{color:var(--muted);width:3.2em}
+.blocks{display:grid;gap:8px;grid-template-columns:1fr 1fr;grid-template-areas:"in out" "cpu cpu" "mem mem" "bus bus"}
+.blk{border:2px solid var(--line);border-radius:6px;padding:10px;background:var(--surface);transition:background .2s,border-color .2s}
+.blk h4{font-size:.9rem;margin-bottom:4px}
+.blk.on{background:var(--cpu-soft);border-color:var(--cpu)}
+.blk.mem.on{background:var(--mem-soft);border-color:var(--mem)}
+.blk.io.on{background:var(--io-soft);border-color:var(--io)}
+.blk.bus.on{background:var(--bus-soft);border-color:var(--bus)}
+.cpu-in{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.sub{border:1px dashed var(--line);border-radius:4px;padding:6px 8px;font-size:.85rem}
+.sub.on{background:var(--cpu-soft);border:1px solid var(--cpu)}
+.reg{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.reg .sub{flex:1 1 90px;font-family:var(--f-mono);font-size:.8rem}
+.reg b{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.08em}
+.phase{display:flex;gap:4px}
+.phase span{flex:1;text-align:center;font-family:var(--f-mono);font-size:.72rem;padding:4px 2px;border-radius:3px;background:var(--surface2);color:var(--muted)}
+.phase span.on{background:var(--accent);color:var(--on-accent);font-weight:600}
+.log{font-family:var(--f-mono);font-size:.78rem;max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.log div{padding:6px 8px;border-radius:4px;background:var(--surface2)}
+.log div.new{border-left:3px solid var(--accent)}
+.screen{font-family:var(--f-mono);min-height:2.2em;background:#0b1118;color:#7ef0a8;border-radius:4px;padding:6px 8px;font-size:.85rem}
+.stats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.stats b{color:var(--ink)}
+
+/* bottleneck */
+.meter{height:16px;background:var(--surface2);border-radius:3px;overflow:hidden;position:relative}
+.meter i{display:block;height:100%;background:var(--cpu);transition:width .2s}
+.meter i.warn{background:var(--bus)}
+.meter u{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
+.out-row{display:grid;grid-template-columns:130px 1fr 78px;gap:10px;align-items:center;font-size:.92rem}
+@media(max-width:520px){.out-row{grid-template-columns:1fr 70px}.out-row .meter{grid-column:1/-1;order:3}}
+.diag{padding:10px 12px;border-radius:5px;font-weight:600}
+
+/* lesson */
+.timeline{display:flex;height:26px;border-radius:4px;overflow:hidden;gap:2px}
+.timeline div{display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:.72rem;color:#fff;min-width:0;overflow:hidden}
+.k-mem{background:#2a62a8}.k-app{background:#b86a00}.k-ref{background:#1c7c3f}
+.phase-card{border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.phase-card>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.phase-card>summary::-webkit-details-marker{display:none}
+.phase-card .body{padding:0 16px 14px;display:flex;flex-direction:column;gap:2px}
+.min{font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--line);border-radius:4px;padding:1px 7px;color:var(--muted)}
+.timer-chip{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--hero);color:var(--hero-ink);border-radius:8px;padding:10px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 4px 18px rgba(0,0,0,.3);max-width:calc(100% - 32px)}
+.timer-chip .t{font-family:var(--f-mono);font-size:1.3rem;font-weight:600}
+
+/* assessment */
+table.rub{border-collapse:collapse;width:100%;min-width:760px;font-size:.88rem}
+table.rub th,table.rub td{border:1px solid var(--line);padding:9px 10px;vertical-align:top;text-align:left}
+table.rub th{font-family:var(--f-display)}
+.l4{background:var(--ok-soft)}.l3{background:var(--mem-soft)}.l2{background:var(--io-soft)}.l1{background:var(--bad-soft)}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:5px;margin-top:6px;cursor:pointer;background:var(--surface)}
+.opt input{margin-top:5px;accent-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{margin-top:8px;padding:8px 12px;border-radius:5px;font-size:.92rem}
+.order li{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);margin-top:6px}
+.order li.right{border-color:var(--ok);background:var(--ok-soft)}.order li.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.order{list-style:none;padding:0;margin:0}
+.order li span.txt{flex:1;min-width:0}
+.order .pos{font-family:var(--f-mono);color:var(--muted);width:1.6em}
+.key{background:var(--ok-soft);border-left:4px solid var(--ok);padding:10px 14px;border-radius:0 5px 5px 0;margin-top:10px}
+details.k>summary{cursor:pointer;font-weight:600;color:var(--accent);padding:6px 0}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:center;padding-top:12px}
+@media(max-width:560px){.sign{grid-template-columns:1fr}}
+.sign .sp{height:64px}
+footer{padding-block:24px;color:var(--muted);font-size:.88rem;border-top:1px solid var(--line)}
+</style>
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Kurikulum Merdeka · Pembelajaran Mendalam</div>
+      <h1>Arsitektur Komputer Von Neumann</h1>
+      <p class="sub">Informatika Fase E / Kelas X · Konsentrasi Pengembangan Perangkat Lunak dan Gim · SMK Negeri 3 Palu · Tahun Pelajaran 2026/2027</p>
+      <div class="chips">
+        <span class="chip">Berkesadaran (Mindful)</span>
+        <span class="chip">Bermakna (Meaningful)</span>
+        <span class="chip">Menggembirakan (Joyful)</span>
+      </div>
+    </div>
+    <div class="pulse" aria-hidden="true">
+      <div>CU · ALU · REG</div><div>RAM</div><div>I / O</div>
+      <div class="busbar"></div>
+    </div>
+  </div>
+</header>
+
+<div class="tabbar"><div class="wrap"><div class="tabs" role="tablist" id="tabs"></div></div></div>
+
+<main class="wrap">
+
+<!-- BERANDA -->
+<section data-sec="beranda" id="sec-beranda">
+  <div class="stack">
+    <h2>A. Informasi Umum</h2>
+    <div class="card">
+      <div class="kv">
+        <div>Nama Sekolah</div><div>SMK Negeri 3 Palu</div>
+        <div>Tahun Pelajaran</div><div>2026/2027</div>
+        <div>Fase / Kelas</div><div><span class="tag">Fase E / X</span></div>
+        <div>Mata Pelajaran</div><div><b>Informatika</b></div>
+        <div>Semester</div><div>Ganjil</div>
+        <div>Konsentrasi Keahlian</div><div>Pengembangan Perangkat Lunak dan Gim</div>
+        <div>Topik / Materi Utama</div><div><b>Arsitektur komputer Von Neumann (CPU, ALU, CU, Memori, I/O)</b></div>
+        <div>Media &amp; Alat</div><div class="row"><span class="tag io">Google Classroom</span><span class="tag io">PPT</span><span class="tag io">AI</span><span class="tag io">LKPD Digital</span></div>
+        <div>Sarana &amp; Prasarana</div><div>Proyektor, Internet</div>
+        <div>Kesiapan &amp; Karakteristik Murid</div><div>Sebagian besar bergaya belajar visual. Murid lebih mudah memahami jika dicontohkan dengan kasus nyata.</div>
+        <div>Alokasi Waktu</div><div><span class="tag io">2 pertemuan (4 × 45 menit per pertemuan)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2>B. Dimensi Profil Lulusan (DPL)</h2>
+    <div class="card">
+      <div class="dpl"><b>DPL1</b><div><b style="color:var(--ink)">Penalaran Kritis.</b> Mengidentifikasi, menganalisis, dan memecahkan masalah terkait alur data dan instruksi pada komponen arsitektur Von Neumann dalam mengeksekusi program atau gim.</div></div>
+      <div class="dpl"><b>DPL2</b><div><b style="color:var(--ink)">Kreatif.</b> Merekonstruksi dan memodelkan simulasi siklus instruksi (Fetch-Decode-Execute) secara visual dan digital dengan analogi logika pemrograman.</div></div>
+      <div class="dpl"><b>DPL3</b><div><b style="color:var(--ink)">Kolaboratif / Gotong Royong.</b> Bekerja sama dalam tim mengeksplorasi peran masing-masing unit pemrosesan komputer melalui pembagian tugas simulasi interaktif.</div></div>
+      <div class="dpl"><b>DPL4</b><div><b style="color:var(--ink)">Kemandirian.</b> Memanfaatkan teknologi kecerdasan buatan (AI) dan internet secara bertanggung jawab untuk mencari referensi teknis dan memverifikasi konsep secara mandiri.</div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2>C. Desain Pembelajaran</h2>
+    <div class="grid">
+      <div class="card"><div class="eyebrow">1 · Tujuan Pembelajaran</div><p style="margin-top:8px">Melalui model Discovery Learning berbantuan tayangan PPT visual, eksplorasi AI, dan LKPD Digital, peserta didik Fase E mampu menguraikan struktur dan fungsi komponen model komputer Von Neumann (CPU, ALU, CU, Memori, dan I/O) serta menganalisis siklus eksekusi program/gim dengan memanfaatkan koneksi internet dan simulasi peran secara kritis, tepat, dan aplikatif sesuai prinsip kerja rekayasa perangkat lunak.</p></div>
+      <div class="card"><div class="eyebrow">2 · Praktik Pedagogis</div><p style="margin-top:8px">Pendekatan Deep Learning berbasis Meaningful Learning dan Joyful Learning dengan model Discovery Learning. Pembelajaran diawali demonstrasi visual nyata (bagaimana baris kode gim dieksekusi oleh hardware), dilanjutkan penyelidikan mandiri/kelompok dengan AI sebagai "tutor virtual" untuk menggali relasi antar-komponen, serta simulasi langsung peran sistem Von Neumann di kelas.</p></div>
+      <div class="card"><div class="eyebrow">3 · Lingkungan Pembelajaran</div><p style="margin-top:8px">Ruang kelas atau laboratorium komputer yang kondusif dan berpusat pada peserta didik, dengan akses internet stabil dan proyektor untuk menayangkan visualisasi arsitektur, diagram alir interaktif, serta ruang diskusi digital di Google Classroom.</p></div>
+      <div class="card"><div class="eyebrow">4 · Kemitraan Pembelajaran</div><p style="margin-top:8px">Kolaborasi antarsiswa dalam kelompok kerja simulasi, fasilitasi interaktif guru sebagai mentor, serta integrasi wawasan praktisi/analogi industri gim terkait manajemen memori dan komputasi grafis/logika CPU.</p></div>
+      <div class="card"><div class="eyebrow">5 · Pemanfaatan Digital</div><p style="margin-top:8px">Google Classroom untuk distribusi modul dan pengumpulan tugas; slide PPT interaktif kaya diagram dan animasi alur data; asisten AI (seperti ChatGPT/Gemini) untuk eksplorasi studi kasus; serta LKPD Digital (Google Docs/Liveworksheets) untuk asesmen real-time.</p></div>
+    </div>
+  </div>
+  <div class="card flat row">
+    <b>Mulai dari mana?</b>
+    <button class="btn" data-go="materi">Baca materi</button>
+    <button class="btn primary" data-go="simulasi">Coba simulasi</button>
+    <button class="btn" data-go="lkpd">Kerjakan LKPD</button>
+  </div>
+</section>
+
+<!-- MATERI -->
+<section data-sec="materi" id="sec-materi" hidden>
+  <div class="stack">
+    <h2>Uraian Materi Pelajaran</h2>
+    <p style="max-width:70ch">Arsitektur Von Neumann adalah desain arsitektur komputer teoritis yang diperkenalkan oleh matematikawan John von Neumann pada tahun 1945. Model ini menjadi fondasi hampir seluruh komputer modern: PC, smartphone, dan konsol gim.</p>
+    <div class="card band" style="border-radius:0 6px 6px 0"><h3>Prinsip utama: Stored-Program Concept</h3><p style="margin-top:6px;max-width:70ch">Sebelum konsep ini, komputer diprogram ulang dengan mengubah kabel fisik atau sakelar sirkuit secara manual (seperti ENIAC). Von Neumann mengusulkan agar program (instruksi baris kode) dan data disimpan bersama di memori utama (RAM) yang dapat dialamati secara digital.</p></div>
+  </div>
+
+  <div class="stack">
+    <h3>Peta komponen · klik bagian mana pun</h3>
+    <div class="card">
+      <div class="scroll-x">
+      <svg class="diagram" viewBox="0 0 720 370" role="group" aria-label="Diagram arsitektur Von Neumann">
+        <g class="part" data-part="input" tabindex="0" role="button" aria-pressed="false" aria-label="Unit Input"><rect class="b c-io" x="20" y="50" width="120" height="70" rx="6"/><text class="d-text" x="80" y="82" text-anchor="middle">Input</text><text class="d-sub" x="80" y="102" text-anchor="middle">keyboard · gamepad</text></g>
+        <g class="part" data-part="output" tabindex="0" role="button" aria-pressed="false" aria-label="Unit Output"><rect class="b c-io" x="20" y="160" width="120" height="70" rx="6"/><text class="d-text" x="80" y="192" text-anchor="middle">Output</text><text class="d-sub" x="80" y="212" text-anchor="middle">monitor · speaker</text></g>
+        <g class="part" data-part="cpu" tabindex="0" role="button" aria-pressed="false" aria-label="CPU"><rect class="b c-cpu" x="210" y="24" width="330" height="276" rx="8" style="fill-opacity:.35"/><text class="d-text" x="226" y="48">CPU</text></g>
+        <g class="part" data-part="cu" tabindex="0" role="button" aria-pressed="false" aria-label="Control Unit"><rect class="b c-in" x="228" y="64" width="140" height="84" rx="5"/><text class="d-text" x="298" y="100" text-anchor="middle">Control Unit</text><text class="d-sub" x="298" y="120" text-anchor="middle">fetch · decode</text></g>
+        <g class="part" data-part="alu" tabindex="0" role="button" aria-pressed="false" aria-label="Arithmetic Logic Unit"><rect class="b c-in" x="382" y="64" width="140" height="84" rx="5"/><text class="d-text" x="452" y="100" text-anchor="middle">ALU</text><text class="d-sub" x="452" y="120" text-anchor="middle">hitung · bandingkan</text></g>
+        <g class="part" data-part="reg" tabindex="0" role="button" aria-pressed="false" aria-label="Register"><rect class="b c-in" x="228" y="164" width="294" height="124" rx="5"/><text class="d-text" x="244" y="188">Registers</text>
+          <rect x="244" y="204" width="84" height="70" rx="3" fill="var(--cpu-soft)" stroke="var(--cpu)"/><text class="d-sub" x="286" y="244" text-anchor="middle">PC</text>
+          <rect x="338" y="204" width="84" height="70" rx="3" fill="var(--cpu-soft)" stroke="var(--cpu)"/><text class="d-sub" x="380" y="244" text-anchor="middle">IR</text>
+          <rect x="432" y="204" width="76" height="70" rx="3" fill="var(--cpu-soft)" stroke="var(--cpu)"/><text class="d-sub" x="470" y="244" text-anchor="middle">ACC</text></g>
+        <g class="part" data-part="mem" tabindex="0" role="button" aria-pressed="false" aria-label="Memori RAM"><rect class="b c-mem" x="580" y="90" width="120" height="180" rx="6"/><text class="d-text" x="640" y="116" text-anchor="middle">Memori (RAM)</text>
+          <rect x="596" y="130" width="88" height="24" fill="var(--surface)" stroke="var(--mem)"/><text class="d-sub" x="640" y="146" text-anchor="middle">0000 instruksi</text>
+          <rect x="596" y="160" width="88" height="24" fill="var(--surface)" stroke="var(--mem)"/><text class="d-sub" x="640" y="176" text-anchor="middle">0001 instruksi</text>
+          <rect x="596" y="190" width="88" height="24" fill="var(--surface)" stroke="var(--mem)"/><text class="d-sub" x="640" y="206" text-anchor="middle">0010 data</text>
+          <rect x="596" y="220" width="88" height="24" fill="var(--surface)" stroke="var(--mem)"/><text class="d-sub" x="640" y="236" text-anchor="middle">0011 data</text></g>
+        <g class="part" data-part="bus" tabindex="0" role="button" aria-pressed="false" aria-label="Sistem Bus"><line x1="140" y1="85" x2="165" y2="85" stroke="var(--bus)" stroke-width="3"/><line x1="140" y1="195" x2="165" y2="195" stroke="var(--bus)" stroke-width="3"/>
+          <line x1="375" y1="300" x2="375" y2="322" stroke="var(--bus)" stroke-width="4"/><line x1="640" y1="270" x2="640" y2="322" stroke="var(--bus)" stroke-width="4"/>
+          <rect class="b c-bus" x="158" y="85" width="14" height="251" rx="3"/><rect class="b c-bus" x="158" y="322" width="542" height="28" rx="4"/>
+          <text class="d-text" x="440" y="341" text-anchor="middle">SISTEM BUS · Address · Data · Control</text></g>
+      </svg>
+      </div>
+    </div>
+    <div class="card info" id="partInfo" aria-live="polite"></div>
+  </div>
+
+  <div class="stack">
+    <h3>Analogi dapur restoran</h3>
+    <div class="grid">
+      <div class="card"><span class="tag">ALU</span><h4 style="margin-top:8px">Koki</h4><p class="muted">Mengolah bahan: menghitung dan membandingkan nilai.</p></div>
+      <div class="card"><span class="tag">CU</span><h4 style="margin-top:8px">Manajer dapur</h4><p class="muted">Membaca pesanan, lalu memberi perintah ke bagian lain.</p></div>
+      <div class="card"><span class="tag mem">Memori</span><h4 style="margin-top:8px">Meja resep &amp; bahan</h4><p class="muted">Menyimpan resep (instruksi) dan bahan (data) di rak bernomor.</p></div>
+      <div class="card"><span class="tag bus">Bus I/O</span><h4 style="margin-top:8px">Pelayan</h4><p class="muted">Membawa pesanan masuk dan hidangan keluar.</p></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Siklus instruksi (Instruction Cycle)</h3>
+    <p class="muted" style="max-width:70ch">Setiap kali software dieksekusi, CPU mengulang empat tahap ini tanpa henti. Lihat langsung di tab <a href="#simulasi" data-go="simulasi" style="color:var(--accent)">Simulasi</a>.</p>
+    <div class="grid" id="cycleCards"></div>
+  </div>
+
+  <div class="card band" style="border-radius:0 6px 6px 0;border-left-color:var(--bus)">
+    <h3>Von Neumann Bottleneck dalam pengembangan gim</h3>
+    <p style="margin-top:6px;max-width:70ch">Data dan instruksi berbagi bus transmisi yang sama antara CPU dan memori. Kecepatan CPU modern sering kali harus menganggur (idle) menunggu kiriman data dari RAM yang jauh lebih lambat. Fenomena ini disebut <b>Von Neumann Bottleneck</b>.</p>
+    <p style="margin-top:8px;max-width:70ch">Developer PPLG perlu memahami ini agar mampu merancang struktur data efisien, meminimalkan memory footprint, dan memanfaatkan cache multi-level (L1, L2, L3) agar gim atau aplikasi tidak mengalami frame drop.</p>
+    <div class="row" style="margin-top:12px"><button class="btn primary" data-go="simulasi" data-scroll="bn">Coba simulator bottleneck</button></div>
+  </div>
+</section>
+
+<!-- SIMULASI -->
+<section data-sec="simulasi" id="sec-simulasi" hidden>
+  <div class="stack">
+    <h2>Mesin Von Neumann Mini</h2>
+    <p style="max-width:72ch">Program di RAM mengurangi <code>Player_Health</code> sebesar 20, lalu menampilkan <code>Game_Over</code> bila nilainya sudah tidak lebih dari 0. Jalankan satu tahap demi satu tahap dan perhatikan komponen yang menyala.</p>
+    <div class="card row">
+      <label class="f" style="width:150px">Nilai awal Player_Health<input type="number" id="hp0" min="1" max="100" value="20"></label>
+      <button class="btn primary" id="btnStep">Langkah berikut</button>
+      <button class="btn" id="btnInstr">Satu instruksi</button>
+      <button class="btn" id="btnPlay">Jalan otomatis</button>
+      <button class="btn" id="btnReset">Atur ulang</button>
+    </div>
+    <div class="workbench">
+      <div class="card stack"><h4>RAM: program &amp; data</h4><table class="ram" id="ramTbl"></table>
+        <p class="muted" style="font-size:.85rem">Instruksi dan data berada di memori yang sama. Itulah stored-program.</p></div>
+      <div class="stack">
+        <div class="card stack">
+          <div class="phase" id="phase"><span data-p="fetch">FETCH</span><span data-p="decode">DECODE</span><span data-p="execute">EXECUTE</span><span data-p="store">STORE</span></div>
+          <div class="blocks">
+            <div class="blk io" id="b-in" style="grid-area:in"><h4>Input</h4><span class="muted" style="font-size:.85rem">keyboard</span></div>
+            <div class="blk io" id="b-out" style="grid-area:out"><h4>Output</h4><div class="screen" id="screen">_</div></div>
+            <div class="blk" id="b-cpu" style="grid-area:cpu"><h4>CPU</h4>
+              <div class="cpu-in"><div class="sub" id="b-cu"><b>CU</b><br><span class="muted" id="cuTxt">menunggu</span></div><div class="sub" id="b-alu"><b>ALU</b><br><span class="muted" id="aluTxt">menunggu</span></div></div>
+              <div class="reg" id="b-reg"><div class="sub"><b>PC</b><span id="r-pc">0</span></div><div class="sub"><b>IR</b><span id="r-ir">–</span></div><div class="sub"><b>ACC</b><span id="r-acc">0</span></div></div></div>
+            <div class="blk mem" id="b-mem" style="grid-area:mem"><h4>Memori (RAM)</h4><span class="muted" style="font-size:.85rem" id="memTxt">siap</span></div>
+            <div class="blk bus" id="b-bus" style="grid-area:bus"><h4>Sistem Bus</h4><span class="muted" style="font-size:.85rem" id="busTxt">Address · Data · Control</span></div>
+          </div>
+          <div class="stats"><span>Siklus mikro: <b id="stCyc">0</b></span><span>Akses RAM: <b id="stMem">0</b></span><span>Instruksi selesai: <b id="stIns">0</b></span></div>
+        </div>
+      </div>
+      <div class="card stack"><h4>Catatan eksekusi</h4><div class="log" id="log"></div></div>
+    </div>
+  </div>
+
+  <div class="stack" id="bn">
+    <h2>Simulator Von Neumann Bottleneck</h2>
+    <p style="max-width:72ch">Satu frame gim butuh dua hal: waktu hitung CPU dan waktu memindahkan data lewat bus. Frame baru selesai setelah yang lebih lambat tuntas. Naikkan clock CPU, lalu naikkan bandwidth atau cache, dan bandingkan hasilnya.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
+      <div class="card stack">
+        <div class="row"><button class="btn small" data-preset="lag">Gim patah-patah</button><button class="btn small" data-preset="ok">Gim lancar</button><button class="btn small" data-preset="fast">Hanya CPU dikebut</button></div>
+        <label class="f">Kecepatan CPU: <span id="vCpu" class="mono"></span><input type="range" id="sCpu" min="1" max="6" step="0.1" value="3"></label>
+        <label class="f">Bandwidth bus memori: <span id="vBw" class="mono"></span><input type="range" id="sBw" min="4" max="64" step="1" value="16"></label>
+        <label class="f">Data aset per frame: <span id="vData" class="mono"></span><input type="range" id="sData" min="50" max="1500" step="10" value="400"></label>
+        <label class="f">Cache hit rate: <span id="vHit" class="mono"></span><input type="range" id="sHit" min="0" max="95" step="5" value="0"></label>
+        <p class="muted" style="font-size:.85rem">Model sederhana: 24 juta siklus CPU per frame; transfer dihitung dari data yang tidak ditemukan di cache.</p>
+      </div>
+      <div class="card stack" id="bnOut" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2>Human Von Neumann Machine</h2>
+    <p style="max-width:72ch">Tulis nama anggota kelompok (satu nama per baris, 4–6 orang), lalu acak perannya. Setiap peran punya naskah singkat untuk memerankan instruksi <code>Player_Health = Player_Health - 20</code>.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">
+      <div class="card stack">
+        <label class="f">Nama anggota kelompok<textarea id="names" placeholder="Contoh:&#10;Aulia&#10;Rizky&#10;Nur&#10;Dimas&#10;Sari"></textarea></label>
+        <div class="row"><button class="btn primary" id="btnRoles">Acak peran</button><button class="btn" id="btnRolesKeep">Urut sesuai daftar</button></div>
+      </div>
+      <div class="card stack" id="rolesOut"><p class="muted">Peran akan muncul di sini.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PERTEMUAN -->
+<!-- ASESMEN -->
+<section data-sec="asesmen" id="sec-asesmen" hidden>
+  <div class="stack">
+    <h2>E. Asesmen &amp; Rubrik Penilaian</h2>
+    <div class="card band" style="border-radius:0 6px 6px 0;border-left-color:var(--bus)"><h3>1 · Asesmen awal (diagnostik)</h3>
+      <p style="margin-top:6px;max-width:72ch">Dilakukan pada awal pembelajaran melalui Google Classroom. Bagian non-kognitif mengidentifikasi kecenderungan modalitas belajar visual. Bagian kognitif berupa kuis visual cepat yang mencocokkan komponen fisik komputer dengan fungsi dasarnya.</p></div>
+    <div class="card stack" id="diagBox"></div>
+  </div>
+
+  <div class="stack">
+    <div class="card band" style="border-radius:0 6px 6px 0;border-left-color:var(--io)"><h3>2 · Asesmen proses (formatif)</h3>
+      <p style="margin-top:6px;max-width:72ch">Dilakukan berkelanjutan selama Discovery Learning: pengamatan keaktifan diskusi, pemanfaatan AI yang kritis dan etis, penyelesaian tugas interaktif pada LKPD Digital, serta unjuk kerja simulasi sistem komputer Von Neumann.</p></div>
+    <h3>Tabel rubrik penilaian formatif</h3>
+    <div class="card scroll-x" id="rubricBox"></div>
+    <div class="card stack" id="calcBox"></div>
+  </div>
+
+  <div class="stack">
+    <div class="card band" style="border-radius:0 6px 6px 0;border-left-color:var(--ok)"><h3>3 · Asesmen akhir (sumatif)</h3>
+      <p style="margin-top:6px;max-width:72ch">Dilakukan di akhir siklus pembelajaran melalui Google Classroom: tes tertulis berbasis HOTS (analisis studi kasus optimasi perangkat lunak dan arsitektur mesin) serta penilaian portofolio diagram arsitektur interaktif dari LKPD Digital, menggunakan rubrik pencapaian kompetensi.</p>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-go="hots">Buka soal HOTS</button><button class="btn" data-go="lkpd">Buka LKPD</button></div></div>
+    <h3>Kuis formatif akhir · 5 soal analitis</h3>
+    <p class="muted" style="max-width:72ch">Disusun untuk melengkapi modul. Pilih satu jawaban pada tiap soal, lalu periksa.</p>
+    <div class="stack" id="quizBox"></div>
+  </div>
+</section>
+
+<!-- LKPD -->
+<section data-sec="lkpd" id="sec-lkpd" hidden>
+  <div class="stack">
+    <div class="eyebrow">Lembar Kerja Peserta Didik (LKPD)</div>
+    <h2>LKPD Digital: Mendedah Anatomi Komputer Von Neumann &amp; Menelusuri Eksekusi Program Game</h2>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))">
+    <div class="card stack"><h3>Langkah kerja peserta didik</h3><div id="lkpdSteps"></div><p class="muted" style="font-size:.85rem">Centang disimpan di perangkat ini saja.</p></div>
+    <div class="stack">
+      <div class="card band" style="border-radius:0 6px 6px 0;border-left-color:var(--cpu)"><h4>Tugas &amp; instruksi utama</h4>
+        <p style="margin-top:6px">Buatlah pemodelan alur kerja sistem komputer Von Neumann dalam bentuk bagan visual interaktif yang menunjukkan bagaimana sebuah perintah logika gim <code>IF Player_Health &lt;= 0 THEN Display Game_Over</code> diproses mulai dari dibaca di Memori, ditangani Control Unit, diverifikasi di ALU, hingga ditampilkan ke unit Output. Jelaskan pula di titik mana potensi bottleneck terjadi dan bagaimana programmer PPLG dapat mengantisipasinya.</p></div>
+      <div class="card stack"><h4>Prompt AI untuk langkah 4</h4>
+        <code id="aiPrompt" style="display:block;background:var(--surface2);padding:10px;border-radius:5px;line-height:1.5">Jelaskan secara langkah demi langkah bagaimana instruksi sederhana (contoh: health = health - 20) diproses oleh CU, ALU, Register, dan RAM dalam model Von Neumann</code>
+        <div class="row"><button class="btn small" data-copy="aiPrompt">Salin prompt</button><span class="muted" style="font-size:.85rem" id="copyMsg"></span></div>
+        <p class="muted" style="font-size:.85rem">Bandingkan jawaban AI dengan materi dan simulasi. Catat bagian yang perlu diverifikasi.</p></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Latihan: susun alur <code>IF Player_Health &lt;= 0 THEN Display Game_Over</code></h3>
+    <p class="muted" style="max-width:72ch">Urutkan tujuh langkah berikut dengan tombol panah, lalu periksa. Langkah yang sudah tepat ditandai hijau.</p>
+    <div class="card stack"><ol class="order" id="orderList"></ol><div class="row"><button class="btn primary" id="btnOrderCheck">Periksa urutan</button><button class="btn" id="btnOrderShuffle">Acak ulang</button><span id="orderMsg" style="font-weight:600"></span></div></div>
+  </div>
+
+  <div class="stack">
+    <h3>Lembar jawaban kelompok</h3>
+    <div class="card stack" id="lkpdForm"></div>
+  </div>
+</section>
+
+<!-- HOTS -->
+<section data-sec="hots" id="sec-hots" hidden>
+  <div class="stack">
+    <h2>Soal Asesmen Berbasis HOTS</h2>
+    <p class="muted" style="max-width:72ch">Tulis jawabanmu terlebih dahulu. Kunci jawaban dan rubrik pedoman untuk guru ada di bagian yang bisa dibuka pada tiap soal.</p>
+  </div>
+  <div class="stack-lg" id="hotsList"></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap stack">
+    <div class="sign">
+      <div>Mengetahui,<br>Kepala SMK Negeri 3 Palu<div class="sp"></div><b><u>H. Hamka, S.Pd.</u></b><br>NIP. 196906241991031007</div>
+      <div>Guru Mata Pelajaran,<div class="sp"></div><b><u>Fajar Tri Satria, S.Kom., Gr.</u></b><br>NIP. 199302182022211002</div>
+    </div>
+    <p style="text-align:center">Rencana Pembelajaran Mendalam · Informatika Fase E / X · SMK Negeri 3 Palu · 2026/2027</p>
+  </div>
+</footer>
+<script>
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={
+  get(k,d){try{const v=localStorage.getItem('vn:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('vn:'+k,JSON.stringify(v))}catch(e){}}
+};
+function copyText(text,msgEl){
+  const done=m=>{if(msgEl){msgEl.textContent=m;setTimeout(()=>msgEl.textContent='',2500)}};
+  const fallback=()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();done(ok?'Tersalin.':'Salin manual: blok teks lalu tekan Ctrl+C.')};
+  try{navigator.clipboard.writeText(text).then(()=>done('Tersalin.'),fallback)}catch(e){fallback()}
+}
+
+/* ---------- navigation ---------- */
+const TABS=[['beranda','Beranda'],['materi','Materi'],['simulasi','Simulasi'],['asesmen','Asesmen'],['lkpd','LKPD'],['hots','Soal HOTS']];
+const tabsEl=$('#tabs');
+tabsEl.innerHTML=TABS.map(([id,l])=>`<button class="tab" role="tab" data-tab="${id}" aria-selected="false">${l}</button>`).join('')+'<button class="tab theme-btn" id="themeBtn" aria-label="Ganti tema terang atau gelap">Tema</button>';
+function show(id,scrollToTop=true){
+  if(!TABS.some(t=>t[0]===id))id='beranda';
+  $$('section[data-sec]').forEach(s=>s.hidden=s.dataset.sec!==id);
+  $$('.tab[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===id)));
+  const active=$(`.tab[data-tab="${id}"]`);if(active&&active.scrollIntoView)active.scrollIntoView({inline:'center',block:'nearest'});
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  store.set('tab',id);
+  if(scrollToTop)window.scrollTo({top:0});
+}
+tabsEl.addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)show(b.dataset.tab)});
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');
+  if(g){e.preventDefault();show(g.dataset.go,!g.dataset.scroll);if(g.dataset.scroll){const t=document.getElementById(g.dataset.scroll);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})}}
+  const c=e.target.closest('[data-copy]');
+  if(c){copyText(document.getElementById(c.dataset.copy).textContent,$('#copyMsg'))}
+});
+$('#themeBtn').addEventListener('click',()=>{
+  const root=document.documentElement;
+  const dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme=dark?'light':'dark';store.set('theme',root.dataset.theme);
+});
+(()=>{const t=store.get('theme',null);if(t)document.documentElement.dataset.theme=t})();
+
+/* ---------- materi: peta komponen ---------- */
+const PARTS={
+  input:{t:'Unit Input',k:'io',d:'Antarmuka yang menghubungkan komputer dengan dunia luar: keyboard, mouse, dan gamepad.',g:'Menekan tombol spasi mengirim sinyal masuk. Dari sinilah karakter gim mulai "diperintah" melompat.',a:'Pelanggan yang memesan.'},
+  output:{t:'Unit Output',k:'io',d:'Menampilkan hasil pemrosesan ke dunia luar: monitor dan speaker.',g:'Teks "Game_Over" atau karakter yang bergerak di layar adalah hasil akhir dari rangkaian eksekusi instruksi.',a:'Meja saji tempat hidangan keluar.'},
+  cpu:{t:'Central Processing Unit (CPU)',k:'cpu',d:'Pusat pemrosesan. Terdiri dari Control Unit, ALU, dan Register. CPU mengambil instruksi dari memori, menerjemahkannya, lalu mengeksekusinya.',g:'Setiap baris kode gim akhirnya menjadi instruksi mesin yang dikerjakan CPU, satu per satu.',a:'Seluruh dapur: manajer dan koki bekerja di dalamnya.'},
+  cu:{t:'Control Unit (CU)',k:'cpu',d:'Pengatur lalu lintas instruksi. Bertugas mengambil (fetch) instruksi dari memori, menerjemahkannya (decode), dan mengirim sinyal kendali ke unit lain.',g:'CU yang memutuskan: "instruksi ini mengurangi health, kirim ke ALU".',a:'Manajer dapur yang membaca pesanan dan memberi perintah.'},
+  alu:{t:'Arithmetic Logic Unit (ALU)',k:'cpu',d:'Eksekutor komputasi matematis (penjumlahan, pengurangan) dan logika boolean (AND, OR, NOT, perbandingan >, <, ==). Ini inti jalannya logika game engine.',g:'Menghitung Score = Score + 10, atau membandingkan Player_Health <= 0.',a:'Koki yang mengolah bahan.'},
+  reg:{t:'Register',k:'cpu',d:'Memori internal CPU berkecepatan sangat tinggi untuk menyimpan instruksi dan data sementara, misalnya Program Counter (PC), Instruction Register (IR), dan Accumulator (ACC).',g:'Nilai health yang sedang dihitung disimpan sebentar di ACC, lalu ditulis kembali ke RAM.',a:'Tatakan di meja koki: kecil, tetapi paling dekat dan paling cepat.'},
+  mem:{t:'Memori Utama (RAM)',k:'mem',d:'Menyimpan instruksi program yang sedang berjalan serta data yang dibutuhkan CPU. Setiap sel memori memiliki alamat unik (address).',g:'Kode gim dan nilai variabel seperti Score dan Player_Health sama-sama tinggal di sini.',a:'Meja resep dan rak bahan bernomor.'},
+  bus:{t:'Sistem Bus',k:'bus',d:'Jalur komunikasi yang menghubungkan komponen. Data Bus mentransfer data, Address Bus menentukan alamat memori tujuan, Control Bus mengirim sinyal kendali (clock, read, write).',g:'Karena instruksi dan data berbagi jalur yang sama, lalu lintas padat di sini memicu Von Neumann Bottleneck.',a:'Pelayan yang bolak-balik membawa pesanan dan hidangan.'}
+};
+function showPart(id){
+  const p=PARTS[id];if(!p)return;
+  $$('.part').forEach(g=>g.setAttribute('aria-pressed',String(g.dataset.part===id)));
+  $('#partInfo').innerHTML=`<span class="tag ${p.k==='cpu'?'':p.k}">${esc(p.t)}</span><h3 style="margin-top:8px">${esc(p.t)}</h3><p style="max-width:70ch">${esc(p.d)}</p><p style="margin-top:8px;max-width:70ch"><b>Dalam gim:</b> ${esc(p.g)}</p><p style="margin-top:6px;max-width:70ch" class="muted"><b>Analogi dapur:</b> ${esc(p.a)}</p>`;
+}
+$$('.part').forEach(g=>{g.addEventListener('click',()=>showPart(g.dataset.part));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showPart(g.dataset.part)}})});
+showPart('cpu');
+
+const CYCLE=[
+  ['Fetch','cpu','CU mengambil kode instruksi dari RAM berdasarkan alamat yang ditunjuk Program Counter (PC).'],
+  ['Decode','cpu','CU menguraikan opcode instruksi untuk mengetahui operasi apa yang harus dijalankan.'],
+  ['Execute','cpu','ALU menjalankan operasi, misalnya menambahkan skor karakter gim.'],
+  ['Store / Writeback','mem','Hasil eksekusi ditulis kembali ke register atau RAM.']
+];
+$('#cycleCards').innerHTML=CYCLE.map((c,i)=>`<div class="card"><div class="eyebrow">Tahap ${i+1}</div><h4 style="margin:6px 0"><span class="tag ${c[1]==='mem'?'mem':''}">${c[0]}</span></h4><p>${c[2]}</p></div>`).join('');
+/* ---------- mesin Von Neumann mini ---------- */
+const PROG=[
+  {op:'LOAD',a:10,t:'LOAD 10'},
+  {op:'SUB',a:20,t:'SUB 20'},
+  {op:'STORE',a:10,t:'STORE 10'},
+  {op:'JGT',a:5,t:'JGT 5'},
+  {op:'OUT',a:'Game_Over',t:'OUT "Game_Over"'},
+  {op:'HALT',a:'',t:'HALT'}
+];
+const NOTE=['Baca Player_Health ke ACC','Kurangi 20','Tulis kembali ke RAM','Jika ACC > 0, lompat ke alamat 5','Tampilkan Game_Over','Berhenti'];
+const PH=['fetch','decode','execute','store'];
+const MAPSEL={cu:'#b-cu',alu:'#b-alu',mem:'#b-mem',bus:'#b-bus',out:'#b-out',io:'#b-out',in:'#b-in'};
+let M=null,playTimer=null;
+
+function resetM(){
+  stopPlay();
+  const hp=Math.max(1,Math.min(100,parseInt($('#hp0').value,10)||20));
+  M={pc:0,cur:0,ir:null,acc:0,health:hp,phase:0,halted:false,out:'',cyc:0,mem:0,ins:0,tmp:null,last:-1,log:[]};
+  paintM([],{cu:'menunggu',alu:'menunggu',mem:'siap',bus:'Address · Data · Control'});
+  $('#log').innerHTML='<div>Tekan "Langkah berikut" untuk memulai siklus pertama.</div>';
+}
+function paintM(act,txt){
+  $$('#sec-simulasi .blk,#sec-simulasi .sub').forEach(x=>x.classList.remove('on'));
+  act.forEach(a=>{
+    if(a==='reg'){$$('#b-reg .sub').forEach(x=>x.classList.add('on'));return}
+    const e=$(MAPSEL[a]);if(e)e.classList.add('on');
+  });
+  if(act.some(a=>a==='cu'||a==='alu'||a==='reg'))$('#b-cpu').classList.add('on');
+  $('#r-pc').textContent=M.pc;
+  $('#r-ir').textContent=M.ir?M.ir.t:'–';
+  $('#r-acc').textContent=M.acc;
+  $('#cuTxt').textContent=txt.cu;$('#aluTxt').textContent=txt.alu;
+  $('#memTxt').textContent=txt.mem;$('#busTxt').textContent=txt.bus;
+  $('#screen').textContent=M.out?M.out:'Health: '+M.health;
+  $('#stCyc').textContent=M.cyc;$('#stMem').textContent=M.mem;$('#stIns').textContent=M.ins;
+  $$('#phase span').forEach((s,i)=>s.classList.toggle('on',i===M.last));
+  const hl=M.phase>0?M.cur:M.pc;
+  let rows='';
+  for(let i=0;i<PROG.length;i++){
+    rows+=`<tr class="${i===hl&&!M.halted?'pc':''}"><td>0${i}</td><td>${esc(PROG[i].t)}</td><td class="muted">${i===M.pc?'← PC':''}</td></tr>`;
+  }
+  rows+='<tr class="gap"><td colspan="3">…</td></tr>';
+  rows+=`<tr><td>10</td><td>Player_Health = ${M.health}</td><td class="muted">data</td></tr>`;
+  $('#ramTbl').innerHTML=rows;
+  $('#btnStep').disabled=M.halted;$('#btnInstr').disabled=M.halted;$('#btnPlay').disabled=M.halted;
+}
+function stepM(){
+  if(M.halted)return false;
+  const ph=PH[M.phase];let act=[],msg='';
+  const txt={cu:'menunggu',alu:'menunggu',mem:'siap',bus:'Address · Data · Control'};
+  const ir=M.ir;
+  if(ph==='fetch'){
+    M.cur=M.pc;M.ir=PROG[M.pc];M.pc++;M.mem++;
+    act=['cu','mem','bus','reg'];txt.cu='mengambil';txt.mem='baca alamat '+M.cur;txt.bus='Address Bus: '+M.cur+' · Data Bus: '+M.ir.t;
+    msg=`FETCH: CU memakai PC=${M.cur} sebagai alamat. Instruksi ${M.ir.t} dibaca dari RAM lewat Address Bus dan Data Bus. PC naik ke ${M.pc}.`;
+  }else if(ph==='decode'){
+    act=['cu','reg'];txt.cu='decode '+ir.op;
+    msg=`DECODE: CU menerjemahkan opcode ${ir.op}${ir.a!==''?' dengan operan '+ir.a:''}. Maksudnya: ${NOTE[M.cur]}.`;
+  }else if(ph==='execute'){
+    if(ir.op==='LOAD'){M.tmp=M.health;M.mem++;act=['cu','mem','bus'];txt.cu='minta data';txt.mem='baca alamat 10';txt.bus='Data Bus: '+M.tmp;msg=`EXECUTE: CU meminta isi RAM[10]. Nilai ${M.tmp} dikirim lewat Data Bus.`}
+    else if(ir.op==='SUB'){M.tmp=M.acc-ir.a;act=['alu'];txt.alu=`${M.acc} − ${ir.a} = ${M.tmp}`;msg=`EXECUTE: ALU menghitung ${M.acc} − ${ir.a} = ${M.tmp}.`}
+    else if(ir.op==='STORE'){M.tmp=M.acc;act=['cu','bus'];txt.cu='sinyal WRITE';txt.bus='Address Bus: 10 · Data Bus: '+M.tmp;msg=`EXECUTE: ACC (${M.acc}) dikirim ke Data Bus, Address Bus menunjuk alamat 10, Control Bus mengirim sinyal write.`}
+    else if(ir.op==='JGT'){M.tmp=M.acc>0;act=['alu'];txt.alu=`${M.acc} > 0 ? ${M.tmp?'ya':'tidak'}`;msg=`EXECUTE: ALU membandingkan ${M.acc} > 0. Hasilnya ${M.tmp?'benar':'salah'}.`}
+    else if(ir.op==='OUT'){M.tmp=ir.a;act=['cu','io'];txt.cu='sinyal ke Output';msg='EXECUTE: CU mengirim sinyal kendali ke unit Output.'}
+    else{M.tmp=null;act=['cu'];txt.cu='hentikan';msg='EXECUTE: CU menghentikan program.'}
+  }else{
+    if(ir.op==='LOAD'||ir.op==='SUB'){M.acc=M.tmp;act=['reg'];msg=`STORE: hasil ${M.tmp} ditulis ke register ACC.`}
+    else if(ir.op==='STORE'){M.health=M.tmp;M.mem++;act=['mem','bus'];txt.mem='tulis alamat 10';txt.bus='Data Bus: '+M.tmp;msg=`STORE: RAM[10] ← ${M.tmp}. Player_Health sekarang ${M.health}.`}
+    else if(ir.op==='JGT'){act=['reg'];if(M.tmp){M.pc=5;msg='STORE: kondisi benar, PC ← 5. Perintah OUT dilewati.'}else{msg=`STORE: kondisi salah, PC tetap ${M.pc}. Instruksi berikutnya OUT.`}}
+    else if(ir.op==='OUT'){M.out=M.tmp;act=['out'];msg='STORE: layar menampilkan Game_Over.'}
+    else{M.halted=true;act=['cu'];msg='STORE: program berhenti.'}
+    M.ins++;
+  }
+  M.cyc++;M.last=M.phase;
+  M.phase=(M.phase+1)%4;
+  M.log.unshift(msg);if(M.log.length>40)M.log.pop();
+  $('#log').innerHTML=M.log.map((m,i)=>`<div class="${i===0?'new':''}">${esc(m)}</div>`).join('');
+  paintM(act,txt);
+  if(M.halted)stopPlay();
+  return true;
+}
+function stopPlay(){if(playTimer){clearInterval(playTimer);playTimer=null}const b=$('#btnPlay');if(b)b.textContent='Jalan otomatis'}
+$('#btnStep').addEventListener('click',()=>{stopPlay();stepM()});
+$('#btnInstr').addEventListener('click',()=>{stopPlay();let n=0;do{if(!stepM())break;n++}while(M.phase!==0&&n<4)});
+$('#btnPlay').addEventListener('click',()=>{
+  if(playTimer){stopPlay();return}
+  $('#btnPlay').textContent='Jeda';
+  playTimer=setInterval(stepM,900);
+});
+$('#btnReset').addEventListener('click',resetM);
+$('#hp0').addEventListener('change',resetM);
+resetM();
+
+/* ---------- simulator bottleneck ---------- */
+const sl={cpu:$('#sCpu'),bw:$('#sBw'),data:$('#sData'),hit:$('#sHit')};
+function bnCalc(){
+  const ghz=+sl.cpu.value,bw=+sl.bw.value,data=+sl.data.value,hit=+sl.hit.value;
+  $('#vCpu').textContent=ghz.toFixed(1)+' GHz';$('#vBw').textContent=bw+' GB/s';$('#vData').textContent=data+' MB';$('#vHit').textContent=hit+'%';
+  const comp=24/ghz,xfer=data*(1-hit/100)/bw,frame=Math.max(comp,xfer),fps=1000/frame,cpu=comp/frame*100,bus=xfer/frame*100;
+  const stall=xfer>comp;
+  const row=(l,v,w,warn,mark)=>`<div class="out-row"><span>${l}</span><div class="meter"><i class="${warn?'warn':''}" style="width:${Math.min(100,w).toFixed(1)}%"></i>${mark?`<u style="left:${mark}%" title="Target 60 FPS"></u>`:''}</div><b class="mono" style="text-align:right">${v}</b></div>`;
+  let diag;
+  if(stall){
+    diag=`<div class="diag" style="background:var(--bad-soft);color:var(--bad)">Bottleneck di bus memori. CPU menganggur sekitar ${(100-cpu).toFixed(0)}% dari waktu frame. Menaikkan clock CPU tidak menambah FPS. Naikkan bandwidth, kurangi data aset, atau naikkan cache hit rate.</div>`;
+  }else{
+    diag=`<div class="diag" style="background:var(--ok-soft);color:var(--ok)">Bus tidak lagi menahan CPU. Sekarang kecepatan hitung CPU yang membatasi frame, jadi menaikkan clock mulai berpengaruh lagi.</div>`;
+  }
+  const verdict=fps>=60?`<span class="tag ok">${fps.toFixed(0)} FPS: mulus</span>`:`<span class="tag bad">${fps.toFixed(0)} FPS: di bawah 60, terasa patah-patah</span>`;
+  $('#bnOut').innerHTML=
+    row('Waktu hitung CPU',comp.toFixed(1)+' ms',comp/frame*100,false)+
+    row('Waktu transfer bus',xfer.toFixed(1)+' ms',bus,stall)+
+    row('Penggunaan CPU',cpu.toFixed(0)+'%',cpu,false)+
+    row('Frame rate',fps.toFixed(0)+' FPS',fps/144*100,fps<60,(60/144*100).toFixed(2))+
+    `<div>${verdict}</div>`+diag;
+}
+Object.values(sl).forEach(s=>s.addEventListener('input',bnCalc));
+const PRE={lag:[3,16,400,0],ok:[3,32,400,70],fast:[6,16,400,0]};
+$$('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRE[b.dataset.preset];sl.cpu.value=p[0];sl.bw.value=p[1];sl.data.value=p[2];sl.hit.value=p[3];bnCalc()}));
+bnCalc();
+
+/* ---------- Human Von Neumann Machine ---------- */
+const ROLES=[
+  ['Control Unit (CU)','',"Baca kartu instruksi dari Memori, ucapkan \"Fetch, decode, kirim ke ALU!\", lalu beri perintah ke anggota lain."],
+  ['ALU','mem','Terima angka dan operasi dari CU, hitung hasilnya di papan tulis, lalu serahkan kembali ke CU.'],
+  ['Memori (RAM)','mem','Pegang kartu data alamat 10 (Player_Health). Serahkan nilai saat diminta dan simpan nilai baru saat CU menyuruh menulis.'],
+  ['Output (Layar)','io','Tampilkan hasil akhir di papan tulis setelah CU memberi sinyal tampil.'],
+  ['Input (Keyboard)','io','Mulai alur: tekan "tombol" dan kirim sinyal "terkena serangan" ke CU.'],
+  ['Bus Data','bus','Bawa kartu data antara Memori, CU, dan ALU. Satu pembawa, satu jalur: rasakan antreannya.']
+];
+const ROLE_TAG=['','','mem','io','io','bus'];
+function renderRoles(shuffle){
+  const names=$('#names').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const out=$('#rolesOut');
+  if(names.length<3){out.innerHTML='<p class="muted">Isi minimal 3 nama, satu nama per baris.</p>';return}
+  const list=names.slice();
+  if(shuffle){for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]]}}
+  store.set('names',names);
+  out.innerHTML='<h4>Pembagian peran</h4>'+list.map((n,i)=>{
+    const r=ROLES[i];
+    if(!r)return `<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(n)}</b> <span class="tag ok">Validator</span><p class="muted">Periksa apakah urutan Fetch, Decode, Execute, Store dijalankan benar, lalu laporkan ke kelas.</p></div>`;
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(n)}</b> <span class="tag ${ROLE_TAG[i]}">${esc(r[0])}</span><p class="muted">${esc(r[2])}</p></div>`;
+  }).join('');
+}
+$('#btnRoles').addEventListener('click',()=>renderRoles(true));
+$('#btnRolesKeep').addEventListener('click',()=>renderRoles(false));
+/* ---------- asesmen: diagnostik ---------- */
+const FUNCS=['Memproses data','Menyimpan data sementara','Menghubungkan semua komponen','Memasukkan / mengeluarkan data'];
+const MATCH=[['Processor',0],['RAM',1],['Motherboard',2],['Keyboard / Monitor',3]];
+const MODAL=['Diagram atau animasi','Teks penjelasan','Praktik langsung atau simulasi','Diskusi dengan teman'];
+function renderDiag(){
+  const saved=store.get('diag',{});
+  $('#diagBox').innerHTML=`
+   <div class="stack"><h4>Soal 1 · Non-kognitif</h4><p>Saya paling mudah memahami konsep baru melalui...</p>
+    <select id="dModal"><option value="">Pilih salah satu</option>${MODAL.map((m,i)=>`<option value="${i}" ${saved.modal==i&&saved.modal!==''&&saved.modal!==undefined?'selected':''}>${m}</option>`).join('')}</select></div>
+   <div class="stack"><h4>Soal 2 · Kognitif: cocokkan komponen dengan fungsi dasarnya</h4>
+    ${MATCH.map((m,i)=>`<label class="f" style="flex-direction:row;align-items:center;gap:10px"><span style="width:150px;flex:0 0 auto">${m[0]}</span><select id="dM${i}"><option value="">Pilih fungsi</option>${FUNCS.map((f,j)=>`<option value="${j}" ${saved['m'+i]==j&&saved['m'+i]!==''&&saved['m'+i]!==undefined?'selected':''}>${f}</option>`).join('')}</select></label>`).join('')}</div>
+   <div class="stack"><h4>Soal 3 · Kognitif</h4><p>Mengapa program yang sedang berjalan harus dimuat ke RAM?</p>
+    ${['Agar file program tidak bisa dihapus','Agar CPU dapat membaca instruksi dan data dengan cepat dari memori yang dialamati langsung','Agar layar monitor menyala','Agar program berukuran lebih kecil'].map((o,i)=>`<label class="opt"><input type="radio" name="d3" value="${i}" ${saved.q3==i&&saved.q3!==undefined?'checked':''}><span>${o}</span></label>`).join('')}</div>
+   <div class="row"><button class="btn primary" id="dCheck">Lihat hasil</button></div><div id="dOut"></div>`;
+  $('#dCheck').addEventListener('click',()=>{
+    const s={modal:$('#dModal').value};let sc=0;
+    MATCH.forEach((m,i)=>{const v=$('#dM'+i).value;s['m'+i]=v;if(v!==''&&+v===m[1])sc++});
+    const r=$('input[name=d3]:checked');s.q3=r?r.value:undefined;if(r&&+r.value===1)sc++;
+    store.set('diag',s);
+    const lvl=sc>=4?['ok','Pemahaman awal baik. Siap masuk ke analisis alur data.']:sc>=2?['io','Pemahaman awal cukup. Perlu penguatan pada fungsi tiap komponen.']:['bad','Pemahaman awal masih rendah. Mulai dari peta komponen dan analogi dapur.'];
+    const m=s.modal!==''&&s.modal!==undefined?`<p>Kecenderungan belajar: <b>${MODAL[+s.modal]}</b>.</p>`:'';
+    $('#dOut').innerHTML=`<div class="card flat stack"><div><span class="tag ${lvl[0]}">Skor kognitif ${sc} / 5</span></div><p>${lvl[1]}</p>${m}<p class="muted" style="font-size:.85rem">Kunci: Processor memproses, RAM menyimpan sementara, Motherboard menghubungkan komponen, Keyboard/Monitor sebagai masukan/keluaran.</p></div>`;
+  });
+}
+renderDiag();
+
+/* ---------- asesmen: rubrik formatif ---------- */
+const RUB=[
+ ['Pemahaman Komponen Arsitektur Von Neumann (CPU, ALU, CU, Memori, I/O)',
+  'Mampu menguraikan seluruh fungsi dan interkoneksi komponen CPU (ALU, CU, Register), Memori, dan I/O secara komprehensif, tepat, dan mampu menganalogikannya ke dalam alur logika program.',
+  'Mampu menjelaskan fungsi komponen CPU (ALU, CU), Memori, dan I/O dengan benar, namun penjelasan alur hubungan antar-komponen masih membutuhkan sedikit panduan.',
+  'Mampu menyebutkan komponen dasar Von Neumann, namun masih tertukar antara fungsi spesifik ALU dan CU atau alur pengolahan data memori.',
+  'Belum mampu membedakan fungsi dasar komponen utama komputer (CPU, Memori, dan I/O) tanpa bimbingan intensif dari guru.'],
+ ['Analisis Siklus Eksekusi Program (Fetch, Decode, Execute) & Bottleneck',
+  'Mampu membedah dan merekonstruksi tahapan Fetch, Decode, Execute secara runtut dan presisi serta mampu menganalisis penyebab Von Neumann Bottleneck pada performa software/gim.',
+  'Mampu menjelaskan tahapan siklus Fetch, Decode, Execute secara runtut dan memahami konsep dasar keterbatasan transfer data memori-CPU.',
+  'Dapat menjelaskan sebagian siklus eksekusi (misal hanya Fetch dan Execute) namun kurang memahami proses decoding dan konsep bottleneck.',
+  'Kesulitan mengurutkan tahapan siklus instruksi komputer dan belum memahami hubungan bus data antara CPU dan Memori.'],
+ ['Pemanfaatan Media Digital & Asisten AI untuk Pemecahan Masalah',
+  'Sangat terampil menggunakan prompt AI secara kritis untuk memvalidasi konsep, mampu menyaring informasi secara mandiri, dan menuangkannya ke LKPD Digital dengan rapi.',
+  'Mampu menggunakan AI dan Google Classroom untuk mencari informasi pendukung tugas LKPD Digital secara relevan dan tepat waktu.',
+  'Menggunakan AI hanya sebatas menyalin teks tanpa melakukan verifikasi atau pengolahan kembali ke dalam konteks tugas LKPD Digital.',
+  'Mengalami kesulitan mengakses atau mengoperasikan media digital (Google Classroom/AI/LKPD Digital) dan pasif dalam pencarian data.'],
+ ['Kolaborasi dan Komunikasi Hasil Penyelidikan (Simulasi/Presentasi)',
+  'Aktif memimpin/bekerja sama dalam simulasi tim, menyampaikan argumen teknis secara jelas, sistematis, dan visual di depan kelas.',
+  'Bekerja sama dengan baik dalam kelompok dan mampu mengomunikasikan hasil pengerjaan LKPD Digital secara komunikatif.',
+  'Cukup kooperatif dalam kelompok namun kurang aktif saat simulasi peran sistem atau saat presentasi hasil diskusi.',
+  'Pasif dalam kerja kelompok, tidak berkontribusi pada penyelesaian LKPD Digital, dan enggan terlibat dalam simulasi.']
+];
+$('#rubricBox').innerHTML=`<table class="rub"><thead><tr><th>Aspek penilaian</th><th class="l4">Mahir (skor 4)</th><th class="l3">Cakap (skor 3)</th><th class="l2">Layak (skor 2)</th><th class="l1">Perlu bimbingan (skor 1)</th></tr></thead><tbody>${RUB.map(r=>`<tr><th scope="row">${esc(r[0])}</th><td class="l4">${esc(r[1])}</td><td class="l3">${esc(r[2])}</td><td class="l2">${esc(r[3])}</td><td class="l1">${esc(r[4])}</td></tr>`).join('')}</tbody></table>`;
+const LV=['','Perlu bimbingan (1)','Layak (2)','Cakap (3)','Mahir (4)'];
+function renderCalc(){
+  const saved=store.get('calc',{});
+  $('#calcBox').innerHTML=`<h4>Kalkulator skor formatif</h4><p class="muted" style="font-size:.9rem;max-width:72ch">Pilih level tiap aspek untuk satu peserta didik atau kelompok. Nilai = skor ÷ 16 × 100. Batas predikat bersifat usulan; sesuaikan dengan ketentuan sekolah.</p>
+   <div class="grid">${RUB.map((r,i)=>`<label class="f">${esc(r[0])}<select data-calc="${i}"><option value="0">Belum dinilai</option>${[4,3,2,1].map(v=>`<option value="${v}" ${saved[i]==v?'selected':''}>${LV[v]}</option>`).join('')}</select></label>`).join('')}</div><div id="calcOut"></div>`;
+  const upd=()=>{
+    const v=$$('[data-calc]').map(s=>+s.value);store.set('calc',v);
+    const filled=v.filter(x=>x>0).length;
+    if(filled<4){$('#calcOut').innerHTML=`<p class="muted">Terisi ${filled} dari 4 aspek.</p>`;return}
+    const total=v.reduce((a,b)=>a+b,0),nilai=Math.round(total/16*100);
+    const p=nilai>=85?['ok','Mahir']:nilai>=70?['','Cakap']:nilai>=55?['io','Layak']:['bad','Perlu bimbingan'];
+    $('#calcOut').innerHTML=`<div class="card flat row"><b class="mono" style="font-size:1.4rem">${total} / 16</b><b class="mono" style="font-size:1.4rem">Nilai ${nilai}</b><span class="tag ${p[0]}">${p[1]}</span></div>`;
+  };
+  $$('[data-calc]').forEach(s=>s.addEventListener('change',upd));upd();
+}
+renderCalc();
+
+/* ---------- asesmen: kuis formatif akhir ---------- */
+const QUIZ=[
+ ['Pada instruksi Score = Score + 10, komponen yang melakukan operasi penjumlahan adalah...',['Control Unit','ALU','RAM','Data Bus'],1,'Penjumlahan adalah operasi aritmetika, tugas ALU. CU hanya mengarahkan, RAM menyimpan nilai, bus mengangkut data.'],
+ ['Pada tahap manakah CU menguraikan opcode untuk mengetahui operasi yang diminta?',['Fetch','Decode','Execute','Store'],1,'Decode: CU menerjemahkan opcode. Fetch mengambil instruksi, Execute menjalankan, Store menulis hasil.'],
+ ['Program Counter (PC) berfungsi untuk...',['Menyimpan hasil perhitungan ALU','Menyimpan alamat instruksi berikutnya yang akan diambil','Menghubungkan keyboard ke CPU','Menyimpan semua aset gim'],1,'PC menunjuk alamat instruksi yang akan di-fetch berikutnya, lalu naik setelah fetch (kecuali ada lompatan).'],
+ ['Clock CPU dinaikkan dari 3 GHz ke 5 GHz, tetapi FPS gim tidak berubah dan CPU usage hanya 30%. Dugaan penyebab paling kuat adalah...',['Monitor terlalu kecil','Bandwidth bus memori membatasi, sehingga CPU menunggu data','ALU rusak','Instruksi tidak disimpan di RAM'],1,'CPU yang menganggur menunggu data menandakan Von Neumann Bottleneck: jalur memori yang jadi pembatas, bukan kecepatan hitung.'],
+ ['Cache memory membantu mengurangi bottleneck karena...',['Menambah jumlah piksel di layar','Menyimpan salinan data yang sering dipakai lebih dekat ke CPU sehingga akses RAM lewat bus berkurang','Menggantikan fungsi ALU','Memisahkan bus instruksi dari bus data sepenuhnya'],1,'Data yang sering dipakai tersedia di L1/L2/L3 tanpa harus melewati bus ke RAM.']
+];
+function renderQuiz(){
+  const saved=store.get('quiz',{});
+  $('#quizBox').innerHTML=QUIZ.map((q,i)=>`<div class="card" data-q="${i}"><b>${i+1}. ${esc(q[0])}</b>${q[1].map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join('')}<div class="fb" hidden></div></div>`).join('')+'<div class="card flat row"><b id="quizScore">Skor: 0 / 5</b><button class="btn small" id="quizReset">Ulangi kuis</button></div>';
+  const apply=(i,j)=>{
+    const card=$(`[data-q="${i}"]`),q=QUIZ[i];
+    $$('.opt',card).forEach((o,k)=>{o.classList.remove('right','wrong');if(k===q[2])o.classList.add('right');else if(k===j)o.classList.add('wrong')});
+    $$('input',card).forEach(x=>x.disabled=true);$(`input[value="${j}"]`,card).checked=true;
+    const fb=$('.fb',card);fb.hidden=false;fb.style.background=j===q[2]?'var(--ok-soft)':'var(--bad-soft)';fb.innerHTML=`<b>${j===q[2]?'Tepat.':'Belum tepat.'}</b> ${esc(q[3])}`;
+  };
+  const score=()=>{const a=store.get('quiz',{});let s=0;QUIZ.forEach((q,i)=>{if(a[i]===q[2])s++});$('#quizScore').textContent=`Skor: ${s} / 5`};
+  $$('#quizBox input').forEach(inp=>inp.addEventListener('change',()=>{
+    const i=+inp.name.slice(1),j=+inp.value;const a=store.get('quiz',{});if(a[i]!==undefined)return;a[i]=j;store.set('quiz',a);apply(i,j);score();
+  }));
+  $('#quizReset').addEventListener('click',()=>{store.set('quiz',{});renderQuiz()});
+  Object.keys(saved).forEach(i=>apply(+i,saved[i]));score();
+}
+renderQuiz();
+
+/* ---------- LKPD ---------- */
+const LKPD_STEPS=[
+ 'Buka tautan LKPD Digital yang telah dibagikan di Google Classroom kelas Informatika.',
+ 'Bergabunglah dengan anggota kelompok yang telah ditetapkan (4–5 siswa per kelompok).',
+ 'Amati diagram arsitektur Von Neumann dan visualisasi alur bus data yang tertera pada lembar kerja.',
+ 'Gunakan bantuan asisten AI (seperti ChatGPT) dengan prompt di samping untuk menelusuri alur instruksi sederhana.',
+ 'Diskusikan dan petakan hasil penelusuran tersebut ke dalam bagan alur interaktif pada LKPD Digital.',
+ 'Bagikan peran untuk simulasi "Human Von Neumann Machine" di depan kelas: Siswa 1 (Input/Keyboard), Siswa 2 (Control Unit), Siswa 3 (ALU), Siswa 4 (Memori RAM), Siswa 5 (Output/Layar).',
+ 'Jawab pertanyaan analisis kasus "Von Neumann Bottleneck" terkait game lag pada tabel LKPD Digital.',
+ 'Submit hasil pekerjaan LKPD Digital kelompok ke Google Classroom sebelum batas waktu berakhir.'
+];
+(function(){
+  const d=store.get('lk-steps',{});
+  $('#lkpdSteps').innerHTML=LKPD_STEPS.map((t,i)=>`<label class="chk ${d[i]?'done':''}"><input type="checkbox" data-lk="${i}" ${d[i]?'checked':''}><span><b class="mono">${i+1}.</b> ${esc(t)}</span></label>`).join('')+`<p class="muted" style="margin-top:8px;font-size:.88rem" id="lkProg"></p>`;
+  const prog=()=>{const v=store.get('lk-steps',{});const n=Object.values(v).filter(Boolean).length;$('#lkProg').textContent=`${n} dari ${LKPD_STEPS.length} langkah selesai`};
+  $$('[data-lk]').forEach(c=>c.addEventListener('change',()=>{const v=store.get('lk-steps',{});v[c.dataset.lk]=c.checked;store.set('lk-steps',v);c.closest('.chk').classList.toggle('done',c.checked);prog()}));prog();
+})();
+
+const ORDER=[
+ 'Memori: instruksi IF Player_Health <= 0 dibaca dari RAM sesuai alamat di Program Counter (fetch).',
+ 'Control Unit: menerjemahkan (decode) instruksi percabangan tersebut.',
+ 'Memori: nilai Player_Health dikirim lewat Data Bus ke register.',
+ 'ALU: membandingkan Player_Health dengan 0 (<= 0).',
+ 'ALU: mengirim hasil perbandingan (benar atau salah) kembali ke Control Unit.',
+ 'Control Unit: jika benar, mengirim sinyal kendali ke unit Output.',
+ 'Output: menampilkan "Game_Over" di layar.'
+];
+let ord=store.get('ord',null);
+if(!Array.isArray(ord)||ord.length!==ORDER.length)ord=[3,6,1,4,0,2,5];
+function renderOrder(check){
+  $('#orderList').innerHTML=ord.map((v,p)=>`<li class="${check?(v===p?'right':'wrong'):''}"><span class="pos">${p+1}.</span><span class="txt">${esc(ORDER[v])}</span><button class="btn small" data-mv="${p}:-1" ${p===0?'disabled':''} aria-label="Naikkan">▲</button><button class="btn small" data-mv="${p}:1" ${p===ord.length-1?'disabled':''} aria-label="Turunkan">▼</button></li>`).join('');
+  if(!check)$('#orderMsg').textContent='';
+}
+$('#orderList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-mv]');if(!b)return;
+  const [p,d]=b.dataset.mv.split(':').map(Number);const q=p+d;if(q<0||q>=ord.length)return;
+  [ord[p],ord[q]]=[ord[q],ord[p]];store.set('ord',ord);renderOrder(false);
+  const nb=$(`[data-mv="${q}:${d}"]`);if(nb)nb.focus();
+});
+$('#btnOrderCheck').addEventListener('click',()=>{
+  const ok=ord.filter((v,p)=>v===p).length;renderOrder(true);
+  const m=$('#orderMsg');m.textContent=ok===ORDER.length?'Urutan tepat. Alur Fetch, Decode, Execute, lalu Output sudah benar.':`${ok} dari ${ORDER.length} langkah sudah di posisi yang tepat.`;
+  m.style.color=ok===ORDER.length?'var(--ok)':'var(--muted)';
+});
+$('#btnOrderShuffle').addEventListener('click',()=>{
+  const a=ORDER.map((_,i)=>i);do{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}while(a.every((v,p)=>v===p));
+  ord=a;store.set('ord',ord);renderOrder(false);
+});
+renderOrder(false);
+
+const FIELDS=[
+ ['nama','Nama kelompok',1],['anggota','Anggota kelompok',2],
+ ['ai','Hasil penelusuran AI untuk health = health - 20 (dan catatan verifikasimu)',4],
+ ['bottle','Di titik mana potensi bottleneck terjadi pada alur IF Player_Health <= 0 THEN Display Game_Over?',3],
+ ['antisipasi','Bagaimana programmer PPLG dapat mengantisipasinya?',3],
+ ['jelas','Refleksi: konsep mana yang paling jelas dipahami secara visual?',3],
+ ['tantangan','Refleksi: tantangan apa yang masih dirasakan?',3]
+];
+(function(){
+  const s=store.get('lkpd',{});
+  $('#lkpdForm').innerHTML=FIELDS.map(f=>f[2]===1?`<label class="f">${f[1]}<input type="text" id="lk-${f[0]}" value="${esc(s[f[0]]||'')}"></label>`:`<label class="f">${f[1]}<textarea id="lk-${f[0]}" rows="${f[2]}">${esc(s[f[0]]||'')}</textarea></label>`).join('')+`<div class="row"><button class="btn primary" id="lkCopy">Salin semua jawaban</button><span class="muted" id="lkMsg"></span></div><p class="muted" style="font-size:.85rem">Jawaban tersimpan otomatis di perangkat ini. Tempel hasil salinan ke LKPD Digital di Google Classroom untuk dikumpulkan.</p>`;
+  FIELDS.forEach(f=>$('#lk-'+f[0]).addEventListener('input',()=>{const v=store.get('lkpd',{});v[f[0]]=$('#lk-'+f[0]).value;store.set('lkpd',v)}));
+  $('#lkCopy').addEventListener('click',()=>{
+    const txt='LKPD DIGITAL: Anatomi Komputer Von Neumann\n\n'+FIELDS.map(f=>f[1]+'\n'+($('#lk-'+f[0]).value||'(belum diisi)')).join('\n\n')+'\n\nUrutan alur IF Player_Health <= 0:\n'+ord.map((v,p)=>(p+1)+'. '+ORDER[v]).join('\n');
+    copyText(txt,$('#lkMsg'));
+  });
+})();
+
+/* ---------- HOTS ---------- */
+const HOTS=[
+ ['Sebuah gim 3D mengalami penurunan frame rate secara drastis (stuttering) saat memuat ratusan aset grafis dan karakter baru di dalam arena permainan, meskipun penggunaan komputasi prosesor (CPU usage) baru mencapai 30%. Analisislah fenomena ini berdasarkan kelemahan intrinsik arsitektur komputer Von Neumann (Von Neumann Bottleneck)! Mengapa peningkatan kecepatan CPU saja tidak menyelesaikan masalah tersebut?',
+  'Fenomena stuttering ini disebabkan oleh "Von Neumann Bottleneck", yaitu keterbatasan kapasitas transfer throughput (bandwidth) bus data yang menghubungkan CPU dan Memori (RAM). Dalam model Von Neumann, instruksi program dan data aset (tekstur model 3D) harus melewati jalur bus yang sama dari memori ke CPU. Meskipun CPU memiliki clock speed tinggi dan pemanfaatan komputasi masih 30%, CPU terpaksa berada dalam kondisi idle (menunggu) karena bus data mengalami saturasi antrean saat memindahkan volume data aset gim yang sangat besar dari RAM. Peningkatan kecepatan CPU semata tidak menyelesaikan masalah karena leher botolnya terletak pada latensi dan bandwidth jalur komunikasi memori fisik, bukan pada daya komputasi ALU/CPU itu sendiri. Solusi arsitekturalnya adalah pemanfaatan cache memory berkecepatan tinggi serta optimasi software dalam pengelolaan alokasi memori (seperti teknik level of detail/streaming assets).'],
+ ['Pada siklus Fetch-Decode-Execute, jelaskan secara spesifik apa konsekuensi kritis yang terjadi terhadap jalannya sebuah perangkat lunak apabila Control Unit (CU) mengalami galat (error) dalam tahapan Decode saat membaca baris instruksi logika percabangan conditional (seperti: IF-ELSE)! Unit hardware mana saja yang akan terdampak langsung?',
+  'Apabila Control Unit (CU) mengalami galat pada tahap Decode, maka CU akan salah menerjemahkan opcode (kode operasi mesin). Konsekuensi kritisnya meliputi: (1) CU akan mengirimkan sinyal kendali yang salah atau tidak valid ke ALU; (2) ALU akan mengeksekusi operasi matematika/logika yang keliru atau bahkan menghentikan proses (crash/exception error); (3) Program Counter (PC) dapat kehilangan acuan alamat memori berikutnya, menyebabkan eksekusi program melompat ke blok memori yang tidak sah (segmentation fault) sehingga aplikasi "hang" atau tertutup paksa. Hardware yang terdampak langsung adalah Register (instruksi dan data di register terkontaminasi nilai salah), ALU (menerima sinyal kontrol salah), serta Bus Kontrol dan Memori (terjadi pembacaan/penulisan alamat liar).'],
+ ['Dalam arsitektur Von Neumann, konsep "Stored-Program" menempatkan instruksi program dan data variabel pada ruang memori yang sama. Bagaimana prinsip ini memungkinkan seorang pengembang perangkat lunak (software developer) membuat sistem operasi yang dinamis dan fleksibel mengeksekusi berbagai macam software secara bergantian, dibandingkan dengan mesin komputasi pra-Von Neumann?',
+  'Sebelum model Stored-Program Von Neumann, komputer pra-Von Neumann (seperti ENIAC) memiliki kabel sirkuit kaku di mana program menyatu dengan perangkat kerasnya; untuk mengubah fungsi komputasi dari perhitungan balistik ke enkripsi, teknisi harus membongkar dan menyambungkan ulang kabel secara manual berhari-hari. Konsep Stored-Program Von Neumann merevolusi hal ini dengan memperlakukan instruksi program sama seperti data biasa: kode program dikompilasi menjadi angka-angka biner (machine code) dan disimpan di RAM. Hal ini memungkinkan sistem operasi modern untuk memuat (load) program gim, lalu menutupnya, dan segera memuat program pengolah kata ke dalam memori yang sama hanya dalam hitungan milidetik secara dinamis tanpa merombak fisik sirkuit elektronik komputer. Fleksibilitas ini adalah fondasi berdirinya rekayasa perangkat lunak modern.']
+];
+(function(){
+  const s=store.get('hots',{});
+  $('#hotsList').innerHTML=HOTS.map((h,i)=>`<div class="card stack"><div class="eyebrow">Soal #${i+1}</div><p style="max-width:76ch">${esc(h[0])}</p>
+   <label class="f">Jawabanmu<textarea id="hots-${i}" rows="5">${esc(s[i]||'')}</textarea></label>
+   <details class="k"><summary>Kunci jawaban &amp; rubrik pedoman (untuk guru)</summary><div class="key"><p style="max-width:76ch">${esc(h[1])}</p></div></details></div>`).join('');
+  HOTS.forEach((_,i)=>$('#hots-'+i).addEventListener('input',()=>{const v=store.get('hots',{});v[i]=$('#hots-'+i).value;store.set('hots',v)}));
+})();
+
+/* ---------- init ---------- */
+(function(){
+  const n=store.get('names',null);if(Array.isArray(n)&&n.length)$('#names').value=n.join('\n');
+  let h='';try{h=location.hash.replace('#','')}catch(e){}
+  show(h||store.get('tab','beranda'),false);
+})();
+</script>
+
+</body></html>
