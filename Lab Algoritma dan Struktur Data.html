@@ -1,0 +1,1601 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lab Algoritma dan Struktur Data</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: lembar kerja ala "sticker kampus" — kartu bergaris tebal dengan bayangan keras, satu halaman per pertemuan. */
+:root{
+  --bg:#EDF0F7; --card:#FFFFFF; --soft:#E1E6F2; --ink:#101322; --muted:#566079; --line:#101322;
+  --lime:#C8F23A; --coral:#FF6F59; --sky:#57C7FF; --sun:#FFD23F; --mint:#3DDC97; --on:#101322;
+  --good:#16a46a; --bad:#e04a38;
+  --f-head:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:14px; --sh:4px 4px 0 var(--line);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1120; --card:#181C31; --soft:#232844; --ink:#EDF0F7; --muted:#A3ACC9; --line:#DDE2F3;
+  --good:#3DDC97; --bad:#FF8A78; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0E1120; --card:#181C31; --soft:#232844; --ink:#EDF0F7; --muted:#A3ACC9; --line:#DDE2F3;
+  --good:#3DDC97; --bad:#FF8A78; color-scheme:dark;}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+h1,h2,h3,h4{font-family:var(--f-head);line-height:1.12;margin:0 0 .5em;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,6vw,3.8rem);font-weight:800}
+h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:700}
+h4{font-size:1rem;font-weight:700}
+p{margin:0 0 .9em;max-width:70ch}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.sr{position:absolute;left:-9999px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--bg);border-bottom:2.5px solid var(--line);
+  margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.top-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 0}
+.logo{font-family:var(--f-head);font-weight:800;font-size:1.15rem;white-space:nowrap;text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo i{display:inline-grid;place-items:center;background:var(--lime);color:var(--on);border:2px solid var(--line);border-radius:8px;
+  width:30px;height:30px;font:700 .85rem var(--f-mono);font-style:normal;box-shadow:2px 2px 0 var(--line)}
+.nav{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:thin;padding:4px 2px}
+.nav a{white-space:nowrap;text-decoration:none;font-weight:600;font-size:.9rem;padding:6px 12px;border:2px solid transparent;border-radius:999px}
+.nav a:hover{border-color:var(--line)}
+.nav a.on{background:var(--ink);color:var(--bg)}
+.pill{white-space:nowrap;font:700 .8rem var(--f-mono);border:2px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--sun);color:var(--on)}
+.tbtn{border:2px solid var(--line);background:var(--card);border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:1rem}
+
+main{max-width:1100px;margin:0 auto;padding-top:28px}
+section.blk{margin:0 0 40px}
+.eyebrow{display:inline-block;font:700 .75rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;border:2px solid var(--line);
+  background:var(--card);padding:3px 10px;border-radius:999px;margin-bottom:12px}
+
+/* surfaces */
+.card{background:var(--card);border:2.5px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:18px;min-width:0}
+.card.flat{box-shadow:none}
+.card.lime{background:var(--lime);color:var(--on)} .card.sun{background:var(--sun);color:var(--on)}
+.card.sky{background:var(--sky);color:var(--on)} .card.coral{background:var(--coral);color:var(--on)}
+.card.mint{background:var(--mint);color:var(--on)}
+.card.lime .muted,.card.sun .muted,.card.sky .muted,.card.coral .muted,.card.mint .muted{color:#2a2f45}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g-auto{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+@media (max-width:860px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stack{display:flex;flex-direction:column;gap:12px}
+
+/* buttons / inputs */
+.btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;border:2.5px solid var(--line);border-radius:12px;
+  background:var(--card);padding:9px 16px;box-shadow:3px 3px 0 var(--line);transition:transform .08s,box-shadow .08s;text-decoration:none}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--line)}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--line)}
+.btn.pri{background:var(--lime);color:var(--on)} .btn.sec{background:var(--sky);color:var(--on)}
+.btn.warn{background:var(--coral);color:var(--on)} .btn.sm{padding:5px 11px;font-size:.85rem;box-shadow:2px 2px 0 var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 var(--line)}
+input[type=text],input[type=number],select,textarea{background:var(--card);border:2.5px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;max-width:100%}
+textarea{width:100%;min-height:88px;resize:vertical;font-family:var(--f-mono);font-size:.9rem}
+input[type=range]{accent-color:var(--coral);width:100%}
+label{font-weight:600;font-size:.9rem}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+
+/* tabs, chips */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{cursor:pointer;border:2.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.9rem}
+.tab.on{background:var(--ink);color:var(--bg)}
+.chip{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:2px 10px;font:700 .75rem var(--f-mono);background:var(--card)}
+.chip.t{background:var(--lime);color:var(--on)} .chip.f{background:var(--coral);color:var(--on)}
+.badge{display:inline-grid;place-items:center;min-width:34px;height:26px;padding:0 8px;border:2px solid var(--line);border-radius:8px;background:var(--sun);color:var(--on);font:700 .75rem var(--f-mono)}
+
+/* code */
+.code{margin:0;background:#0F1324;color:#E8ECFA;border:2.5px solid var(--line);border-radius:12px;padding:10px 0;overflow-x:auto;font:500 .88rem/1.65 var(--f-mono)}
+.code .ln{white-space:pre;padding:0 14px 0 8px;border-left:4px solid transparent}
+.code .ln.on{background:#2A3560;border-left-color:var(--sun)}
+.code .no{display:inline-block;width:2ch;margin-right:12px;color:#6b749a;text-align:right;user-select:none}
+.code .k{color:#7FD6FF;font-weight:700} .code .s{color:#B9F27C} .code .o{color:#FFB86B;font-weight:700} .code .n{color:#FF9DB0}
+code.i{font-family:var(--f-mono);font-size:.88em;background:var(--soft);border-radius:6px;padding:1px 6px}
+
+/* tables */
+.tw{overflow-x:auto;border:2.5px solid var(--line);border-radius:12px;background:var(--card)}
+table.t{border-collapse:collapse;width:100%;font-size:.92rem}
+table.t th{background:var(--ink);color:var(--bg);text-align:left;padding:8px 12px;font-family:var(--f-head)}
+table.t td{padding:8px 12px;border-top:1.5px solid var(--soft);vertical-align:top}
+table.t tr.hot td{background:color-mix(in srgb,var(--sun) 45%,transparent)}
+.st-ok{color:var(--good);font-weight:800} .st-no{color:var(--bad);font-weight:800}
+
+/* MC */
+.mc{margin-bottom:14px}
+.mc-o{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.opt{text-align:left;cursor:pointer;background:var(--card);border:2.5px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:500}
+.opt:hover:not([disabled]){background:var(--soft)}
+.opt.good{background:var(--mint);color:var(--on);font-weight:700} .opt.bad{background:var(--coral);color:var(--on);text-decoration:line-through}
+.opt.pick{background:var(--sky);color:var(--on);font-weight:700}
+.mc-fb{min-height:1.2em;font-size:.92rem}
+
+/* flowchart */
+.fc{width:100%;height:auto;max-width:560px;display:block;margin:0 auto}
+.fc .nd rect,.fc .nd polygon{fill:var(--card);stroke:var(--line);stroke-width:2.5}
+.fc .nd text{fill:var(--ink);font:600 12.5px var(--f-mono);text-anchor:middle}
+.fc .nd.hot rect,.fc .nd.hot polygon{fill:var(--sun)} .fc .nd.hot text{fill:#101322}
+.fc .ar{stroke:var(--line);stroke-width:2.5;fill:none}
+.fc .lb{fill:var(--ink);font:700 12px var(--f-mono)}
+
+/* sort cards */
+.deck{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:18px 4px}
+.pc{width:58px;height:82px;border:2.5px solid var(--line);border-radius:10px;background:var(--card);display:grid;place-items:center;
+  font:800 1.5rem var(--f-head);box-shadow:3px 3px 0 var(--line);transition:transform .15s,background .15s;position:relative}
+.pc.cmp{background:var(--sun);color:var(--on);transform:translateY(-8px)} .pc.swp{background:var(--coral);color:var(--on);transform:translateY(-8px)}
+.pc.fin{background:var(--mint);color:var(--on)} .pc.key{background:var(--sky);color:var(--on);transform:translateY(-8px)}
+.pc small{position:absolute;bottom:-20px;font:600 .65rem var(--f-mono);color:var(--muted)}
+.stat{display:flex;gap:10px;flex-wrap:wrap}
+.stat div{border:2.5px solid var(--line);border-radius:10px;padding:6px 12px;background:var(--card);font-weight:700}
+.stat b{font:800 1.3rem var(--f-head);margin-left:6px}
+
+/* search arena */
+.cells{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}
+.cell{width:46px;padding:8px 0 4px;text-align:center;border:2.5px solid var(--line);border-radius:8px;background:var(--card);font:700 .95rem var(--f-mono);transition:opacity .2s}
+.cell small{display:block;font-size:.6rem;color:var(--muted);font-weight:500}
+.cell.out{opacity:.22} .cell.mid{background:var(--sun);color:var(--on)} .cell.found{background:var(--mint);color:var(--on)} .cell.look{background:var(--sky);color:var(--on)}
+
+/* stack & queue */
+.tower{display:flex;flex-direction:column-reverse;gap:6px;min-height:230px;justify-content:flex-start;padding:10px;border:2.5px dashed var(--line);border-radius:12px;background:var(--soft)}
+.blk-i{border:2.5px solid var(--line);border-radius:8px;background:var(--card);padding:6px 10px;font-weight:700;position:relative;min-width:0;overflow-wrap:anywhere}
+.blk-i.top{background:var(--lime);color:var(--on)}
+.blk-i.top::after{content:"TOP";position:absolute;right:8px;top:50%;transform:translateY(-50%);font:700 .65rem var(--f-mono)}
+.lane{display:flex;gap:8px;align-items:stretch;overflow-x:auto;padding:22px 6px 26px;border:2.5px dashed var(--line);border-radius:12px;background:var(--soft);min-height:110px}
+.q-i{flex:0 0 auto;min-width:78px;border:2.5px solid var(--line);border-radius:10px;background:var(--card);padding:8px 10px;text-align:center;font-weight:700;position:relative}
+.q-i small{display:block;font:600 .65rem var(--f-mono);color:var(--muted)}
+.q-i.front{background:var(--lime);color:var(--on)} .q-i.front::before{content:"FRONT";position:absolute;top:-18px;left:50%;transform:translateX(-50%);font:700 .6rem var(--f-mono);color:var(--ink)}
+.q-i.rear::after{content:"REAR";position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font:700 .6rem var(--f-mono);color:var(--ink)}
+.q-i.empty{background:transparent;border-style:dashed;color:var(--muted)}
+.log{font:500 .82rem var(--f-mono);background:var(--soft);border-radius:10px;padding:10px;max-height:140px;overflow:auto;min-height:48px}
+
+/* misc */
+.bar{height:16px;border:2px solid var(--line);border-radius:999px;background:var(--card);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--mint);transition:width .3s}
+.mission{display:flex;gap:10px;align-items:center;padding:10px 12px;border:2.5px solid var(--line);border-radius:12px;background:var(--card);text-decoration:none;font-weight:600}
+.mission .badge{background:var(--soft)} .mission.ok{background:var(--lime);color:var(--on)} .mission.ok .badge{background:var(--card)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;z-index:80;
+  background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;transition:.25s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.flip{perspective:900px;cursor:pointer;min-height:150px;border:0;background:none;padding:0;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;min-height:170px;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .fa,.flip .fb{position:absolute;inset:0;backface-visibility:hidden;border:2.5px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh);overflow:auto}
+.flip .fa{background:var(--card)} .flip .fb{background:var(--sky);color:var(--on);transform:rotateY(180deg);font-size:.92rem}
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:center;margin-bottom:36px}
+@media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)}}
+.hl{background:var(--lime);color:var(--on);padding:0 .18em;border-radius:8px}
+.ok-note{border:2.5px solid var(--line);background:var(--mint);color:var(--on);border-radius:12px;padding:10px 14px;font-weight:700}
+.bad-note{border:2.5px solid var(--line);background:var(--coral);color:var(--on);border-radius:12px;padding:10px 14px;font-weight:700}
+.info-note{border:2.5px solid var(--line);background:var(--sun);color:var(--on);border-radius:12px;padding:10px 14px}
+details.ans{border:2.5px solid var(--line);border-radius:12px;padding:8px 14px;background:var(--card)}
+details.ans summary{cursor:pointer;font-weight:700}
+.rub td.pick{background:var(--sun);color:var(--on);font-weight:600}
+.rub td.cellp{cursor:pointer}
+.rub td.cellp:hover{background:var(--soft)}
+.pz{display:flex;flex-wrap:wrap;gap:8px;min-height:46px}
+.pzl{border:2.5px solid var(--line);border-radius:8px;background:var(--card);padding:5px 10px;font:600 .85rem var(--f-mono);cursor:pointer}
+.pzl.right{background:var(--mint);color:var(--on)} .pzl.wrong{background:var(--coral);color:var(--on)}
+.ans-list{display:flex;flex-direction:column;gap:6px;min-height:46px;border:2.5px dashed var(--line);border-radius:12px;padding:8px;background:var(--soft)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+</style>
+<header class="top"><div class="top-in"><a class="logo" href="#beranda" data-go="beranda"><i>BK</i>Lab Algoritma</a><nav class="nav" id="nav" aria-label="Navigasi utama"></nav><span class="pill" id="prog">0/14 misi</span><button class="tbtn" id="tbtn" aria-label="Ganti tema terang atau gelap">◐</button></div></header>
+<main id="view"></main>
+<div class="toast" id="toast" role="status"></div>
+<script>
+/* ===== core: helper, penyimpanan, router, komponen bersama ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const mem = {};
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('bk_' + k); if (v !== null) return JSON.parse(v); } catch (e) {} return k in mem ? mem[k] : d; },
+  set(k, v) { mem[k] = v; try { localStorage.setItem('bk_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const timers = [];
+const later = (fn, ms) => { const t = setInterval(fn, ms); timers.push(t); return t; };
+const clearTimers = () => { while (timers.length) clearInterval(timers.pop()); };
+const rnd = n => Math.floor(Math.random() * n);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
+
+/* daftar aktivitas sesuai modul ajar */
+const ACTS = {
+  a01: ['10.2-01-U', 'Menelusuri Diagram Alir', 'p1'], a02: ['10.2-02-U', 'Membaca Pseudocode', 'p1'], a03: ['10.2-03-U', 'Menulis Algoritma', 'p1'],
+  a04: ['10.2-04-U', 'Latihan Ekspresi', 'p2'], a05: ['10.2-05-U', 'Percabangan IF-THEN-ELSE', 'p2'], a06: ['10.2-06-U', 'Perulangan WHILE', 'p2'],
+  a07: ['10.2-07-UP', 'Latihan Fungsi', 'p2'], a08: ['10.2-08-UP', 'Membuat Kasus Uji', 'p2'],
+  a09: ['10.2-09-U', 'Mencari dan Mengurutkan', 'p3'], a10: ['10.2-10-UP', 'Tebak Angka Binary Search', 'p3'], a11: ['10.2-11-UP', 'Bermain Kartu Pengurutan', 'p3'],
+  a12: ['10.2-12-U', 'Stack, Queue, List/Array', 'p4'], a13: ['10.2-13-UP', 'Simulasi Stack Undo/Redo', 'p4'], a14: ['10.2-14-UP', 'Simulasi Queue Antrean', 'p4']
+};
+let done = store.get('done', {});
+function markDone(id) {
+  if (done[id]) return;
+  done[id] = 1; store.set('done', done); updProgress();
+  toast('Misi ' + ACTS[id][0] + ' selesai!');
+}
+const doneCount = () => Object.keys(ACTS).filter(k => done[k]).length;
+function updProgress() { const el = $('#prog'); if (el) el.textContent = doneCount() + '/' + Object.keys(ACTS).length + ' misi'; }
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function copyText(text, okMsg) {
+  const fallback = () => { const ta = $('#copybox'); if (ta) { ta.hidden = false; ta.value = text; ta.select(); } toast('Teks dipilih, tekan Ctrl+C untuk menyalin'); };
+  try { navigator.clipboard.writeText(text).then(() => toast(okMsg || 'Tersalin!'), fallback); } catch (e) { fallback(); }
+}
+
+/* ===== penyorotan pseudocode ===== */
+const KW = /("[^"\n]*")|\b(ALGORITMA|DEKLARASI|INPUT|OUTPUT|IF|THEN|ELSE|ENDIF|WHILE|DO|ENDWHILE|FOR|TO|ENDFOR|FUNCTION|RETURN|ENDFUNCTION|AND|OR|NOT|MOD|INTEGER|STRING|BOOLEAN|REAL)\b|(&lt;-)|(\b\d+(?:\.\d+)?\b)/g;
+const hl = line => esc(line).replace(KW, (m, s, k, a, n) => s ? `<span class="s">${s}</span>` : k ? `<span class="k">${k}</span>` : a ? `<span class="o">${a}</span>` : `<span class="n">${n}</span>`);
+function code(src, id) {
+  const ls = src.replace(/^\n/, '').replace(/\s+$/, '').split('\n');
+  return `<pre class="code"${id ? ` id="${id}"` : ''}>${ls.map((l, i) => `<div class="ln" data-ln="${i}"><span class="no">${i + 1}</span>${hl(l) || ' '}</div>`).join('')}</pre>`;
+}
+function litLine(id, n) { $$(`#${id} .ln`).forEach(el => el.classList.toggle('on', +el.dataset.ln === n)); }
+
+/* ===== pilihan ganda berulang ===== */
+function mcHTML(id, items) {
+  return items.map((it, i) => `<div class="mc card flat" data-mc="${id}" data-i="${i}"><div><b>${i + 1}.</b> ${it.q}</div>${it.code ? `<div style="margin-top:8px">${code(it.code)}</div>` : ''}
+  <div class="mc-o">${it.o.map((o, j) => `<button class="opt" data-j="${j}">${o}</button>`).join('')}</div><div class="mc-fb" aria-live="polite"></div></div>`).join('');
+}
+function mcInit(id, items, cb) {
+  const ok = new Set();
+  $$(`[data-mc="${id}"]`).forEach(box => {
+    const i = +box.dataset.i;
+    box.addEventListener('click', e => {
+      const b = e.target.closest('.opt'); if (!b || ok.has(i) || b.disabled) return;
+      const j = +b.dataset.j, fb = $('.mc-fb', box);
+      if (j === items[i].a) {
+        b.classList.add('good'); ok.add(i); fb.innerHTML = '✅ ' + items[i].why;
+        $$('.opt', box).forEach(x => x.disabled = true);
+        if (ok.size === items.length && cb) cb();
+      } else { b.classList.add('bad'); b.disabled = true; fb.innerHTML = '❌ Belum tepat. ' + (items[i].hint || 'Telusuri lagi dengan teliti.'); }
+    });
+  });
+}
+
+/* ===== stepper generik: langkah demi langkah ===== */
+function makeStepper(o) {
+  let steps = o.steps, i = -1, auto = null;
+  const api = {
+    set(s) { steps = s; api.reset(); },
+    reset() { api.stop(); i = -1; o.onReset && o.onReset(); },
+    next() { if (i < steps.length - 1) { i++; o.onStep(steps[i], i); if (i === steps.length - 1) { api.stop(); o.onEnd && o.onEnd(steps[i], i); } return true; } return false; },
+    play(ms) { api.stop(); if (i >= steps.length - 1) api.reset(); auto = later(() => { if (!api.next()) api.stop(); }, ms || 700); },
+    stop() { if (auto) { clearInterval(auto); auto = null; } },
+    get idx() { return i; }, get len() { return steps.length; }
+  };
+  return api;
+}
+
+/* ===== router ===== */
+const pages = {};
+let cur = 'beranda';
+const NAV = [['beranda', 'Beranda'], ['materi', 'Materi'], ['p1', 'Pertemuan 1'], ['p2', 'Pertemuan 2'], ['p3', 'Pertemuan 3'], ['p4', 'Pertemuan 4'], ['lkpd', 'LKPD'], ['asesmen', 'Asesmen'], ['susulan', 'Pengayaan & Remedial']];
+function route(push) {
+  clearTimers();
+  const p = pages[cur] || pages.beranda;
+  $('#view').innerHTML = p.render();
+  $$('.nav a').forEach(a => a.classList.toggle('on', a.dataset.go === cur));
+  const act = $('.nav a.on'); if (act && act.scrollIntoView) { try { act.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) {} }
+  window.scrollTo(0, 0);
+  if (p.init) p.init();
+  updProgress();
+}
+function go(id) {
+  if (!pages[id]) id = 'beranda';
+  cur = id;
+  try { if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id); } catch (e) {}
+  route();
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-go]'); if (!a) return;
+  e.preventDefault(); go(a.dataset.go);
+});
+window.addEventListener('hashchange', () => { const h = (location.hash || '').slice(1); if (pages[h] && h !== cur) { cur = h; route(); } });
+
+function boot() {
+  $('#nav').innerHTML = NAV.map(n => `<a href="#${n[0]}" data-go="${n[0]}">${n[1]}</a>`).join('');
+  $('#tbtn').addEventListener('click', () => {
+    const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme = dark ? 'light' : 'dark'; store.set('theme', r.dataset.theme);
+  });
+  const th = store.get('theme', null); if (th) document.documentElement.dataset.theme = th;
+  const h = (location.hash || '').slice(1);
+  cur = pages[h] ? h : 'beranda';
+  route();
+}
+
+/* ===== bagian bersama untuk halaman pertemuan ===== */
+const lessonHead = (n, title, tp, goal, model) => `
+  <div class="eyebrow">Pertemuan ${n} · 4 JP · ${tp}</div>
+  <h1 style="font-size:clamp(1.9rem,5vw,3rem)">${title}</h1>
+  <div class="grid g2" style="margin:18px 0 28px">
+    <div class="card sun"><h4>🎯 Tujuan sesi</h4><p style="margin:0">${goal}</p></div>
+    <div class="card flat"><h4>🧭 Model pembelajaran</h4><p style="margin:0">${model}</p></div>
+  </div>`;
+const actHead = (id, extra) => `<div class="row" style="margin-bottom:8px"><span class="badge">${ACTS[id][0]}</span><h2 style="margin:0">${ACTS[id][1]}</h2>${extra || ''}</div>`;
+const flowStrip = steps => `<div class="row" style="margin-bottom:22px">${steps.map((s, i) => `<span class="chip" style="font-size:.8rem">${i + 1}. ${s}</span>`).join('<span class="muted">→</span>')}</div>`;
+const pager = (prev, next) => `<div class="row" style="justify-content:space-between;margin-top:34px">${prev ? `<a class="btn" href="#${prev[0]}" data-go="${prev[0]}">← ${prev[1]}</a>` : '<span></span>'}${next ? `<a class="btn pri" href="#${next[0]}" data-go="${next[0]}">${next[1]} →</a>` : ''}</div>`;
+const closing = (title, text, key) => `<section class="blk"><div class="card"><h3>🪞 ${title}</h3><p>${text}</p>
+  <label for="ref-${key}">Catatan refleksimu</label><textarea id="ref-${key}" placeholder="Tulis kesimpulan atau pertanyaanmu di sini..."></textarea></div></section>`;
+function bindRef(key) {
+  const t = $('#ref-' + key); if (!t) return;
+  t.value = store.get('ref-' + key, ''); t.addEventListener('input', () => store.set('ref-' + key, t.value));
+}
+
+/* ===== Beranda ===== */
+pages.beranda = {
+  render() {
+    const pem = [
+      ['Bagaimana cara menemukan satu nama di buku telepon ribuan halaman dalam hitungan detik, tanpa membaca dari halaman pertama?', 'Buku telepon sudah terurut. Itu kunci Binary Search: buka tengah, buang separuh yang tidak mungkin. Kamu akan mencobanya di Pertemuan 3.'],
+      ['Kenapa antrean pendaftaran rumah sakit "siapa datang dulu dilayani dulu", sedangkan tombol Undo membatalkan aksi yang paling terakhir?', 'Antrean memakai prinsip FIFO (Queue). Undo memakai LIFO (Stack). Dua aturan akses data yang berbeda, dibahas di Pertemuan 4.'],
+      ['Bagaimana memberi tahu langkah membuat resep ke orang asing supaya tidak salah tafsir? Apa hubungannya dengan pseudocode?', 'Instruksi yang baik itu berurutan, tidak ambigu, dan bisa ditelusuri. Pseudocode adalah resep untuk komputer. Mulai di Pertemuan 1.'],
+      ['Kamu punya sekumpulan kartu angka acak. Langkah sistematis apa yang paling cepat untuk mengurutkannya dari terkecil?', 'Ada beberapa strategi: tukar tetangga (Bubble), pilih terkecil (Selection), sisipkan (Insertion). Mana yang paling cepat? Cek di Pertemuan 3.']
+    ];
+    const tp = [
+      ['X-BK-07', 'Mengenal & membaca rancangan algoritma', 'Menelusuri (tracing) flowchart dan pseudocode untuk menentukan keluaran program sederhana secara tepat dan logis.', 'p1', 'sky'],
+      ['X-BK-08', 'Menulis solusi pseudocode & kasus uji', 'Merancang pseudocode dengan ekspresi, IF-THEN-ELSE, WHILE/FOR, fungsi/prosedur, lalu membuat test case untuk validasi logika.', 'p2', 'lime'],
+      ['X-BK-04', 'Algoritma pencarian & pengurutan', 'Membandingkan, mensimulasikan, dan menerapkan Sequential Search, Binary Search, Bubble Sort, Selection Sort, Insertion Sort.', 'p3', 'sun'],
+      ['X-BK-05', 'Struktur data standar', 'Menganalisis, membedakan, dan menerapkan List/Array, Stack (LIFO), dan Queue (FIFO) pada masalah kehidupan nyata.', 'p4', 'coral']
+    ];
+    return `
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Informatika · Fase E · Kelas X · Semester 1</div>
+        <h1>Algoritma &amp; <span class="hl">Struktur Data</span></h1>
+        <p style="font-size:1.12rem">Belajar berpikir seperti komputer: menulis langkah yang jelas, menguji logikanya, mengurutkan data, lalu memilih wadah data yang pas. Semua dicoba langsung di halaman ini.</p>
+        <div class="row">
+          <a class="btn pri" href="#p1" data-go="p1">Mulai Pertemuan 1 →</a>
+          <a class="btn" href="#materi" data-go="materi">Baca materi dulu</a>
+        </div>
+      </div>
+      <div class="card lime">
+        <div class="mono" style="font-weight:700;font-size:.8rem;margin-bottom:6px">trace_table.txt</div>
+        ${code(`ALGORITMA HitungDiskon
+INPUT totalBelanja
+IF totalBelanja > 100000 THEN
+  totalBayar <- totalBelanja - 10000
+ELSE
+  totalBayar <- totalBelanja
+ENDIF
+OUTPUT totalBayar`)}
+        <p class="muted" style="margin:10px 0 0;font-size:.85rem">Kalau totalBelanja = 100000, berapa totalBayar? Jawabannya ada di Pertemuan 1.</p>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2>Papan misi</h2>
+      <p class="muted">14 aktivitas dari modul ajar. Setiap aktivitas yang selesai otomatis tercentang di perangkat ini.</p>
+      <div class="bar" style="margin-bottom:14px"><i style="width:${doneCount() / 14 * 100}%"></i></div>
+      <div class="grid g-auto">${Object.keys(ACTS).map(k => `<a class="mission ${done[k] ? 'ok' : ''}" href="#${ACTS[k][2]}" data-go="${ACTS[k][2]}"><span class="badge">${ACTS[k][0]}</span><span>${ACTS[k][1]}</span><span style="margin-left:auto">${done[k] ? '✓' : ''}</span></a>`).join('')}</div>
+    </section>
+
+    <section class="blk">
+      <h2>Empat tujuan pembelajaran</h2>
+      <div class="grid g2">${tp.map(t => `<div class="card ${t[4]}"><span class="chip">${t[0]}</span><h3 style="margin-top:10px">${t[1]}</h3><p>${t[2]}</p><a class="btn sm" href="#${t[3]}" data-go="${t[3]}">Buka pertemuan →</a></div>`).join('')}</div>
+    </section>
+
+    <section class="blk">
+      <h2>Pertanyaan pemantik</h2>
+      <p class="muted">Pikirkan dulu jawabanmu, lalu ketuk kartu untuk melihat arah jawabannya.</p>
+      <div class="grid g2">${pem.map((p, i) => `<button class="flip" data-flip="${i}" aria-label="Pertanyaan pemantik ${i + 1}"><div class="in"><div class="fa"><span class="chip">Pemantik ${i + 1}</span><p style="margin:10px 0 0;font-weight:600">${p[0]}</p></div><div class="fb"><b>Arah jawaban</b><p style="margin:8px 0 0">${p[1]}</p></div></div></button>`).join('')}</div>
+    </section>
+
+    <section class="blk">
+      <h2>Informasi umum modul</h2>
+      <div class="tw"><table class="t"><tbody>
+        <tr><th style="width:34%">Komponen</th><th>Keterangan</th></tr>
+        <tr><td>Mata pelajaran</td><td>Informatika</td></tr>
+        <tr><td>Fase / Kelas / Semester</td><td>Fase E / Kelas X / Semester 1 (Gasal)</td></tr>
+        <tr><td>Elemen</td><td>Berpikir Komputasional (BK)</td></tr>
+        <tr><td>Kode TP</td><td>X-BK-07, X-BK-08, X-BK-04, X-BK-05</td></tr>
+        <tr><td>Alokasi waktu</td><td>16 JP (4 pertemuan @ 4 JP × 45 menit)</td></tr>
+        <tr><td>Model pembelajaran</td><td>Problem-Based Learning (PBL) dan Inquiry-Based Learning</td></tr>
+        <tr><td>Moda</td><td>Gabungan Unplugged (simulasi, peran, kartu) dan Plugged (pseudocode &amp; kode program)</td></tr>
+        <tr><td>Profil Pelajar Pancasila</td><td>Bernalar Kritis, Bergotong Royong, Mandiri, Kreatif</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="blk grid g2">
+      <div class="card"><h3>Capaian pembelajaran (Fase E)</h3>
+        <p>Peserta didik mampu memahami validitas sumber data, memahami konsep struktur data dan algoritma standar, menerapkan struktur data dan algoritma standar untuk berbagai solusi pada himpunan data berstruktur dengan volume tidak kecil, serta menuliskan rancangan program sederhana dalam format pseudocode yang dekat dengan bahasa komputer.</p></div>
+      <div class="card sky"><h3>Pemahaman bermakna</h3>
+        <p>Masalah besar dan rumit dipecahkan secara efisien lewat langkah terurut (<b>algoritma</b>) dan pengorganisasian data yang tepat (<b>struktur data</b>). Pseudocode, pencarian, pengurutan, serta List/Array, Stack, dan Queue membantu kita membangun instruksi yang logis, sistematis, dan mudah dikembangkan.</p></div>
+    </section>
+
+    <section class="blk">
+      <h2>Alur 4 pertemuan</h2>
+      <div class="grid g4">
+        ${[['1', 'Pseudocode & Diagram Alir', 'p1', 'X-BK-07'], ['2', 'Struktur Kendali & Kasus Uji', 'p2', 'X-BK-08'], ['3', 'Pencarian & Pengurutan', 'p3', 'X-BK-04'], ['4', 'Stack, Queue & List/Array', 'p4', 'X-BK-05']].map(r => `<a class="card" style="text-decoration:none" href="#${r[2]}" data-go="${r[2]}"><span class="badge">P${r[0]}</span><h4 style="margin-top:10px">${r[1]}</h4><span class="muted mono" style="font-size:.8rem">${r[3]}</span></a>`).join('')}
+      </div>
+    </section>`;
+  },
+  init() {
+    $$('[data-flip]').forEach(b => b.addEventListener('click', () => b.classList.toggle('on')));
+  }
+};
+
+/* ===== Materi ===== */
+function symSVG(kind, label) {
+  const shapes = {
+    term: '<rect x="6" y="8" width="108" height="36" rx="18"/>',
+    proc: '<rect x="6" y="8" width="108" height="36"/>',
+    dec: '<polygon points="60,2 116,26 60,50 4,26"/>',
+    io: '<polygon points="22,8 116,8 98,44 4,44"/>'
+  };
+  return `<svg viewBox="0 0 120 52" width="120" height="52" role="img" aria-label="${label}"><g fill="var(--card)" stroke="var(--line)" stroke-width="2.5">${shapes[kind]}</g></svg>`;
+}
+const MATERI = [
+  ['Diagram alir & pseudocode', () => `
+    <p>Dua cara memodelkan alur logika: <b>flowchart</b> (gambar) dan <b>pseudocode</b> (teks terstruktur yang dekat dengan bahasa pemrograman). Keduanya tidak dijalankan komputer, tapi dibaca manusia untuk merancang dan memeriksa logika.</p>
+    <h4>Simbol flowchart</h4>
+    <div class="grid g4" style="margin-bottom:18px">
+      ${[['term', 'Terminator', 'Mulai / Selesai'], ['proc', 'Proses', 'Perhitungan, pemberian nilai'], ['dec', 'Keputusan', 'Kondisi Ya/Tidak (IF)'], ['io', 'Input/Output', 'Baca data / tampilkan hasil']].map(s => `<div class="card flat" style="text-align:center">${symSVG(s[0], s[1])}<h4>${s[1]}</h4><span class="muted" style="font-size:.85rem">${s[2]}</span></div>`).join('')}
+    </div>
+    <h4>Konvensi pseudocode di modul ini</h4>
+    <ul><li><code class="i">&lt;-</code> berarti memberi nilai (assignment): <code class="i">total &lt;- 5</code></li><li>Kata kunci ditulis kapital: <code class="i">IF</code>, <code class="i">THEN</code>, <code class="i">ELSE</code>, <code class="i">WHILE</code>, <code class="i">OUTPUT</code></li><li>Bagian dalam IF / WHILE dijorokkan agar mudah ditelusuri</li><li>Beri nama variabel yang menjelaskan isinya (<code class="i">totalBayar</code>, bukan <code class="i">x</code>)</li></ul>
+    ${code(`ALGORITMA HitungDiskon
+DEKLARASI:
+  totalBelanja, totalBayar : INTEGER
+ALGORITMA:
+  INPUT totalBelanja
+  IF totalBelanja > 100000 THEN
+    totalBayar <- totalBelanja - 10000
+  ELSE
+    totalBayar <- totalBelanja
+  ENDIF
+  OUTPUT totalBayar`)}`],
+  ['Struktur kendali', () => `
+    <p>Struktur kendali mengatur <b>urutan eksekusi</b>. Tanpa itu, program hanya bisa berjalan lurus dari atas ke bawah.</p>
+    <div class="grid g2">
+      <div><h4>Percabangan (IF-THEN-ELSE)</h4><p>Memilih jalur berdasarkan kondisi benar atau salah.</p>${code(`IF nilai >= 75 THEN
+  kategori <- "Tuntas"
+ELSE
+  kategori <- "Remedial"
+ENDIF`)}</div>
+      <div><h4>Perulangan (WHILE)</h4><p>Mengulang selama kondisi masih benar. Pastikan ada baris yang mengubah kondisi, kalau tidak jadi infinite loop.</p>${code(`i <- 1
+WHILE i <= 5 DO
+  OUTPUT "Iterasi ke-", i
+  i <- i + 1
+ENDWHILE`)}</div>
+    </div>
+    <h4 style="margin-top:18px">Perulangan FOR</h4><p>Dipakai saat jumlah pengulangan sudah diketahui.</p>
+    ${code(`FOR i <- 1 TO 5 DO
+  OUTPUT i * i
+ENDFOR`)}
+    <h4 style="margin-top:18px">Ekspresi aritmatika dan logika</h4>
+    ${code(`luas <- 0.5 * alas * tinggi
+isLulus <- (nilai >= 75) AND (absensi >= 80)
+sisa <- 17 MOD 5`)}`],
+  ['Fungsi & kasus uji', () => `
+    <p><b>Fungsi</b> membagi program jadi modul kecil yang bisa dipakai ulang (<i>reusable</i>). <b>Kasus uji (test case)</b> adalah pasangan masukan dan luaran yang diharapkan untuk membuktikan logika benar.</p>
+    ${code(`FUNCTION KategoriNilai(nilai : INTEGER) : STRING
+  IF nilai >= 75 THEN
+    RETURN "Tuntas"
+  ELSE
+    RETURN "Remedial"
+  ENDIF
+ENDFUNCTION`)}
+    <h4 style="margin-top:18px">Contoh tabel kasus uji</h4>
+    <div class="tw"><table class="t"><tbody><tr><th>Kasus uji</th><th>Masukan</th><th>Luaran diharapkan</th><th>Jenis</th></tr>
+      <tr><td>TC-01</td><td>80</td><td>"Tuntas"</td><td>Normal</td></tr>
+      <tr><td>TC-02</td><td>60</td><td>"Remedial"</td><td>Normal</td></tr>
+      <tr class="hot"><td>TC-03</td><td>75</td><td>"Tuntas"</td><td>Edge case (nilai batas)</td></tr></tbody></table></div>
+    <p class="muted" style="margin-top:10px">Bug paling sering bersembunyi di nilai batas. Itu sebabnya setiap kumpulan kasus uji wajib memuat edge case.</p>`],
+  ['Pencarian & pengurutan', () => `
+    <div class="grid g2">
+      <div class="card flat"><h4>Sequential Search</h4><p>Cek satu per satu dari depan. Data <b>tidak</b> perlu terurut. Terburuk: sebanyak n pemeriksaan.</p></div>
+      <div class="card flat"><h4>Binary Search</h4><p>Buka elemen tengah, buang separuh yang mustahil. Data <b>wajib terurut</b>. Untuk 100 data, maksimal 7 langkah.</p></div>
+    </div>
+    <h4 style="margin-top:18px">Tiga cara mengurutkan kartu</h4>
+    <div class="tw"><table class="t"><tbody><tr><th>Algoritma</th><th>Ide utama</th><th>Perbandingan (n = 8)</th></tr>
+      <tr><td><b>Bubble Sort</b></td><td>Tukar dua kartu bertetangga yang salah urutan, ulangi sampai tidak ada pertukaran.</td><td>Terbaik 7 (berhenti dini), terburuk 28</td></tr>
+      <tr><td><b>Selection Sort</b></td><td>Cari kartu terkecil dari sisa kartu, taruh di posisi yang benar.</td><td>Selalu 28, pertukaran paling sedikit</td></tr>
+      <tr><td><b>Insertion Sort</b></td><td>Sisipkan kartu satu per satu ke kelompok yang sudah terurut.</td><td>Terbaik 7 (data sudah terurut), terburuk 28</td></tr></tbody></table></div>
+    <p class="muted" style="margin-top:10px">Rumusnya: n kartu butuh paling banyak n(n−1)/2 perbandingan, jadi 8 kartu = 28. Cara membuktikannya ada di Pertemuan 3.</p>`],
+  ['Struktur data', () => `
+    <div class="grid g3">
+      <div class="card flat"><h4>List / Array</h4><p>Kumpulan data terurut yang diakses lewat <b>indeks</b> (akses acak). <code class="i">nilai[16]</code> langsung membuka elemen ke-17.</p></div>
+      <div class="card flat"><h4>Stack (LIFO)</h4><p>Last-In-First-Out. <b>Push</b> menambah ke atas, <b>Pop</b> mengambil dari atas. Contoh: tumpukan piring, Undo, tombol Back.</p></div>
+      <div class="card flat"><h4>Queue (FIFO)</h4><p>First-In-First-Out. <b>Enqueue</b> masuk di belakang, <b>Dequeue</b> keluar dari depan. Contoh: antrean bank, antrean cetak.</p></div>
+    </div>
+    <h4 style="margin-top:18px">Perbandingan cepat</h4>
+    <div class="tw"><table class="t"><tbody><tr><th></th><th>List/Array</th><th>Stack</th><th>Queue</th></tr>
+      <tr><td>Aturan akses</td><td>Bebas lewat indeks</td><td>Hanya ujung atas</td><td>Keluar depan, masuk belakang</td></tr>
+      <tr><td>Operasi inti</td><td>baca / ubah [i]</td><td>Push, Pop, Peek</td><td>Enqueue, Dequeue, Front</td></tr>
+      <tr><td>Prinsip</td><td>Berindeks</td><td>LIFO</td><td>FIFO</td></tr></tbody></table></div>`]
+];
+pages.materi = {
+  render() {
+    return `<div class="eyebrow">Ringkasan materi esensial</div><h1 style="font-size:clamp(1.9rem,5vw,3rem)">Materi</h1>
+    <p class="muted">Lima materi inti yang dipakai di keempat pertemuan. Baca ringkasannya, lalu buktikan di aktivitas interaktif.</p>
+    <div class="tabs" role="tablist">${MATERI.map((m, i) => `<button class="tab ${i === 0 ? 'on' : ''}" role="tab" data-tab="${i}">${m[0]}</button>`).join('')}</div>
+    <div class="card" id="mpanel">${MATERI[0][1]()}</div>
+    ${pager(['beranda', 'Beranda'], ['p1', 'Pertemuan 1'])}`;
+  },
+  init() {
+    $$('[data-tab]').forEach(b => b.addEventListener('click', () => {
+      $$('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+      $('#mpanel').innerHTML = MATERI[+b.dataset.tab][1]();
+    }));
+  }
+};
+
+/* ===== Pertemuan 1: Pseudocode & Diagram Alir (X-BK-07) ===== */
+const DISKON_CODE = `ALGORITMA HitungDiskon
+DEKLARASI:
+  totalBelanja, totalBayar : INTEGER
+ALGORITMA:
+  INPUT totalBelanja
+  IF totalBelanja > 100000 THEN
+    totalBayar <- totalBelanja - 10000
+  ELSE
+    totalBayar <- totalBelanja
+  ENDIF
+  OUTPUT totalBayar`;
+
+function fcDiskonSVG() {
+  return `<svg class="fc" viewBox="0 0 560 520" role="img" aria-label="Flowchart HitungDiskon">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--line)"/></marker></defs>
+  <g class="ar" marker-end="url(#ah)">
+    <path d="M210 50V78"/><path d="M210 120V148"/><path d="M330 205H425V288"/><path d="M210 260V288"/>
+    <path d="M425 338V375H210" marker-end="none"/><path d="M210 338V398" /><path d="M210 440V468"/>
+  </g>
+  <g class="nd" id="n-start"><rect x="150" y="10" width="120" height="40" rx="20"/><text x="210" y="35">Mulai</text></g>
+  <g class="nd" id="n-in"><polygon points="120,80 310,80 290,120 100,120"/><text x="205" y="105">INPUT totalBelanja</text></g>
+  <g class="nd" id="n-dec"><polygon points="210,150 330,205 210,260 90,205"/><text x="210" y="201">totalBelanja</text><text x="210" y="218">&gt; 100000 ?</text></g>
+  <g class="nd" id="n-yes"><rect x="345" y="290" width="160" height="48"/><text x="425" y="311">totalBayar &lt;-</text><text x="425" y="328">totalBelanja - 10000</text></g>
+  <g class="nd" id="n-no"><rect x="130" y="290" width="160" height="48"/><text x="210" y="311">totalBayar &lt;-</text><text x="210" y="328">totalBelanja</text></g>
+  <g class="nd" id="n-out"><polygon points="120,400 310,400 290,440 100,440"/><text x="205" y="425">OUTPUT totalBayar</text></g>
+  <g class="nd" id="n-end"><rect x="150" y="470" width="120" height="40" rx="20"/><text x="210" y="495">Selesai</text></g>
+  <text class="lb" x="338" y="196">Ya</text><text class="lb" x="222" y="280">Tidak</text>
+  </svg>`;
+}
+function discountSteps(T) {
+  const dec = T > 100000, s = [], v = { tb: '?', by: '?' };
+  const push = (ln, nd, k, o, note) => s.push({ ln, nd, tb: v.tb, by: v.by, k, o, note });
+  push(0, 'n-start', '', '', 'Program dimulai.');
+  v.tb = T; push(4, 'n-in', '', '', `INPUT: totalBelanja diisi ${T}.`);
+  push(5, 'n-dec', dec ? 'BENAR' : 'SALAH', '', `Cek ${T} > 100000, hasilnya ${dec ? 'BENAR, masuk blok THEN' : 'SALAH, loncat ke blok ELSE'}.`);
+  if (dec) { v.by = T - 10000; push(6, 'n-yes', '', '', `totalBayar &lt;- ${T} - 10000 = ${v.by}.`); }
+  else { v.by = T; push(8, 'n-no', '', '', `totalBayar &lt;- ${T} (tanpa potongan).`); }
+  push(10, 'n-out', '', String(v.by), `OUTPUT: layar menampilkan ${v.by}.`);
+  push(10, 'n-end', '', '', 'Program selesai.');
+  return s;
+}
+
+const P1_MC = [
+  { q: 'Apa luaran (OUTPUT) program berikut?', code: `x <- 10\ny <- 4\nIF x > y THEN\n  OUTPUT x - y\nELSE\n  OUTPUT y - x\nENDIF`, o: ['4', '6', '-6', '14'], a: 1, why: '10 &gt; 4 BENAR, jadi jalur THEN dijalankan: 10 - 4 = 6.', hint: 'Cek dulu apakah 10 > 4 benar, baru pilih jalurnya.' },
+  { q: 'Berapa nilai OUTPUT total di akhir program?', code: `total <- 0\ni <- 1\nWHILE i <= 4 DO\n  total <- total + i\n  i <- i + 1\nENDWHILE\nOUTPUT total`, o: ['4', '6', '10', '15'], a: 2, why: 'Perulangan menjumlah i = 1, 2, 3, 4 sehingga 1+2+3+4 = 10.', hint: 'Buat trace table dengan kolom i dan total.' },
+  { q: 'Pada algoritma HitungDiskon, jika totalBelanja = 100000, berapa totalBayar?', o: ['90000', '100000', '110000', '10000'], a: 1, why: 'Kondisinya &gt; 100000 (bukan &gt;=). Karena 100000 &gt; 100000 SALAH, tidak ada potongan.', hint: 'Perhatikan tanda bandingnya, "lebih besar dari" tidak sama dengan "lebih besar atau sama dengan".' }
+];
+
+const PARSONS = {
+  diskon: { title: 'HitungDiskon', lines: ['INPUT totalBelanja', 'IF totalBelanja > 100000 THEN', 'totalBayar <- totalBelanja - 10000', 'ELSE', 'totalBayar <- totalBelanja', 'ENDIF', 'OUTPUT totalBayar'] },
+  genap: { title: 'Genap atau Ganjil', lines: ['INPUT n', 'IF n MOD 2 = 0 THEN', 'OUTPUT "Genap"', 'ELSE', 'OUTPUT "Ganjil"', 'ENDIF'] }
+};
+
+pages.p1 = {
+  render() {
+    return lessonHead(1, 'Pengenalan Pseudocode dan Diagram Alir', 'X-BK-07', 'Membaca, menelusuri (tracing), dan memahami instruksi algoritma sederhana dalam bentuk diagram alir dan pseudocode.', 'Problem-Based Learning (Unplugged)')
+      + flowStrip(['Pendahuluan 15 mnt', '10.2-01-U Diagram alir', '10.2-02-U Pseudocode', '10.2-03-U Menulis algoritma', 'Penutup 15 mnt']) + `
+    <section class="blk"><div class="card sky"><h3>Apersepsi</h3><p style="margin:0">Bayangkan kamu menjelaskan cara membuat mi instan lewat chat ke temanmu yang belum pernah masak. Kalau urutannya salah satu langkah saja, hasilnya kacau. Komputer jauh lebih literal dari temanmu, jadi instruksinya harus baku. Itulah gunanya pseudocode dan diagram alir.</p></div></section>
+
+    <section class="blk">${actHead('a01')}
+      <p>Telusuri alur keputusan secara manual. Ubah angkanya, lalu tekan <b>Langkah berikutnya</b> dan perhatikan baris kode, simbol flowchart, dan trace table bergerak bersama.</p>
+      <div class="grid g2">
+        <div class="stack">
+          <div class="row"><div class="field"><label for="dk-in">totalBelanja</label><input type="number" id="dk-in" value="150000" step="1000" min="0"></div>
+            <button class="btn sm" data-v="150000">150000</button><button class="btn sm" data-v="80000">80000</button><button class="btn sm warn" data-v="100000">100000 (batas)</button></div>
+          ${code(DISKON_CODE, 'dk-code')}
+          <div class="row"><button class="btn pri" id="dk-next">Langkah berikutnya ▶</button><button class="btn" id="dk-auto">Otomatis</button><button class="btn" id="dk-reset">Ulang</button></div>
+          <div class="info-note" id="dk-note" aria-live="polite">Tekan "Langkah berikutnya" untuk memulai.</div>
+        </div>
+        <div class="card flat">${fcDiskonSVG()}</div>
+      </div>
+      <h4 style="margin-top:18px">Tabel penelusuran (trace table)</h4>
+      <div class="tw"><table class="t" id="dk-tbl"><thead><tr><th>Langkah</th><th>Baris</th><th>totalBelanja</th><th>totalBayar</th><th>Kondisi</th><th>Luaran</th></tr></thead><tbody></tbody></table></div>
+
+      <h3 style="margin-top:28px">Bangun trace table-mu sendiri</h3>
+      <p>Aturan: jika <code class="i">A &gt; B</code> BENAR, program mencetak <code class="i">"A Lebih Besar"</code>. Jika SALAH, tidak ada luaran. Tebak dulu, baru cek.</p>
+      <div class="card flat">
+        <div class="row" style="align-items:flex-end">
+          <div class="field"><label for="tb-a">Variabel A</label><input type="number" id="tb-a" value="5" style="width:90px"></div>
+          <div class="field"><label for="tb-b">Variabel B</label><input type="number" id="tb-b" value="10" style="width:90px"></div>
+          <div class="field"><label for="tb-k">Tebakan kondisi (A &gt; B)</label><select id="tb-k"><option>BENAR</option><option>SALAH</option></select></div>
+          <div class="field"><label for="tb-o">Tebakan luaran</label><select id="tb-o"><option value="-">-</option><option value="Cetak &quot;A Lebih Besar&quot;">Cetak "A Lebih Besar"</option></select></div>
+          <button class="btn pri" id="tb-add">Cek &amp; tambah baris</button>
+        </div>
+        <div class="tw" style="margin-top:14px"><table class="t" id="tb-tbl"><thead><tr><th>Langkah</th><th>A</th><th>B</th><th>Kondisi</th><th>Luaran</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        <p class="muted" style="margin:10px 0 0" id="tb-msg">Coba A = B (misalnya 7 dan 7). Apa kondisinya?</p>
+      </div>
+    </section>
+
+    <section class="blk">${actHead('a02')}
+      <p>Baca pseudocode, telusuri nilai variabelnya, lalu pilih luarannya. Boleh coret-coret di kertas.</p>
+      ${mcHTML('p1mc', P1_MC)}
+    </section>
+
+    <section class="blk">${actHead('a03')}
+      <p>Barisnya teracak. Ketuk baris dari kolom atas untuk memindahkannya ke "Urutanmu" sesuai urutan yang benar. Ketuk lagi di urutanmu untuk membatalkan.</p>
+      <div class="tabs">${Object.keys(PARSONS).map((k, i) => `<button class="tab ${i === 0 ? 'on' : ''}" data-pz="${k}">${PARSONS[k].title}</button>`).join('')}</div>
+      <div class="grid g2">
+        <div><h4>Baris tersedia</h4><div class="pz" id="pz-pool"></div></div>
+        <div><h4>Urutanmu</h4><div class="ans-list" id="pz-ans"></div></div>
+      </div>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="pz-check">Periksa urutan</button><button class="btn" id="pz-reset">Acak ulang</button></div>
+      <div id="pz-msg" style="margin-top:12px" aria-live="polite"></div>
+    </section>
+
+    ${closing('Penutup dan refleksi', 'Kenapa kita perlu menelusuri logika (tracing) sebelum menuliskan program? Tulis satu alasan dengan contohmu sendiri. Pertemuan berikutnya kita menulis pseudocode lengkap dengan percabangan, perulangan, fungsi, dan kasus uji.', 'p1')}
+    ${pager(['materi', 'Materi'], ['p2', 'Pertemuan 2'])}`;
+  },
+  init() {
+    /* --- stepper diskon --- */
+    let T = 150000, ended = false, builderOK = 0;
+    const tbody = $('#dk-tbl tbody');
+    const chk = () => { if (ended && builderOK >= 2) markDone('a01'); };
+    const st = makeStepper({
+      steps: discountSteps(T),
+      onReset() { tbody.innerHTML = ''; litLine('dk-code', -1); $$('.fc .nd').forEach(n => n.classList.remove('hot')); $('#dk-note').innerHTML = 'Tekan "Langkah berikutnya" untuk memulai.'; $('#dk-next').disabled = false; },
+      onStep(s, i) {
+        litLine('dk-code', s.ln); $$('.fc .nd').forEach(n => n.classList.toggle('hot', n.id === s.nd));
+        $('#dk-note').innerHTML = `<b>Langkah ${i + 1}:</b> ${s.note}`;
+        const tr = document.createElement('tr'); if (s.k) tr.className = 'hot';
+        tr.innerHTML = `<td>${i + 1}</td><td>${s.ln + 1}</td><td>${s.tb}</td><td>${s.by}</td><td>${s.k || '-'}</td><td>${s.o || '-'}</td>`; tbody.appendChild(tr);
+      },
+      onEnd() { $('#dk-next').disabled = true; ended = true; $('#dk-note').innerHTML += ' ✅'; chk(); }
+    });
+    const setT = v => { T = Math.max(0, parseInt(v, 10) || 0); $('#dk-in').value = T; ended = false; st.set(discountSteps(T)); };
+    $('#dk-next').addEventListener('click', () => st.next());
+    $('#dk-auto').addEventListener('click', () => st.play(750));
+    $('#dk-reset').addEventListener('click', () => st.reset());
+    $('#dk-in').addEventListener('change', e => setT(e.target.value));
+    $$('[data-v]').forEach(b => b.addEventListener('click', () => setT(b.dataset.v)));
+
+    /* --- builder trace A,B --- */
+    let no = 0;
+    $('#tb-add').addEventListener('click', () => {
+      const A = parseFloat($('#tb-a').value), B = parseFloat($('#tb-b').value);
+      if (isNaN(A) || isNaN(B)) { $('#tb-msg').textContent = 'Isi angka A dan B dulu.'; return; }
+      const real = A > B, k = $('#tb-k').value, o = $('#tb-o').value;
+      const rk = real ? 'BENAR' : 'SALAH', ro = real ? 'Cetak "A Lebih Besar"' : '-';
+      const ok = k === rk && o === ro; no++;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${no}</td><td>${A}</td><td>${B}</td><td>${rk}</td><td>${esc(ro)}</td><td class="${ok ? 'st-ok' : 'st-no'}">${ok ? '✓ tebakanmu tepat' : '✗ tebakanmu ' + esc(k) + ' / ' + esc(o)}</td>`;
+      $('#tb-tbl tbody').appendChild(tr);
+      if (ok) { builderOK++; $('#tb-msg').textContent = A === B ? 'Mantap, A sama dengan B membuat A > B SALAH.' : 'Tepat. Coba pasangan angka lain, termasuk yang sama besar.'; chk(); }
+      else $('#tb-msg').textContent = 'Belum tepat. Baca ulang aturannya, lalu coba lagi dengan angka lain.';
+    });
+
+    /* --- MC --- */
+    mcInit('p1mc', P1_MC, () => markDone('a02'));
+
+    /* --- parsons --- */
+    let key = 'diskon', pool = [], ans = [];
+    const renderPz = (mark) => {
+      const L = PARSONS[key].lines;
+      $('#pz-pool').innerHTML = pool.map((t, i) => `<button class="pzl" data-add="${i}">${hl(t)}</button>`).join('') || '<span class="muted">Semua baris sudah dipakai.</span>';
+      $('#pz-ans').innerHTML = ans.map((t, i) => `<button class="pzl ${mark ? (t === L[i] ? 'right' : 'wrong') : ''}" data-del="${i}">${i + 1}. ${hl(t)}</button>`).join('') || '<span class="muted">Belum ada baris.</span>';
+      $$('[data-add]').forEach(b => b.addEventListener('click', () => { ans.push(pool.splice(+b.dataset.add, 1)[0]); $('#pz-msg').innerHTML = ''; renderPz(); }));
+      $$('[data-del]').forEach(b => b.addEventListener('click', () => { pool.push(ans.splice(+b.dataset.del, 1)[0]); pool = shuffle(pool); $('#pz-msg').innerHTML = ''; renderPz(); }));
+    };
+    const resetPz = () => { pool = shuffle(PARSONS[key].lines); ans = []; $('#pz-msg').innerHTML = ''; renderPz(); };
+    $$('[data-pz]').forEach(b => b.addEventListener('click', () => { key = b.dataset.pz; $$('[data-pz]').forEach(x => x.classList.toggle('on', x === b)); resetPz(); }));
+    $('#pz-reset').addEventListener('click', resetPz);
+    $('#pz-check').addEventListener('click', () => {
+      const L = PARSONS[key].lines;
+      if (ans.length < L.length) { $('#pz-msg').innerHTML = '<div class="info-note">Susun semua baris dulu, ya.</div>'; return; }
+      renderPz(true);
+      const good = ans.every((t, i) => t === L[i]);
+      $('#pz-msg').innerHTML = good ? '<div class="ok-note">Urutan benar! Algoritmamu bisa ditelusuri dari atas ke bawah. Coba juga algoritma yang lain.</div>' : '<div class="bad-note">Ada baris yang belum pas (merah). Ketuk baris itu untuk memindahkannya.</div>';
+      if (good) markDone('a03');
+    });
+    resetPz();
+    bindRef('p1');
+  }
+};
+
+/* ===== Pertemuan 2: Struktur Kendali & Kasus Uji (X-BK-08) ===== */
+const P2_EXPR = [
+  { q: 'Pilih pseudocode yang benar untuk keliling persegi panjang (panjang p, lebar l).', o: ['keliling <- 2 * p + l', 'keliling <- 2 * (p + l)', 'keliling = 2(p + l)', '2 * (p + l) <- keliling'], a: 1, why: 'Pemberian nilai memakai <-, dan kurung memastikan p + l dikalikan 2 bersama.', hint: 'Dua pilihan salah karena urutan operasi, dua lainnya salah karena sintaks.' },
+  { q: 'Siswa boleh ikut ujian jika kehadiran minimal 75 DAN tunggakan = 0. Pilih ekspresinya.', o: ['bolehUjian <- (hadir > 75) AND (tunggakan = 0)', 'bolehUjian <- (hadir >= 75) OR (tunggakan = 0)', 'bolehUjian <- (hadir >= 75) AND (tunggakan = 0)', 'bolehUjian <- hadir >= 75 AND tunggakan <- 0'], a: 2, why: '"Minimal 75" berarti 75 ikut dihitung (>=), dan kedua syarat harus terpenuhi sekaligus (AND).', hint: 'Perhatikan batasnya ("minimal" memasukkan angka itu) dan perbedaan AND dengan OR.' },
+  { q: 'Berapa nilai sisa setelah perintah  sisa <- 17 MOD 5 ?', o: ['3', '3.4', '2', '12'], a: 2, why: 'MOD adalah sisa bagi. 17 = 3 × 5 + 2, jadi sisanya 2.', hint: '17 dibagi 5 hasilnya 3, lalu sisa berapa?' }
+];
+
+pages.p2 = {
+  render() {
+    return lessonHead(2, 'Menulis Solusi Pseudocode & Struktur Kendali', 'X-BK-08', 'Merancang solusi pseudocode dengan struktur kendali lengkap dan membuat kasus uji (test case) untuk validasi.', 'Inquiry / Problem-Solving (Plugged / Unplugged)')
+      + flowStrip(['Pendahuluan 15 mnt', '04 Ekspresi', '05 Percabangan', '06 Perulangan', '07 Fungsi', '08 Kasus uji', 'Peer review']) + `
+    <section class="blk"><div class="card sky"><h3>Apersepsi</h3><p style="margin:0">Tadi kita hanya membaca algoritma yang berjalan lurus. Bagaimana program memutuskan sesuatu, atau mengulang tugas 100 kali tanpa menulis 100 baris? Jawabannya: percabangan dan perulangan. Dan bagaimana kita yakin hasilnya benar? Dengan kasus uji.</p></div></section>
+
+    <section class="blk">${actHead('a04')}
+      <p>Ekspresi mengubah rumus matematika dan syarat logika menjadi pseudocode. Geser slider untuk melihat ekspresi logika bekerja.</p>
+      <div class="grid g2">
+        <div class="card flat stack">
+          ${code('isLulus <- (nilai >= 75) AND (absensi >= 80)')}
+          <div class="field"><label for="ex-n">nilai = <b id="ex-nv">78</b></label><input type="range" id="ex-n" min="0" max="100" value="78"></div>
+          <div class="field"><label for="ex-a">absensi = <b id="ex-av">85</b></label><input type="range" id="ex-a" min="0" max="100" value="85"></div>
+          <div class="row" id="ex-res" aria-live="polite"></div>
+        </div>
+        <div class="card flat stack">
+          ${code('luas <- 0.5 * alas * tinggi')}
+          <div class="row"><div class="field"><label for="lu-a">alas</label><input type="number" id="lu-a" value="8" style="width:90px"></div><div class="field"><label for="lu-t">tinggi</label><input type="number" id="lu-t" value="5" style="width:90px"></div></div>
+          <div class="ok-note" style="background:var(--sky)" id="lu-res"></div>
+          <p class="muted" style="margin:0;font-size:.88rem">Operator: + − * / MOD, perbandingan: = &lt; &gt; &lt;= &gt;=, logika: AND OR NOT.</p>
+        </div>
+      </div>
+      <h3 style="margin-top:24px">Uji pemahaman</h3>${mcHTML('p2ex', P2_EXPR)}
+    </section>
+
+    <section class="blk">${actHead('a05')}
+      <p>Geser nilai dan lihat jalur mana yang dipilih program.</p>
+      <div class="grid g2">
+        <div class="card flat stack">
+          <div id="br-codebox"></div>
+          <div class="field"><label for="br-n">nilai = <b id="br-nv">75</b></label><input type="range" id="br-n" min="0" max="100" value="75"></div>
+          <div id="br-res" class="info-note" aria-live="polite"></div>
+        </div>
+        <div class="card flat stack">
+          <h4>Misi: tiket wahana</h4>
+          <p style="margin:0">Anak di bawah 5 tahun gratis. Umur 5 sampai 12 tahun Rp15.000. Umur 13 tahun ke atas Rp30.000. Lengkapi kondisinya.</p>
+          <pre class="code"><div class="ln"><span class="no">1</span><span class="k">IF</span> umur <select id="tk-1" aria-label="kondisi pertama"><option>&lt; 5</option><option>&lt;= 5</option><option>&gt; 5</option></select> <span class="k">THEN</span></div><div class="ln"><span class="no">2</span>  harga <span class="o">&lt;-</span> <span class="n">0</span></div><div class="ln"><span class="no">3</span><span class="k">ELSE IF</span> umur <select id="tk-2" aria-label="kondisi kedua"><option>&lt; 12</option><option>&gt;= 12</option><option>&lt;= 12</option></select> <span class="k">THEN</span></div><div class="ln"><span class="no">4</span>  harga <span class="o">&lt;-</span> <span class="n">15000</span></div><div class="ln"><span class="no">5</span><span class="k">ELSE</span></div><div class="ln"><span class="no">6</span>  harga <span class="o">&lt;-</span> <span class="n">30000</span></div><div class="ln"><span class="no">7</span><span class="k">ENDIF</span></div></pre>
+          <div class="row"><button class="btn pri" id="tk-check">Periksa</button></div>
+          <div id="tk-msg" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk">${actHead('a06')}
+      <p>WHILE mengulang selama kondisinya benar. Jalankan langkah demi langkah, lalu coba versi yang bermasalah.</p>
+      <div class="tabs"><button class="tab on" data-lp="ok">Versi benar</button><button class="tab" data-lp="bug">Versi tanpa i &lt;- i + 1</button></div>
+      <div class="grid g2">
+        <div class="stack">
+          <div class="field"><label for="lp-n">Ulangi sampai i &lt;= <b id="lp-nv">5</b></label><input type="range" id="lp-n" min="1" max="8" value="5"></div>
+          <div id="lp-codebox"></div>
+          <div class="row"><button class="btn pri" id="lp-next">Langkah berikutnya ▶</button><button class="btn" id="lp-auto">Otomatis</button><button class="btn" id="lp-reset">Ulang</button></div>
+        </div>
+        <div class="card flat stack">
+          <div class="stat"><div>i =<b id="lp-i">?</b></div><div>iterasi<b id="lp-c">0</b></div></div>
+          <div class="info-note" id="lp-note" aria-live="polite">Tekan "Langkah berikutnya".</div>
+          <h4 style="margin:0">Luaran</h4><div class="log" id="lp-out"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk">${actHead('a07')}
+      <p>Satu fungsi, banyak pemanggilan. Itulah arti <i>reusable</i>.</p>
+      <div class="grid g2">
+        <div class="stack">${code(`FUNCTION KategoriNilai(nilai : INTEGER) : STRING
+  IF nilai >= 75 THEN
+    RETURN "Tuntas"
+  ELSE
+    RETURN "Remedial"
+  ENDIF
+ENDFUNCTION`)}
+          <div class="row" style="align-items:flex-end"><div class="field"><label for="fn-in">KategoriNilai(</label><input type="number" id="fn-in" value="82" style="width:100px"></div><button class="btn sec" id="fn-call">) panggil</button><span class="chip" id="fn-out">-</span></div>
+        </div>
+        <div class="stack">
+          <div class="tw"><table class="t" id="fn-tbl"><thead><tr><th>Siswa</th><th>Nilai</th><th>KategoriNilai(nilai)</th></tr></thead><tbody>
+            ${[['Andi', 82], ['Bunga', 74], ['Citra', 75], ['Dimas', 60], ['Eka', 91]].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td data-v="${r[1]}">...</td></tr>`).join('')}</tbody></table></div>
+          <button class="btn pri" id="fn-all">Panggil untuk semua siswa</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk">${actHead('a08')}
+      <p>Kasus uji membuktikan fungsi bekerja. Di bawah ini ada dua versi <code class="i">KategoriNilai</code>: satu benar, satu menyimpan bug. Jalankan kasus uji pada versi bermasalah dan lihat siapa yang menangkapnya.</p>
+      <div class="card flat stack">
+        <div class="tabs" style="margin:0"><button class="tab on" data-impl="ok">Versi benar: nilai &gt;= 75</button><button class="tab" data-impl="bug">Versi bug: nilai &gt; 75</button></div>
+        <div class="tw"><table class="t" id="tc-tbl"><thead><tr><th>Kasus uji</th><th>Masukan (nilai)</th><th>Luaran diharapkan</th><th>Hasil uji</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        <div class="row" style="align-items:flex-end">
+          <div class="field"><label for="tc-in">Masukan baru</label><input type="number" id="tc-in" value="74" style="width:100px"></div>
+          <div class="field"><label for="tc-ex">Diharapkan</label><select id="tc-ex"><option>Tuntas</option><option>Remedial</option></select></div>
+          <button class="btn" id="tc-add">Tambah kasus uji</button><button class="btn pri" id="tc-run">Jalankan semua ▶</button><button class="btn" id="tc-rst">Reset</button>
+        </div>
+        <div id="tc-msg" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="blk"><div class="card">
+      <h3>Penutup: penilaian sejawat (peer review)</h3>
+      <p>Tukar pseudocodemu dengan kelompok lain, lalu centang yang sudah terpenuhi.</p>
+      <div class="stack">${['Pseudocode rapi dan konsisten memakai konvensi baku', 'Nama variabel jelas dan mudah dipahami', 'Tidak ada infinite loop; setiap WHILE punya baris yang mengubah kondisi', 'Ada minimal satu edge case (nilai batas) pada kasus uji', 'Luaran sesuai dengan semua kasus uji'].map((t, i) => `<label style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input type="checkbox" data-peer="${i}" style="width:20px;height:20px;accent-color:var(--coral);margin-top:2px"> ${t}</label>`).join('')}</div>
+      <label for="peer-note" style="display:block;margin-top:12px">Saran untuk kelompok temanmu</label><textarea id="peer-note"></textarea>
+    </div></section>
+    ${closing('Refleksi', 'Struktur kendali apa yang paling sering membuatmu salah hari ini, percabangan atau perulangan? Apa yang akan kamu cek lebih dulu lain kali?', 'p2')}
+    ${pager(['p1', 'Pertemuan 1'], ['p3', 'Pertemuan 3'])}`;
+  },
+  init() {
+    /* ---- 04 ekspresi ---- */
+    const exUp = () => {
+      const n = +$('#ex-n').value, a = +$('#ex-a').value; $('#ex-nv').textContent = n; $('#ex-av').textContent = a;
+      const c1 = n >= 75, c2 = a >= 80, r = c1 && c2;
+      const ch = (t, v) => `<span class="chip ${v ? 't' : 'f'}">${t} = ${v ? 'TRUE' : 'FALSE'}</span>`;
+      $('#ex-res').innerHTML = ch('nilai >= 75', c1) + ch('absensi >= 80', c2) + `<span class="chip ${r ? 't' : 'f'}" style="font-size:.9rem">isLulus = ${r ? 'TRUE' : 'FALSE'}</span>`;
+    };
+    $('#ex-n').addEventListener('input', exUp); $('#ex-a').addEventListener('input', exUp); exUp();
+    const luUp = () => { const a = parseFloat($('#lu-a').value) || 0, t = parseFloat($('#lu-t').value) || 0; $('#lu-res').innerHTML = `luas = 0.5 * ${a} * ${t} = <b>${0.5 * a * t}</b>`; };
+    $('#lu-a').addEventListener('input', luUp); $('#lu-t').addEventListener('input', luUp); luUp();
+    mcInit('p2ex', P2_EXPR, () => markDone('a04'));
+
+    /* ---- 05 percabangan ---- */
+    const brCode = `IF nilai >= 75 THEN
+  kategori <- "Tuntas"
+ELSE
+  kategori <- "Remedial"
+ENDIF`;
+    $('#br-codebox').innerHTML = code(brCode, 'br-code');
+    const brUp = () => {
+      const n = +$('#br-n').value; $('#br-nv').textContent = n; const ok = n >= 75;
+      $$('#br-code .ln').forEach(el => { const i = +el.dataset.ln; el.classList.toggle('on', i === 0 || (ok ? i === 1 : i === 3)); });
+      $('#br-res').innerHTML = `${n} &gt;= 75 → <b>${ok ? 'BENAR' : 'SALAH'}</b>, jadi kategori = <b>"${ok ? 'Tuntas' : 'Remedial'}"</b>`;
+    };
+    $('#br-n').addEventListener('input', brUp); brUp();
+    $('#tk-check').addEventListener('click', () => {
+      const a = $('#tk-1').value, b = $('#tk-2').value;
+      const probs = [];
+      if (a !== '< 5') probs.push('Kondisi pertama: umur 5 harus masuk kategori anak, bukan gratis.');
+      if (b !== '<= 12') probs.push('Kondisi kedua: umur 12 masih membayar Rp15.000, jadi batas atasnya harus ikut dihitung.');
+      if (!probs.length) {
+        const tiket = u => u < 5 ? 0 : u <= 12 ? 15000 : 30000;
+        $('#tk-msg').innerHTML = `<div class="ok-note">Benar! Cek batasnya: umur 4 → ${rp(tiket(4))}, 5 → ${rp(tiket(5))}, 12 → ${rp(tiket(12))}, 13 → ${rp(tiket(13))}.</div>`; markDone('a05');
+      } else $('#tk-msg').innerHTML = `<div class="bad-note">${probs.join('<br>')}</div>`;
+    });
+
+    /* ---- 06 perulangan ---- */
+    let mode = 'ok', N = 5, loopEnded = false;
+    const loopSteps = () => {
+      const s = [], out = [];
+      const push = (ln, i, note, inf) => s.push({ ln, i, out: out.slice(), note, inf });
+      push(0, 1, 'i <- 1: variabel i mulai dari 1.');
+      if (mode === 'ok') {
+        for (let i = 1; i <= N; i++) {
+          push(1, i, `Cek i &lt;= ${N}: ${i} &lt;= ${N} BENAR, badan perulangan dijalankan.`);
+          out.push(`Iterasi ke-${i}`); push(2, i, `OUTPUT: mencetak "Iterasi ke-${i}".`);
+          push(3, i + 1, `i &lt;- i + 1: i sekarang ${i + 1}.`);
+        }
+        push(1, N + 1, `Cek i &lt;= ${N}: ${N + 1} &lt;= ${N} SALAH, perulangan berhenti.`);
+        push(4, N + 1, 'ENDWHILE: program keluar dari perulangan. Selesai ✅');
+      } else {
+        for (let k = 1; k <= 6; k++) {
+          push(1, 1, `Cek i &lt;= ${N}: 1 &lt;= ${N} BENAR (i tidak pernah berubah).`);
+          out.push('Iterasi ke-1'); push(2, 1, 'OUTPUT: mencetak "Iterasi ke-1" lagi.');
+        }
+        push(1, 1, '⚠️ INFINITE LOOP! Kondisi akan selalu BENAR karena tidak ada yang mengubah i. Program tidak pernah berhenti (simulasi dihentikan paksa).', true);
+      }
+      return s;
+    };
+    const loopCode = () => mode === 'ok'
+      ? code(`i <- 1\nWHILE i <= ${N} DO\n  OUTPUT "Iterasi ke-", i\n  i <- i + 1\nENDWHILE`, 'lp-code')
+      : code(`i <- 1\nWHILE i <= ${N} DO\n  OUTPUT "Iterasi ke-", i\nENDWHILE`, 'lp-code');
+    const lp = makeStepper({
+      steps: [],
+      onReset() { $('#lp-codebox').innerHTML = loopCode(); $('#lp-i').textContent = '?'; $('#lp-c').textContent = '0'; $('#lp-out').innerHTML = ''; $('#lp-note').className = 'info-note'; $('#lp-note').textContent = 'Tekan "Langkah berikutnya".'; $('#lp-next').disabled = false; },
+      onStep(s, i) {
+        litLine('lp-code', s.ln); $('#lp-i').textContent = s.i; $('#lp-c').textContent = s.out.length;
+        $('#lp-out').innerHTML = s.out.map(o => esc(o)).join('<br>');
+        $('#lp-note').className = s.inf ? 'bad-note' : 'info-note'; $('#lp-note').innerHTML = s.note;
+      },
+      onEnd() { $('#lp-next').disabled = true; if (mode === 'ok') { loopEnded = true; markDone('a06'); } }
+    });
+    const lpSet = () => lp.set(loopSteps());
+    $('#lp-next').addEventListener('click', () => lp.next());
+    $('#lp-auto').addEventListener('click', () => lp.play(500));
+    $('#lp-reset').addEventListener('click', () => lp.reset());
+    $('#lp-n').addEventListener('input', e => { N = +e.target.value; $('#lp-nv').textContent = N; lpSet(); });
+    $$('[data-lp]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.lp; $$('[data-lp]').forEach(x => x.classList.toggle('on', x === b)); lpSet(); }));
+    lpSet();
+
+    /* ---- 07 fungsi ---- */
+    const kat = n => n >= 75 ? 'Tuntas' : 'Remedial';
+    $('#fn-call').addEventListener('click', () => { const v = parseFloat($('#fn-in').value); $('#fn-out').textContent = isNaN(v) ? '-' : `RETURN "${kat(v)}"`; });
+    $('#fn-all').addEventListener('click', () => {
+      $$('#fn-tbl td[data-v]').forEach(td => { const k = kat(+td.dataset.v); td.innerHTML = `<span class="chip ${k === 'Tuntas' ? 't' : 'f'}">${k}</span>`; });
+      toast('Satu fungsi dipanggil 5 kali'); markDone('a07');
+    });
+
+    /* ---- 08 kasus uji ---- */
+    let impl = 'ok', rows = [{ i: 80, e: 'Tuntas' }, { i: 60, e: 'Remedial' }, { i: 75, e: 'Tuntas' }], ran = false;
+    const fImpl = n => impl === 'ok' ? (n >= 75 ? 'Tuntas' : 'Remedial') : (n > 75 ? 'Tuntas' : 'Remedial');
+    const tcRender = () => {
+      $('#tc-tbl tbody').innerHTML = rows.map((r, k) => {
+        const res = ran ? fImpl(r.i) : '-', pass = ran && res === r.e;
+        return `<tr class="${ran && !pass ? 'hot' : ''}"><td>TC-${String(k + 1).padStart(2, '0')}${r.i === 75 ? ' <span class="chip">edge case</span>' : ''}</td><td>${r.i}</td><td>"${r.e}"</td><td>${ran ? '"' + res + '"' : '-'}</td><td class="${ran ? (pass ? 'st-ok' : 'st-no') : ''}">${ran ? (pass ? 'PASSED' : 'FAILED') : 'belum dijalankan'}</td></tr>`;
+      }).join('');
+    };
+    $('#tc-add').addEventListener('click', () => { const v = parseFloat($('#tc-in').value); if (isNaN(v)) return; rows.push({ i: v, e: $('#tc-ex').value }); ran = false; $('#tc-msg').innerHTML = ''; tcRender(); });
+    $('#tc-rst').addEventListener('click', () => { rows = [{ i: 80, e: 'Tuntas' }, { i: 60, e: 'Remedial' }, { i: 75, e: 'Tuntas' }]; ran = false; $('#tc-msg').innerHTML = ''; tcRender(); });
+    $('#tc-run').addEventListener('click', () => {
+      ran = true; tcRender();
+      const fails = rows.filter(r => fImpl(r.i) !== r.e);
+      if (!fails.length) $('#tc-msg').innerHTML = `<div class="ok-note">Semua PASSED${impl === 'bug' ? '. Versi bug lolos karena kasus ujimu belum mencakup nilai batas 75.' : '. Logika versi benar terbukti untuk semua kasus yang kamu tulis.'}</div>`;
+      else {
+        $('#tc-msg').innerHTML = `<div class="bad-note">${fails.length} kasus FAILED. ${fails.some(r => r.i === 75) ? 'Edge case 75 menangkap bug: nilai tepat 75 seharusnya Tuntas karena kondisinya >= 75, bukan > 75.' : 'Periksa kembali logika atau harapanmu.'}</div>`;
+        if (impl === 'bug') markDone('a08');
+      }
+    });
+    $$('[data-impl]').forEach(b => b.addEventListener('click', () => { impl = b.dataset.impl; $$('[data-impl]').forEach(x => x.classList.toggle('on', x === b)); ran = false; $('#tc-msg').innerHTML = ''; tcRender(); }));
+    tcRender();
+
+    /* ---- peer review ---- */
+    const peer = store.get('peer', {});
+    $$('[data-peer]').forEach(c => { c.checked = !!peer[c.dataset.peer]; c.addEventListener('change', () => { peer[c.dataset.peer] = c.checked; store.set('peer', peer); }); });
+    const pn = $('#peer-note'); pn.value = store.get('peer-note', ''); pn.addEventListener('input', () => store.set('peer-note', pn.value));
+    bindRef('p2');
+  }
+};
+
+/* ===== Pertemuan 3: Pencarian & Pengurutan (X-BK-04) ===== */
+const SORTED15 = [3, 8, 12, 19, 23, 31, 40, 47, 55, 62, 71, 78, 84, 91, 97];
+
+function searchSteps(arr, t, mode) {
+  const s = [], n = arr.length;
+  if (mode === 'seq') {
+    for (let i = 0; i < n; i++) {
+      const hit = arr[i] === t;
+      s.push({ look: i, lo: 0, hi: n - 1, mid: -1, found: hit ? i : -1, c: i + 1, msg: `Cek indeks ${i}: ${arr[i]} ${hit ? '=' : '≠'} ${t}.${hit ? ' Ketemu!' : ''}`, end: hit });
+      if (hit) return s;
+    }
+    s.push({ look: -1, lo: 0, hi: n - 1, mid: -1, found: -1, c: n, msg: `Semua ${n} data sudah dicek. ${t} tidak ada.`, end: true });
+    return s;
+  }
+  let lo = 0, hi = n - 1, c = 0;
+  while (lo <= hi) {
+    const mid = Math.floor((lo + hi) / 2); c++;
+    if (arr[mid] === t) { s.push({ look: -1, lo, hi, mid, found: mid, c, msg: `Tengah = indeks ${mid} (${arr[mid]}) sama dengan ${t}. Ketemu!`, end: true }); return s; }
+    const less = arr[mid] < t;
+    s.push({ look: -1, lo, hi, mid, found: -1, c, msg: `Tengah = indeks ${mid} (${arr[mid]}). ${arr[mid]} ${less ? '&lt;' : '&gt;'} ${t}, jadi buang bagian ${less ? 'kiri' : 'kanan'}.` });
+    if (less) lo = mid + 1; else hi = mid - 1;
+  }
+  s.push({ look: -1, lo, hi, mid: -1, found: -1, c, msg: 'Rentang pencarian habis. Target tidak ditemukan.', end: true });
+  return s;
+}
+
+function sortSteps(alg, input) {
+  const a = input.slice(), n = a.length, st = []; let c = 0, w = 0; const fin = new Set();
+  const snap = (msg, o = {}) => st.push({ a: a.slice(), c, w, msg, cmp: o.cmp || [], swp: o.swp || [], key: o.key || [], fin: Array.from(fin) });
+  const finAll = () => { for (let k = 0; k < n; k++) fin.add(k); };
+  snap('Kartu awal. Tekan "Langkah berikutnya".');
+  if (alg === 'bubble') {
+    for (let i = 0; i < n - 1; i++) {
+      let sw = false;
+      for (let j = 0; j < n - 1 - i; j++) {
+        c++; snap(`Bandingkan ${a[j]} dengan ${a[j + 1]}.`, { cmp: [j, j + 1] });
+        if (a[j] > a[j + 1]) { const x = a[j], y = a[j + 1]; a[j] = y; a[j + 1] = x; w++; sw = true; snap(`${x} &gt; ${y}, jadi keduanya ditukar.`, { swp: [j, j + 1] }); }
+      }
+      fin.add(n - 1 - i);
+      if (!sw) { finAll(); snap(`Putaran ${i + 1} tanpa pertukaran: kartu sudah terurut, berhenti lebih awal.`); break; }
+      snap(`Putaran ${i + 1} selesai. Kartu ${a[n - 1 - i]} sudah di posisi akhirnya.`);
+    }
+    finAll(); snap('Selesai! Semua kartu terurut.');
+  } else if (alg === 'selection') {
+    for (let i = 0; i < n - 1; i++) {
+      let m = i; snap(`Putaran ${i + 1}: cari kartu terkecil dari posisi ${i} sampai ${n - 1}.`, { key: [i] });
+      for (let j = i + 1; j < n; j++) { c++; snap(`Bandingkan ${a[j]} dengan terkecil sementara ${a[m]}.`, { cmp: [j, m], key: [i] }); if (a[j] < a[m]) m = j; }
+      if (m !== i) { const x = a[i], y = a[m]; a[i] = y; a[m] = x; w++; snap(`Tukar ${x} dan ${y}: ${y} (terkecil) pindah ke posisi ${i}.`, { swp: [i, m] }); }
+      else snap(`${a[i]} sudah yang terkecil, tidak perlu menukar.`, { key: [i] });
+      fin.add(i);
+    }
+    finAll(); snap('Selesai! Semua kartu terurut.');
+  } else {
+    fin.add(0);
+    for (let i = 1; i < n; i++) {
+      snap(`Ambil kartu ${a[i]} untuk disisipkan ke kelompok terurut di kiri.`, { key: [i] });
+      let j = i - 1;
+      while (j >= 0) {
+        c++; snap(`Bandingkan ${a[j]} dengan ${a[j + 1]}.`, { cmp: [j, j + 1] });
+        if (a[j] > a[j + 1]) { const x = a[j], y = a[j + 1]; a[j] = y; a[j + 1] = x; w++; snap(`${x} lebih besar, geser ke kanan.`, { swp: [j, j + 1] }); j--; } else break;
+      }
+      fin.add(i); snap(`Kartu tersisip. Kelompok terurut sekarang sampai posisi ${i}.`);
+    }
+    finAll(); snap('Selesai! Semua kartu terurut.');
+  }
+  return st;
+}
+const lastOf = (alg, arr) => { const s = sortSteps(alg, arr); return s[s.length - 1]; };
+
+pages.p3 = {
+  render() {
+    return lessonHead(3, 'Algoritma Pencarian & Pengurutan', 'X-BK-04', 'Menganalisis perbandingan kecepatan dan efisiensi algoritma Search dan Sort melalui peragaan langsung.', 'Simulasi Interaktif (Unplugged & Plugged)')
+      + flowStrip(['Pendahuluan 15 mnt', '09 Mencari & mengurutkan', '10 Tebak angka binary', '11 Kartu pengurutan', 'Analisis komparatif', 'Penutup 15 mnt']) + `
+    <section class="blk"><div class="card sky"><h3>Simulasi pemantik</h3><p style="margin:0">Cari kartu 62 di tumpukan acak, lalu di tumpukan yang sudah terurut. Mana yang lebih cepat, dan kenapa? Coba di arena di bawah.</p></div></section>
+
+    <section class="blk">${actHead('a09')}
+      <p>Arena pencarian: 15 kartu. Bandingkan jumlah pemeriksaan <b>Sequential</b> vs <b>Binary</b>, lalu acak datanya dan lihat apa yang terjadi pada Binary Search.</p>
+      <div class="card">
+        <div class="row" style="align-items:flex-end">
+          <div class="tabs" style="margin:0"><button class="tab on" data-sm="seq">Sequential</button><button class="tab" data-sm="bin">Binary</button></div>
+          <div class="field"><label for="sr-t">Cari angka</label><select id="sr-t">${SORTED15.map(v => `<option value="${v}" ${v === 62 ? 'selected' : ''}>${v}</option>`).join('')}<option value="50">50 (tidak ada)</option></select></div>
+          <button class="btn sm" id="sr-d">Data: terurut</button>
+        </div>
+        <div class="cells" id="sr-cells"></div>
+        <div class="stat"><div>pemeriksaan<b id="sr-c">0</b></div></div>
+        <div class="info-note" id="sr-msg" style="margin:12px 0" aria-live="polite">Tekan "Langkah berikutnya".</div>
+        <div class="row"><button class="btn pri" id="sr-next">Langkah berikutnya ▶</button><button class="btn" id="sr-auto">Otomatis</button><button class="btn" id="sr-reset">Ulang</button></div>
+      </div>
+    </section>
+
+    <section class="blk">${actHead('a10')}
+      <p>Pikirkan angka 1 sampai 100? Tidak, komputer yang memikirkannya. Tebak sebisamu dan hitung berapa tebakanmu.</p>
+      <div class="grid g2">
+        <div class="card stack">
+          <div class="stat"><div>rentang mungkin<b id="gs-r">1 - 100</b></div><div>tebakan<b id="gs-c">0</b></div></div>
+          <div class="row"><input type="number" id="gs-in" min="1" max="100" placeholder="1-100" style="width:110px"><button class="btn pri" id="gs-go">Tebak</button><button class="btn" id="gs-new">Main lagi</button></div>
+          <div class="info-note" id="gs-msg" aria-live="polite">Tebakan pertama?</div>
+          <div class="row" id="gs-list"></div>
+        </div>
+        <div class="card stack" id="gs-cmp">
+          <h4 style="margin:0">Bandingkan strategi</h4>
+          <p style="margin:0" class="muted">Menangkan satu ronde dulu, lalu bandingkan dengan Sequential dan Binary.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk">${actHead('a11')}
+      <p>Mainkan kartu: pilih algoritma, jalankan langkah demi langkah, dan perhatikan angka perbandingan dan pertukaran. Selesaikan ketiganya untuk menuntaskan misi.</p>
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-end">
+          <div class="tabs" style="margin:0"><button class="tab on" data-alg="bubble">Bubble Sort</button><button class="tab" data-alg="selection">Selection Sort</button><button class="tab" data-alg="insertion">Insertion Sort</button></div>
+          <div class="tabs" style="margin:0"><button class="tab on" data-pre="acak">Acak</button><button class="tab" data-pre="urut">Sudah terurut</button><button class="tab" data-pre="balik">Terbalik</button></div>
+        </div>
+        <div class="row" style="margin-top:12px"><div class="field" style="flex:1;min-width:180px"><label for="so-n">Jumlah kartu: <b id="so-nv">8</b></label><input type="range" id="so-n" min="5" max="8" value="8"></div><button class="btn sm" id="so-new">Kartu baru</button></div>
+        <div class="deck" id="so-deck" style="padding-bottom:30px"></div>
+        <div class="stat"><div>perbandingan<b id="so-c">0</b></div><div><span id="so-wl">pertukaran</span><b id="so-w">0</b></div><div>langkah<b id="so-p">1/1</b></div></div>
+        <div class="info-note" id="so-msg" style="margin:12px 0" aria-live="polite"></div>
+        <div class="row"><button class="btn" id="so-prev">◀ Mundur</button><button class="btn pri" id="so-next">Langkah berikutnya ▶</button><button class="btn" id="so-auto">Otomatis</button><button class="btn" id="so-reset">Ulang</button></div>
+        <div class="row" style="margin-top:12px"><span class="chip" style="background:var(--sun);color:var(--on)">dibandingkan</span><span class="chip" style="background:var(--coral);color:var(--on)">ditukar</span><span class="chip" style="background:var(--sky);color:var(--on)">kartu yang diambil</span><span class="chip" style="background:var(--mint);color:var(--on)">sudah final</span></div>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2>Analisis komparatif: lab perbandingan</h2>
+      <p>Tabel ini dihitung dari menjalankan ketiga algoritma pada kartu yang sama (jumlah kartu mengikuti slider). Format sel: <b>perbandingan / pertukaran</b>.</p>
+      <div class="tw"><table class="t" id="lab"></table></div>
+      <h3 style="margin-top:24px">Tiga pertanyaan eksploratif</h3>
+      <div class="stack">
+        ${[['1', 'Berapa kali perbandingan pada kondisi terbaik (best-case) dan terburuk (worst-case) saat mengurutkan 8 kartu dengan Bubble Sort dibanding Selection Sort?', 'Untuk 8 kartu: <b>Bubble Sort</b> (versi berhenti dini) butuh <b>7</b> perbandingan saat data sudah terurut dan <b>28</b> saat terbalik. <b>Selection Sort</b> selalu <b>28</b>, terbaik maupun terburuk, karena tetap memeriksa semua sisa kartu di tiap putaran. Bedanya, Selection Sort menukar paling banyak 7 kali, sedangkan Bubble Sort bisa sampai 28 kali. Buktikan di tabel lab dengan slider di 8 kartu.'], ['2', 'Mengapa Binary Search wajib mensyaratkan data terurut, sedangkan Sequential Search tidak?', 'Binary Search membuang separuh data berdasarkan satu perbandingan: jika elemen tengah lebih kecil dari target, ia menganggap target pasti di kanan. Anggapan itu hanya benar jika data terurut. Pada data acak, target bisa saja ada di bagian yang sudah dibuang. Sequential Search memeriksa satu per satu tanpa asumsi, jadi tidak peduli urutan. Buktikan dengan tombol "Data: acak" di arena pencarian.'], ['3', 'Skenario mana yang lebih menguntungkan ketika memilih Insertion Sort dibanding Bubble Sort?', 'Insertion Sort unggul ketika data <b>hampir terurut</b>, jumlahnya kecil, atau datang sedikit demi sedikit. Tiap kartu cukup digeser sedikit, mendekati n-1 perbandingan. Bubble Sort hanya menggeser kartu kecil satu posisi ke kiri per putaran, jadi satu kartu kecil yang terjebak di belakang memaksa banyak putaran.']].map(q => `<div class="card flat"><b>Pertanyaan ${q[0]}.</b> ${q[1]}<textarea id="an-${q[0]}" placeholder="Tulis dugaanmu dulu, baru buka pembahasan..." style="margin:10px 0"></textarea><details class="ans"><summary>Lihat pembahasan</summary><p style="margin:10px 0 0">${q[2]}</p></details></div>`).join('')}
+      </div>
+    </section>
+    ${closing('Penutup dan refleksi', 'Algoritma yang efisien sangat bergantung pada struktur dan kondisi awal data. Dari semua yang kamu coba hari ini, kondisi data apa yang paling mengubah hasil? Tulis satu temuanmu.', 'p3')}
+    ${pager(['p2', 'Pertemuan 2'], ['p4', 'Pertemuan 4'])}`;
+  },
+  init() {
+    /* ---- 09 arena pencarian ---- */
+    let smode = 'seq', sorted = true, data = SORTED15.slice(), sdone = new Set(), sst;
+    const arena = () => {
+      const t = +$('#sr-t').value; return searchSteps(data, t, smode);
+    };
+    const drawCells = s => {
+      $('#sr-cells').innerHTML = data.map((v, i) => {
+        let cl = '';
+        if (smode === 'bin' && s && (i < s.lo || i > s.hi)) cl = 'out';
+        if (s && smode === 'seq' && i === s.look) cl = 'look';
+        if (s && smode === 'bin' && i === s.mid) cl = 'mid';
+        if (s && s.found === i) cl = 'found';
+        return `<div class="cell ${cl}">${v}<small>[${i}]</small></div>`;
+      }).join('');
+    };
+    sst = makeStepper({
+      steps: arena(),
+      onReset() { drawCells(null); $('#sr-c').textContent = '0'; $('#sr-msg').className = 'info-note'; $('#sr-msg').textContent = 'Tekan "Langkah berikutnya".'; $('#sr-next').disabled = false; },
+      onStep(s) { drawCells(s); $('#sr-c').textContent = s.c; $('#sr-msg').innerHTML = s.msg; },
+      onEnd(last) {
+        $('#sr-next').disabled = true; const t = +$('#sr-t').value;
+        if (smode === 'bin' && !sorted && data.includes(t) && last.found < 0) { $('#sr-msg').className = 'bad-note'; $('#sr-msg').innerHTML += ' ⚠️ Padahal angka itu ADA di data! Binary Search gagal karena data tidak terurut.'; }
+        sdone.add(smode + (sorted ? 'S' : 'A'));
+        if (sdone.has('seqS') && sdone.has('binS')) markDone('a09');
+      }
+    });
+    const setSteps = () => sst.set(arena());
+    $$('[data-sm]').forEach(b => b.addEventListener('click', () => { smode = b.dataset.sm; $$('[data-sm]').forEach(x => x.classList.toggle('on', x === b)); setSteps(); }));
+    $('#sr-t').addEventListener('change', setSteps);
+    $('#sr-d').addEventListener('click', () => {
+      sorted = !sorted; data = sorted ? SORTED15.slice() : shuffle(SORTED15); $('#sr-d').textContent = 'Data: ' + (sorted ? 'terurut' : 'acak (klik untuk acak lagi)'); setSteps();
+      if (!sorted) $('#sr-msg').textContent = 'Data sudah diacak. Coba jalankan Binary Search sekarang.';
+    });
+    $('#sr-next').addEventListener('click', () => sst.next());
+    $('#sr-auto').addEventListener('click', () => sst.play(700));
+    $('#sr-reset').addEventListener('click', () => sst.reset());
+    setSteps();
+
+    /* ---- 10 tebak angka ---- */
+    let secret, guesses, lo, hi, won;
+    const gsNew = () => {
+      secret = 1 + rnd(100); guesses = []; lo = 1; hi = 100; won = false;
+      $('#gs-r').textContent = '1 - 100'; $('#gs-c').textContent = '0'; $('#gs-msg').className = 'info-note'; $('#gs-msg').textContent = 'Tebakan pertama?'; $('#gs-list').innerHTML = ''; $('#gs-in').value = ''; $('#gs-in').disabled = false; $('#gs-go').disabled = false;
+      $('#gs-cmp').innerHTML = `<h4 style="margin:0">Bandingkan strategi</h4><p style="margin:0" class="muted">Menangkan satu ronde dulu, lalu bandingkan dengan Sequential dan Binary.</p>`;
+    };
+    const botGuesses = s => { const g = []; let l = 1, h = 100; while (true) { const m = Math.floor((l + h) / 2); g.push(m); if (m === s) break; if (m < s) l = m + 1; else h = m - 1; } return g; };
+    const gsGo = () => {
+      if (won) return; const g = parseInt($('#gs-in').value, 10);
+      if (isNaN(g) || g < 1 || g > 100) { $('#gs-msg').textContent = 'Masukkan angka 1 sampai 100.'; return; }
+      guesses.push(g); $('#gs-c').textContent = guesses.length;
+      let tag = 'f';
+      if (g === secret) { won = true; tag = 't'; $('#gs-msg').className = 'ok-note'; $('#gs-msg').textContent = `Benar! Angkanya ${secret}. Kamu butuh ${guesses.length} tebakan.`; $('#gs-in').disabled = true; $('#gs-go').disabled = true; }
+      else if (g < secret) { lo = Math.max(lo, g + 1); $('#gs-msg').className = 'info-note'; $('#gs-msg').textContent = `${g} terlalu kecil.`; }
+      else { hi = Math.min(hi, g - 1); $('#gs-msg').className = 'info-note'; $('#gs-msg').textContent = `${g} terlalu besar.`; }
+      $('#gs-r').textContent = lo + ' - ' + hi; $('#gs-in').value = '';
+      $('#gs-list').innerHTML = guesses.map((x, i) => `<span class="chip ${i === guesses.length - 1 ? tag : ''}">${x}</span>`).join('');
+      if (won) {
+        const bot = botGuesses(secret);
+        $('#gs-cmp').innerHTML = `<h4 style="margin:0">Bandingkan strategi</h4>
+          <div class="stat"><div>kamu<b>${guesses.length}</b></div><div>Binary bot<b>${bot.length}</b></div><div>Sequential<b>${secret}</b></div></div>
+          <p style="margin:0">Binary bot selalu menebak angka tengah rentang: <span class="mono">${bot.join(' → ')}</span>.</p>
+          <p style="margin:0">Sequential (1, 2, 3, ...) butuh ${secret} tebakan untuk angka ini, dan sampai 100 tebakan di kasus terburuk. Binary Search tidak pernah lebih dari <b>7</b> tebakan untuk 1 sampai 100, sebab setiap tebakan membuang separuh kemungkinan (100 → 50 → 25 → 12 → 6 → 3 → 1).</p>`;
+        markDone('a10');
+      }
+    };
+    $('#gs-go').addEventListener('click', gsGo); $('#gs-in').addEventListener('keydown', e => { if (e.key === 'Enter') gsGo(); }); $('#gs-new').addEventListener('click', gsNew); gsNew();
+
+    /* ---- 11 kartu pengurutan ---- */
+    let alg = 'bubble', pre = 'acak', n = 8, vals = [], base = [], steps = [], idx = 0, algsDone = new Set(), autoT = null;
+    const makeVals = () => { vals = shuffle(Array.from({ length: 30 }, (_, i) => i + 1)).slice(0, n); };
+    const makeBase = () => { base = pre === 'acak' ? vals.slice() : pre === 'urut' ? vals.slice().sort((a, b) => a - b) : vals.slice().sort((a, b) => b - a); };
+    const stopAuto = () => { if (autoT) { clearInterval(autoT); autoT = null; } };
+    const drawSo = () => {
+      const s = steps[idx];
+      $('#so-deck').innerHTML = s.a.map((v, i) => { let cl = ''; if (s.fin.includes(i)) cl = 'fin'; if (s.key.includes(i)) cl = 'key'; if (s.cmp.includes(i)) cl = 'cmp'; if (s.swp.includes(i)) cl = 'swp'; return `<div class="pc ${cl}">${v}<small>${i}</small></div>`; }).join('');
+      $('#so-c').textContent = s.c; $('#so-w').textContent = s.w; $('#so-p').textContent = (idx + 1) + '/' + steps.length; $('#so-msg').innerHTML = s.msg;
+      $('#so-wl').textContent = alg === 'insertion' ? 'pergeseran' : 'pertukaran';
+      $('#so-prev').disabled = idx === 0; $('#so-next').disabled = idx === steps.length - 1;
+      if (idx === steps.length - 1) { stopAuto(); algsDone.add(alg); if (algsDone.size >= 3) markDone('a11'); }
+    };
+    const soBuild = () => { stopAuto(); makeBase(); steps = sortSteps(alg, base); idx = 0; drawSo(); renderLab(); };
+    const renderLab = () => {
+      const asc = vals.slice().sort((a, b) => a - b), desc = asc.slice().reverse();
+      const rows = [['bubble', 'Bubble Sort'], ['selection', 'Selection Sort'], ['insertion', 'Insertion Sort']];
+      const cell = (a, arr) => { const l = lastOf(a, arr); return `${l.c} / ${l.w}`; };
+      $('#lab').innerHTML = `<thead><tr><th>Algoritma (n = ${n})</th><th>Terurut (terbaik)</th><th>Acak (kartu di atas)</th><th>Terbalik (terburuk)</th></tr></thead><tbody>${rows.map(r => `<tr><td><b>${r[1]}</b></td><td>${cell(r[0], asc)}</td><td>${cell(r[0], vals)}</td><td>${cell(r[0], desc)}</td></tr>`).join('')}</tbody>`;
+    };
+    $('#so-next').addEventListener('click', () => { if (idx < steps.length - 1) { idx++; drawSo(); } });
+    $('#so-prev').addEventListener('click', () => { stopAuto(); if (idx > 0) { idx--; drawSo(); } });
+    $('#so-reset').addEventListener('click', () => { stopAuto(); idx = 0; drawSo(); });
+    $('#so-auto').addEventListener('click', () => { stopAuto(); if (idx >= steps.length - 1) idx = 0; autoT = later(() => { if (idx < steps.length - 1) { idx++; drawSo(); } else stopAuto(); }, 650); });
+    $$('[data-alg]').forEach(b => b.addEventListener('click', () => { alg = b.dataset.alg; $$('[data-alg]').forEach(x => x.classList.toggle('on', x === b)); soBuild(); }));
+    $$('[data-pre]').forEach(b => b.addEventListener('click', () => { pre = b.dataset.pre; $$('[data-pre]').forEach(x => x.classList.toggle('on', x === b)); soBuild(); }));
+    $('#so-n').addEventListener('input', e => { n = +e.target.value; $('#so-nv').textContent = n; makeVals(); soBuild(); });
+    $('#so-new').addEventListener('click', () => { makeVals(); soBuild(); });
+    makeVals(); soBuild();
+
+    [1, 2, 3].forEach(k => { const t = $('#an-' + k); t.value = store.get('an-' + k, ''); t.addEventListener('input', () => store.set('an-' + k, t.value)); });
+    bindRef('p3');
+  }
+};
+
+/* ===== Pertemuan 4: Stack, Queue & List/Array (X-BK-05) ===== */
+const DS = ['List/Array (akses lewat indeks)', 'Stack (LIFO)', 'Queue (FIFO)'];
+const P4_MC = [
+  { q: 'Daftar nilai 30 siswa. Kamu ingin langsung membuka nilai siswa nomor urut 17 tanpa membuka nomor 1 sampai 16.', o: DS, a: 0, why: 'List/Array diakses lewat indeks (akses acak), jadi elemen ke-17 bisa dibuka langsung.', hint: 'Mana yang membolehkan lompat langsung ke posisi tertentu?' },
+  { q: 'Tumpukan piring di ruang makan: piring yang diambil selalu yang paling atas.', o: DS, a: 1, why: 'Yang terakhir ditaruh adalah yang pertama diambil. Itu LIFO, ciri Stack.', hint: 'Siapa yang terakhir masuk, dia yang pertama keluar?' },
+  { q: 'Antrean cetak dokumen: file yang dikirim lebih dulu dicetak lebih dulu.', o: DS, a: 2, why: 'Yang pertama datang, yang pertama dilayani. Itu FIFO, ciri Queue.', hint: 'Bayangkan antrean di kasir.' },
+  { q: 'History peramban web: tombol Back membuka halaman yang paling terakhir kamu kunjungi.', o: DS, a: 1, why: 'Halaman terakhir yang dikunjungi berada paling atas dan dibuka lebih dulu (LIFO), jadi Stack.', hint: 'Back selalu mundur dari yang terbaru.' },
+  { q: 'Antrean bank: nasabah dipanggil sesuai urutan kedatangan.', o: DS, a: 2, why: 'Urutan kedatangan menentukan urutan layanan (FIFO), jadi Queue.', hint: 'Sama seperti antrean cetak.' }
+];
+const UNDO_ACTS = [
+  { l: 'Ketik "Halo"', t: 'Halo' }, { l: 'Ketik " dunia"', t: ' dunia' }, { l: 'Tebalkan teks', f: 'bold' }, { l: 'Sisipkan gambar', f: 'img' }, { l: 'Ganti font', f: 'mono' }
+];
+const NAMES = ['Andi', 'Siti', 'Budi', 'Rina', 'Dewi', 'Joko', 'Lina', 'Tono', 'Maya', 'Raka'];
+
+pages.p4 = {
+  render() {
+    return lessonHead(4, 'Penerapan Struktur Data Stack dan Queue', 'X-BK-05', 'Membedakan dan menerapkan struktur data List/Array, Stack (LIFO), dan Queue (FIFO) pada konteks pemecahan masalah nyata.', 'Abstraksi dan Pemodelan Masalah Nyata')
+      + flowStrip(['Pendahuluan 15 mnt', '12 Analisis Stack/Queue', '13 Simulasi Stack Undo', '14 Simulasi Queue', 'Refleksi integratif']) + `
+    <section class="blk"><div class="card sky"><h3>Dua fenomena nyata</h3><p style="margin:0">Tumpukan piring di ruang makan dan antrean kendaraan di gerbang tol. Sama-sama menyimpan banyak benda, tapi aturan "siapa yang keluar duluan" bertolak belakang. Aturan akses itulah inti struktur data hari ini.</p></div></section>
+
+    <section class="blk">${actHead('a12')}
+      <p>Pilih struktur data yang paling tepat untuk setiap kasus.</p>
+      ${mcHTML('p4mc', P4_MC)}
+    </section>
+
+    <section class="blk">${actHead('a13')}
+      <p>Fitur Undo/Redo di aplikasi pengolah kata memakai <b>dua stack</b>. Lakukan beberapa aksi, lalu tekan Undo dan Redo. Perhatikan siapa yang ada di atas tumpukan.</p>
+      <div class="grid g2">
+        <div class="stack">
+          <div class="row">${UNDO_ACTS.map((a, i) => `<button class="btn sm" data-ua="${i}">Push: ${a.l}</button>`).join('')}</div>
+          <div class="row"><button class="btn warn" id="un-undo">↶ Undo (Pop)</button><button class="btn sec" id="un-redo">↷ Redo</button><button class="btn" id="un-rst">Reset</button></div>
+          <div class="card flat"><h4>Dokumen</h4><div id="un-doc" style="min-height:48px;font-size:1.2rem;overflow-wrap:anywhere"></div></div>
+          <div class="log" id="un-log" aria-live="polite"></div>
+        </div>
+        <div class="grid g2" style="gap:12px">
+          <div><h4>Stack Undo</h4><div class="tower" id="un-s1"></div></div>
+          <div><h4>Stack Redo</h4><div class="tower" id="un-s2"></div></div>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:10px">Aksi baru masuk ke Stack Undo dan mengosongkan Stack Redo. Undo memindahkan puncak Stack Undo ke Stack Redo. Redo memindahkannya kembali.</p>
+    </section>
+
+    <section class="blk">${actHead('a14')}
+      <p>Model layanan pendaftaran umum. Pasien datang di belakang antrean (<b>Enqueue</b>) dan dilayani dari depan (<b>Dequeue</b>).</p>
+      <div class="card stack">
+        <div class="row"><button class="btn pri" id="qu-enq">➕ Pasien datang (Enqueue)</button><button class="btn warn" id="qu-deq">🛎 Layani (Dequeue)</button><button class="btn" id="qu-rst">Reset</button></div>
+        <div class="lane" id="qu-lane" aria-live="polite"></div>
+        <div class="stat"><div>dalam antrean<b id="qu-n">0</b></div><div>sudah dilayani<b id="qu-s">0</b></div></div>
+        <div class="log" id="qu-log"></div>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2>Ringkasan perbedaan</h2>
+      <div class="tw"><table class="t"><tbody><tr><th></th><th>List/Array</th><th>Stack</th><th>Queue</th></tr>
+        <tr><td>Prinsip</td><td>Akses acak lewat indeks</td><td>LIFO: terakhir masuk, pertama keluar</td><td>FIFO: pertama masuk, pertama keluar</td></tr>
+        <tr><td>Operasi</td><td>baca / ubah elemen [i]</td><td>Push, Pop, Peek</td><td>Enqueue, Dequeue, Front</td></tr>
+        <tr><td>Contoh nyata</td><td>Daftar nilai kelas</td><td>Undo/Redo, tombol Back, tumpukan piring</td><td>Antrean bank, antrean cetak, loket</td></tr></tbody></table></div>
+    </section>
+    ${closing('Refleksi integratif', 'Hubungkan keempat pertemuan: dari menulis pseudocode, menguji dengan kasus uji, mengurutkan dan mencari data, sampai memilih struktur data. Mana yang menurutmu paling berguna untuk proyek aplikasimu sendiri? Tulis satu contoh.', 'p4')}
+    <div class="card lime"><h3>Siap asesmen?</h3><p>Kerjakan LKPD lalu uji pemahamanmu lewat kuis asesmen.</p><div class="row"><a class="btn" href="#lkpd" data-go="lkpd">Buka LKPD</a><a class="btn pri" href="#asesmen" data-go="asesmen">Ke Asesmen →</a></div></div>
+    ${pager(['p3', 'Pertemuan 3'], ['lkpd', 'LKPD'])}`;
+  },
+  init() {
+    mcInit('p4mc', P4_MC, () => markDone('a12'));
+
+    /* ---- undo/redo ---- */
+    let undo = [], redo = [], used = { push: 0, undo: 0, redo: 0 };
+    const log = m => { const l = $('#un-log'); l.innerHTML = m + '<br>' + l.innerHTML; };
+    const tower = (arr, id) => { $(id).innerHTML = arr.map((a, i) => `<div class="blk-i ${i === arr.length - 1 ? 'top' : ''}">${esc(a.l)}</div>`).join('') || '<span class="muted" style="align-self:center;margin:auto">kosong</span>'; };
+    const drawUn = () => {
+      tower(undo, '#un-s1'); tower(redo, '#un-s2');
+      let txt = '', bold = false, mono = false, img = false;
+      undo.forEach(a => { if (a.t) txt += a.t; if (a.f === 'bold') bold = true; if (a.f === 'mono') mono = true; if (a.f === 'img') img = true; });
+      $('#un-doc').innerHTML = `<span style="font-weight:${bold ? 800 : 400};font-family:${mono ? 'var(--f-mono)' : 'inherit'}">${esc(txt) || '<span class="muted">(dokumen kosong)</span>'}</span>${img ? ' 🖼️' : ''}`;
+      $('#un-undo').disabled = !undo.length; $('#un-redo').disabled = !redo.length;
+      if (used.push && used.undo && used.redo) markDone('a13');
+    };
+    $$('[data-ua]').forEach(b => b.addEventListener('click', () => { const a = UNDO_ACTS[+b.dataset.ua]; undo.push(a); redo = []; used.push++; log(`PUSH "${esc(a.l)}" ke Stack Undo. Stack Redo dikosongkan.`); drawUn(); }));
+    $('#un-undo').addEventListener('click', () => { const a = undo.pop(); redo.push(a); used.undo++; log(`UNDO: POP "${esc(a.l)}" dari Stack Undo, PUSH ke Stack Redo.`); drawUn(); });
+    $('#un-redo').addEventListener('click', () => { const a = redo.pop(); undo.push(a); used.redo++; log(`REDO: POP "${esc(a.l)}" dari Stack Redo, PUSH ke Stack Undo.`); drawUn(); });
+    $('#un-rst').addEventListener('click', () => { undo = []; redo = []; $('#un-log').innerHTML = ''; drawUn(); });
+    drawUn();
+
+    /* ---- queue ---- */
+    let q = [], num = 0, served = 0, enq = 0, deq = 0;
+    const qlog = m => { const l = $('#qu-log'); l.innerHTML = m + '<br>' + l.innerHTML; };
+    const drawQ = () => {
+      $('#qu-lane').innerHTML = q.length ? q.map((p, i) => `<div class="q-i ${i === 0 ? 'front' : ''} ${i === q.length - 1 ? 'rear' : ''}">${p.name}<small>${p.no}</small></div>`).join('') : '<div class="q-i empty">antrean kosong</div>';
+      $('#qu-n').textContent = q.length; $('#qu-s').textContent = served; $('#qu-deq').disabled = !q.length;
+      if (enq >= 3 && deq >= 2) markDone('a14');
+    };
+    $('#qu-enq').addEventListener('click', () => { num++; const p = { no: 'A-' + String(num).padStart(3, '0'), name: NAMES[(num - 1) % NAMES.length] }; q.push(p); enq++; qlog(`ENQUEUE ${p.name} (${p.no}) masuk di belakang antrean.`); drawQ(); });
+    $('#qu-deq').addEventListener('click', () => { const p = q.shift(); served++; deq++; qlog(`DEQUEUE ${p.name} (${p.no}) keluar dari depan dan dilayani.`); drawQ(); });
+    $('#qu-rst').addEventListener('click', () => { q = []; num = 0; served = 0; enq = 0; deq = 0; $('#qu-log').innerHTML = ''; drawQ(); });
+    drawQ();
+    bindRef('p4');
+  }
+};
+
+/* ===== LKPD (Lembar Kerja Peserta Didik) ===== */
+const norm = s => String(s).toLowerCase().replace(/rp|[\[\]\(\)\.]/g, '').replace(/[\s,;→>\-]+/g, ',').replace(/^,+|,+$/g, '');
+const I = t => `<code class="i">${t}</code>`;
+const LKPD = [
+  {
+    id: 'l1', title: 'LKPD 1: Pseudocode & Diagram Alir', tp: 'X-BK-07', pg: 'p1', items: [
+      { id: 1, t: 'chk', q: `Algoritma HitungDiskon dengan ${I('totalBelanja = 150000')}. Berapa ${I('totalBayar')}?`, ans: ['140000'], hint: '150000 > 100000 BENAR, jadi dipotong 10000.' },
+      { id: 2, t: 'chk', q: `Dengan ${I('totalBelanja = 80000')}, berapa ${I('totalBayar')}?`, ans: ['80000'], hint: 'Kondisi SALAH, masuk blok ELSE tanpa potongan.' },
+      { id: 3, t: 'chk', q: `Nilai batas: ${I('totalBelanja = 100000')}. Berapa ${I('totalBayar')}?`, ans: ['100000'], hint: 'Kondisinya > 100000, bukan >=. Apakah 100000 > 100000?' },
+      { id: 4, t: 'chk', q: `Jika A = 7 dan B = 7, apakah kondisi ${I('A > B')} BENAR atau SALAH?`, ans: ['salah'], hint: 'Dua angka yang sama besar tidak saling lebih besar.' },
+      { id: 5, t: 'free', q: `Tulis pseudocode yang meminta bilangan ${I('n')} lalu mencetak "Genap" atau "Ganjil".`, sample: 'INPUT n\nIF n MOD 2 = 0 THEN\n  OUTPUT "Genap"\nELSE\n  OUTPUT "Ganjil"\nENDIF' },
+      { id: 6, t: 'free', q: 'Sebutkan empat simbol flowchart dan fungsinya masing-masing.', sample: 'Terminator (oval): Mulai/Selesai. Proses (persegi panjang): perhitungan atau pemberian nilai. Keputusan (belah ketupat): kondisi Ya/Tidak. Input/Output (jajar genjang): membaca atau menampilkan data.' }
+    ]
+  },
+  {
+    id: 'l2', title: 'LKPD 2: Struktur Kendali & Kasus Uji', tp: 'X-BK-08', pg: 'p2', items: [
+      { id: 1, t: 'free', q: `Tulis ekspresi pseudocode untuk ${I('isLulus')}: lulus jika nilai minimal 75 DAN absensi minimal 80.`, sample: 'isLulus <- (nilai >= 75) AND (absensi >= 80)' },
+      { id: 2, t: 'chk', q: `Pada ${I('i <- 1')}, ${I('WHILE i <= 5 DO')}, ${I('OUTPUT i')}, ${I('i <- i + 1')}, ${I('ENDWHILE')}: berapa kali OUTPUT dijalankan?`, ans: ['5'], hint: 'i bernilai 1, 2, 3, 4, 5.' },
+      { id: 3, t: 'chk', q: `Apa yang terjadi jika baris ${I('i <- i + 1')} dihapus dari perulangan di atas?`, kw: ['infinite', 'takberhenti', 'tidakberhenti', 'tak,berhenti', 'tidak,berhenti', 'selamanya', 'terus'], ans: [], hint: 'Kondisi i <= 5 akan selalu BENAR. Apa namanya?' },
+      { id: 4, t: 'chk', q: `Fungsi ${I('KategoriNilai')} memakai ${I('nilai >= 75')}. Nilai berapa yang menjadi edge case paling penting diuji?`, ans: ['75'], hint: 'Nilai tepat di batas.' },
+      { id: 5, t: 'free', q: `Tuliskan tiga kasus uji untuk ${I('KategoriNilai')} (masukan, luaran diharapkan), minimal satu edge case.`, sample: 'TC-01: 80 → "Tuntas"\nTC-02: 60 → "Remedial"\nTC-03 (edge): 75 → "Tuntas"' },
+      { id: 6, t: 'free', q: `Tulis pseudocode WHILE untuk menjumlahkan 1 sampai n, lalu mencetak hasilnya.`, sample: 'INPUT n\ntotal <- 0\ni <- 1\nWHILE i <= n DO\n  total <- total + i\n  i <- i + 1\nENDWHILE\nOUTPUT total' }
+    ]
+  },
+  {
+    id: 'l3', title: 'LKPD 3: Pencarian & Pengurutan', tp: 'X-BK-04', pg: 'p3', items: [
+      { id: 1, t: 'chk', q: `Bubble Sort pada ${I('[5, 2, 9, 1, 7]')}. Tulis isi larik setelah <b>putaran pertama</b> (pisahkan dengan koma).`, ans: ['2,5,1,7,9'], hint: 'Bandingkan tetangga dari kiri: 5-2, 5-9, 9-1, 9-7. Tukar bila kiri lebih besar.' },
+      { id: 2, t: 'chk', q: `Selection Sort pada larik yang sama. Isi larik setelah <b>putaran pertama</b>?`, ans: ['1,2,9,5,7'], hint: 'Cari yang terkecil (1), tukar dengan posisi pertama (5).' },
+      { id: 3, t: 'chk', q: `Insertion Sort pada larik yang sama. Isi larik setelah kartu ke-4 (angka 1) disisipkan?`, ans: ['1,2,5,9,7'], hint: 'Sebelum angka 1 masuk, kelompok terurutnya 2, 5, 9.' },
+      { id: 4, t: 'chk', q: `Binary Search mencari 23 pada ${I('[3, 8, 12, 19, 23, 31, 40]')}. Berapa kali elemen tengah diperiksa sampai ketemu? (indeks tengah = pembagian bulat)`, ans: ['3'], hint: 'Tengah pertama indeks 3 (19), lalu rentang kanan, tengah berikutnya indeks 5 (31), lalu indeks 4.' },
+      { id: 5, t: 'chk', q: 'Berapa tebakan maksimum yang dibutuhkan Binary Search untuk menebak angka 1 sampai 100?', ans: ['7'], hint: '100 → 50 → 25 → 12 → 6 → 3 → 1.' },
+      { id: 6, t: 'chk', q: 'Berapa pemeriksaan maksimum Sequential Search pada 100 data?', ans: ['100'], hint: 'Kasus terburuk: target ada di urutan terakhir atau tidak ada.' },
+      { id: 7, t: 'free', q: 'Jelaskan dengan kalimatmu sendiri mengapa Binary Search mewajibkan data terurut.', sample: 'Binary Search membuang separuh data berdasarkan perbandingan dengan elemen tengah. Keputusan itu hanya benar jika data terurut, sebab baru dengan begitu kita yakin target berada di sisi kiri atau kanan saja.' }
+    ]
+  },
+  {
+    id: 'l4', title: 'LKPD 4: Struktur Data List, Stack & Queue', tp: 'X-BK-05', pg: 'p4', items: [
+      { id: 1, t: 'chk', q: `Stack kosong. Operasi: push A, push B, pop, push C, pop, pop. Tulis urutan elemen yang keluar dari setiap pop (pisahkan dengan koma).`, ans: ['b,c,a'], hint: 'Pop selalu mengambil elemen paling atas.' },
+      { id: 2, t: 'chk', q: `Queue kosong. Operasi: enqueue A, enqueue B, enqueue C, dequeue, enqueue D, dequeue. Tulis urutan elemen yang keluar.`, ans: ['a,b'], hint: 'Dequeue mengambil dari depan.' },
+      { id: 3, t: 'chk', q: 'Setelah operasi pada soal 2, apa isi antrean dari depan ke belakang?', ans: ['c,d'], hint: 'A dan B sudah keluar.' },
+      { id: 4, t: 'chk', q: 'Struktur data yang tepat untuk tombol Back pada peramban web: Stack atau Queue?', ans: ['stack'], hint: 'Halaman terakhir dibuka lebih dulu saat Back.' },
+      { id: 5, t: 'chk', q: 'Struktur data yang tepat untuk antrean tiket kereta di loket: Stack atau Queue?', ans: ['queue'], hint: 'Siapa datang dulu dilayani dulu.' },
+      { id: 6, t: 'chk', q: 'Struktur data yang membuka elemen ke-3 langsung lewat indeks tanpa melewati elemen 1 dan 2?', ans: ['array', 'list', 'list/array', 'array/list'], hint: 'Nama kelompoknya sama dengan nama bagian akses acak.' },
+      { id: 7, t: 'free', q: 'Berikan satu contoh nyata Stack dan satu contoh nyata Queue yang belum dibahas di kelas.', sample: 'Stack: tumpukan buku di meja, riwayat langkah pada permainan (undo). Queue: antrean kendaraan di SPBU, daftar putar lagu yang diputar sesuai urutan masuk.' }
+    ]
+  }
+];
+
+pages.lkpd = {
+  render() {
+    return `<div class="eyebrow">Lembar Kerja Peserta Didik</div><h1 style="font-size:clamp(1.9rem,5vw,3rem)">LKPD</h1>
+    <p class="muted">Empat lembar kerja, satu untuk tiap pertemuan. Jawaban otomatis tersimpan di perangkat ini. Soal berjawaban singkat bisa kamu cek langsung, soal uraian punya contoh jawaban yang bisa dibuka setelah kamu mencoba.</p>
+    <div class="card flat row" style="margin-bottom:18px">
+      <div class="field" style="flex:1;min-width:180px"><label for="lk-nama">Nama</label><input type="text" id="lk-nama" placeholder="Nama lengkap"></div>
+      <div class="field" style="min-width:120px"><label for="lk-kls">Kelas</label><input type="text" id="lk-kls" placeholder="X-..."></div>
+    </div>
+    <div class="tabs" role="tablist">${LKPD.map((l, i) => `<button class="tab ${i === 0 ? 'on' : ''}" data-lk="${i}">LKPD ${i + 1}</button>`).join('')}</div>
+    <div id="lk-panel"></div>
+    <div class="card" style="margin-top:24px"><h3>Kumpulkan jawabanmu</h3><p>Salin semua jawaban sebagai teks, lalu tempel ke tempat pengumpulan tugas yang ditentukan gurumu.</p>
+      <div class="row"><button class="btn pri" id="lk-copy">Salin semua jawaban</button></div>
+      <textarea id="copybox" hidden aria-label="Teks jawaban" style="margin-top:12px;min-height:160px"></textarea></div>
+    ${pager(['p4', 'Pertemuan 4'], ['asesmen', 'Asesmen'])}`;
+  },
+  init() {
+    let ci = 0; const ans = store.get('lkpd', {});
+    const save = () => store.set('lkpd', ans);
+    const nm = $('#lk-nama'), kl = $('#lk-kls');
+    nm.value = store.get('lk-nama', ''); kl.value = store.get('lk-kls', '');
+    nm.addEventListener('input', () => store.set('lk-nama', nm.value)); kl.addEventListener('input', () => store.set('lk-kls', kl.value));
+    const draw = () => {
+      const L = LKPD[ci];
+      $('#lk-panel').innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${L.title}</h2><span class="chip">${L.tp}</span></div><p class="muted">Kerjakan setelah mencoba aktivitas di <a href="#${L.pg}" data-go="${L.pg}">Pertemuan ${L.pg.slice(1)}</a>.</p>
+      <div class="stack">${L.items.map(it => {
+        const key = L.id + '-' + it.id, val = ans[key] || '';
+        return `<div class="card flat"><div><b>${it.id}.</b> ${it.q}</div>
+          ${it.t === 'chk' ? `<div class="row" style="margin-top:10px"><input type="text" id="in-${key}" value="${esc(val)}" placeholder="Jawabanmu" style="flex:1;min-width:150px" aria-label="Jawaban soal ${it.id}"><button class="btn sm sec" data-chk="${key}">Periksa</button></div><div id="fb-${key}" style="margin-top:8px" aria-live="polite"></div>`
+            : `<textarea id="in-${key}" style="margin:10px 0" aria-label="Jawaban soal ${it.id}">${esc(val)}</textarea><details class="ans"><summary>Contoh jawaban</summary><pre class="code" style="margin-top:10px;padding:10px 14px;white-space:pre-wrap">${esc(it.sample)}</pre></details>`}
+        </div>`;
+      }).join('')}</div></div>`;
+      L.items.forEach(it => {
+        const key = L.id + '-' + it.id, el = $('#in-' + key);
+        el.addEventListener('input', () => { ans[key] = el.value; save(); });
+        if (it.t === 'chk') {
+          const run = () => {
+            const n = norm(el.value), fb = $('#fb-' + key);
+            if (!n) { fb.innerHTML = '<span class="muted">Isi jawabanmu dulu.</span>'; return; }
+            const ok = (it.ans || []).includes(n) || (it.ans || []).includes(n.split(',')[0]) || (it.kw || []).some(k => n.includes(k));
+            fb.innerHTML = ok ? '<span class="st-ok">✓ Tepat!</span>' : `<span class="st-no">✗ Belum tepat.</span> <span class="muted">Petunjuk: ${it.hint}</span>`;
+          };
+          $(`[data-chk="${key}"]`).addEventListener('click', run);
+          el.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+        }
+      });
+    };
+    $$('[data-lk]').forEach(b => b.addEventListener('click', () => { ci = +b.dataset.lk; $$('[data-lk]').forEach(x => x.classList.toggle('on', x === b)); draw(); }));
+    $('#lk-copy').addEventListener('click', () => {
+      let t = `LKPD Algoritma dan Struktur Data\nNama: ${nm.value || '-'}\nKelas: ${kl.value || '-'}\n`;
+      LKPD.forEach(L => {
+        t += `\n== ${L.title} ==\n`;
+        L.items.forEach(it => { const v = (ans[L.id + '-' + it.id] || '').trim(); t += `${it.id}. ${it.q.replace(/<[^>]+>/g, '')}\n   Jawaban: ${v || '(belum diisi)'}\n`; });
+      });
+      copyText(t, 'Semua jawaban tersalin');
+    });
+    draw();
+  }
+};
+
+/* ===== Asesmen & Penilaian ===== */
+const QZ = [
+  { tp: 'X-BK-07', q: 'Apa luaran program berikut?', code: 'x <- 4\ny <- 3\nIF x > y THEN\n  OUTPUT x - y\nELSE\n  OUTPUT y - x\nENDIF', o: ['1', '-1', '7', '0'], a: 0, why: '4 > 3 BENAR, jadi OUTPUT 4 - 3 = 1.' },
+  { tp: 'X-BK-07', q: 'Simbol belah ketupat pada flowchart menandakan...', o: ['Mulai atau selesai', 'Proses perhitungan', 'Keputusan (kondisi Ya/Tidak)', 'Input atau output data'], a: 2, why: 'Belah ketupat dipakai untuk keputusan/percabangan.' },
+  { tp: 'X-BK-07', q: 'Berapa nilai OUTPUT total?', code: 'total <- 0\ni <- 1\nWHILE i <= 3 DO\n  total <- total + i\n  i <- i + 1\nENDWHILE\nOUTPUT total', o: ['3', '5', '6', '9'], a: 2, why: '1 + 2 + 3 = 6.' },
+  { tp: 'X-BK-08', q: 'Pada kondisi  IF nilai >= 75 THEN, nilai uji batas (edge case) yang paling penting adalah...', o: ['74', '75', '100', '0'], a: 1, why: 'Nilai tepat di batas (75) membedakan >= dengan >, tempat bug paling sering bersembunyi.' },
+  { tp: 'X-BK-08', q: 'Apa yang terjadi pada program berikut?', code: 'x <- 5\nWHILE x > 0 DO\n  OUTPUT x\nENDWHILE', o: ['Mencetak 5 4 3 2 1', 'Mencetak 5 satu kali', 'Infinite loop: x tidak pernah berubah', 'Error: x belum dideklarasikan'], a: 2, why: 'Tidak ada baris yang mengurangi x, jadi x > 0 selalu BENAR dan program tidak berhenti.' },
+  { tp: 'X-BK-08', q: 'Manfaat utama memakai fungsi adalah...', o: ['Program selalu lebih cepat', 'Program terpecah menjadi modul yang dapat dipakai ulang', 'Kasus uji tidak diperlukan lagi', 'Perulangan tidak perlu dipakai'], a: 1, why: 'Fungsi membuat potongan logika reusable dan lebih mudah diuji.' },
+  { tp: 'X-BK-04', q: 'Binary Search hanya dapat dipakai jika...', o: ['Data berisi bilangan genap', 'Data sudah terurut', 'Jumlah data ganjil', 'Data disimpan dalam Stack'], a: 1, why: 'Keputusan membuang separuh data hanya sahih bila data terurut.' },
+  { tp: 'X-BK-04', q: 'Isi larik [4, 3, 2, 1] setelah putaran pertama Bubble Sort adalah...', o: ['[3, 2, 1, 4]', '[1, 2, 3, 4]', '[3, 4, 2, 1]', '[4, 3, 1, 2]'], a: 0, why: 'Angka 4 ditukar terus ke kanan: 4-3, 4-2, 4-1, hasilnya [3, 2, 1, 4].' },
+  { tp: 'X-BK-04', q: 'Isi larik [4, 3, 2, 1] setelah putaran pertama Selection Sort adalah...', o: ['[3, 2, 4, 1]', '[1, 3, 2, 4]', '[1, 2, 3, 4]', '[4, 3, 2, 1]'], a: 1, why: 'Terkecil (1) ditukar dengan posisi pertama (4), menjadi [1, 3, 2, 4].' },
+  { tp: 'X-BK-04', q: 'Untuk data yang sudah hampir terurut, algoritma yang cenderung paling sedikit langkahnya adalah...', o: ['Selection Sort', 'Bubble Sort tanpa berhenti dini', 'Insertion Sort', 'Sequential Search'], a: 2, why: 'Insertion Sort hanya menggeser sedikit kartu, mendekati n-1 perbandingan.' },
+  { tp: 'X-BK-05', q: 'Fitur Undo pada aplikasi pengolah kata memakai struktur data...', o: ['Queue', 'Stack', 'Array tanpa indeks', 'Sequential Search'], a: 1, why: 'Aksi terakhir dibatalkan lebih dulu (LIFO), itulah Stack.' },
+  { tp: 'X-BK-05', q: 'Queue kosong. Enqueue 1, 2, 3, lalu Dequeue satu kali. Elemen paling depan sekarang adalah...', o: ['1', '2', '3', 'Queue kosong'], a: 1, why: 'Dequeue mengeluarkan 1 (yang pertama masuk). Sekarang 2 di depan.' },
+  { tp: 'X-BK-05', q: 'Stack kosong. Push 5, push 8, push 2, pop, lalu peek. Hasil peek adalah...', o: ['5', '8', '2', 'Stack kosong'], a: 1, why: 'Pop membuang 2. Elemen teratas sekarang 8.' }
+];
+const RUB = [
+  ['TP X-BK-07/08: Keterbacaan & Tatanan Pseudocode', ['Penulisan pseudocode sangat rapi, konsisten mengoperasikan konvensi standar, serta mudah dipahami dan ditelusuri logikanya.', 'Penulisan pseudocode rapi dan memenuhi standar konvensi, namun terdapat sedikit kekurangjelasan variabel.', 'Penulisan pseudocode kurang rapi dan kurang konsisten menggunakan konvensi baku.', 'Penulisan pseudocode acak-acakan, tidak terstruktur, dan sulit ditelusuri logikanya.']],
+  ['TP X-BK-08: Ketepatan Logika Struktur Kendali', ['Logika percabangan dan perulangan dibuat 100% tepat tanpa bug atau infinite loop, serta mencakup kasus uji batas (edge cases).', 'Logika percabangan dan perulangan benar untuk kasus standar, namun terdapat bug kecil pada kondisi batas.', 'Struktur percabangan dan perulangan kurang tepat sehingga menghasilkan luaran yang salah.', 'Gagal menerapkan struktur percabangan dan perulangan dengan benar (terjadi infinite loop).']],
+  ['TP X-BK-04: Efisiensi Algoritma Pencarian & Pengurutan', ['Mampu mensimulasikan dan menganalisis perbandingan efisiensi algoritma Search/Sort dengan sangat tepat sesuai kompleksitas langkahnya.', 'Mampu mensimulasikan algoritma Search/Sort dengan benar, tetapi kurang tepat dalam menjelaskan perbandingan efisiensinya.', 'Dapat mensimulasikan langkah algoritma Search/Sort namun membutuhkan beberapa perbaikan panduan.', 'Tidak mampu mensimulasikan tahapan algoritma Search maupun Sort.']],
+  ['TP X-BK-05: Penerapan Struktur Data List, Stack & Queue', ['Tepat 100% dalam membedakan, memilih, dan memodelkan List/Array, Stack (LIFO), dan Queue (FIFO) pada kasus nyata.', 'Memahami perbedaan Stack dan Queue, tetapi terdapat sedikit kekeliruan dalam operasi simulasi (Push/Pop/Enqueue/Dequeue).', 'Terbalik dalam membedakan konsep antara LIFO (Stack) dan FIFO (Queue) pada studi kasus nyata.', 'Tidak memahami konsep dan penerapan List/Array, Stack, maupun Queue.']],
+  ['Profil Pelajar Pancasila: Kerja Sama Kelompok & Berpikir Kritis', ['Sangat aktif berkolaborasi, mampu memimpin diskusi penyelesaian masalah (troubleshooting), dan mandiri.', 'Aktif berkolaborasi dalam kelompok dan mampu menyelesaikan tugas yang diberikan dengan baik.', 'Cukup berpartisipasi dalam kelompok, namun kurang berinisiatif dalam penyelesaian masalah.', 'Pasif dalam kerja kelompok dan bergantung sepenuhnya pada anggota tim lainnya.']]
+];
+const LV = ['Sangat Baik (4)', 'Baik (3)', 'Cukup (2)', 'Perlu Bimbingan (1)'];
+
+pages.asesmen = {
+  render() {
+    return `<div class="eyebrow">Asesmen dan penilaian</div><h1 style="font-size:clamp(1.9rem,5vw,3rem)">Asesmen</h1>
+    <div class="grid g2" style="margin:18px 0 26px">
+      <div class="card sun"><h4>Asesmen formatif</h4><p style="margin:0">Observasi proses, aktivitas harian (14 misi di tiap pertemuan), dan partisipasi diskusi.</p></div>
+      <div class="card sky"><h4>Asesmen sumatif</h4><p style="margin:0">Penilaian unjuk kerja praktik logika (rubrik) dan tes pemahaman (kuis di bawah).</p></div>
+    </div>
+    <div class="tabs" role="tablist"><button class="tab on" data-as="quiz">Kuis pemahaman</button><button class="tab" data-as="rub">Rubrik unjuk kerja</button></div>
+    <div id="as-panel"></div>
+    ${pager(['lkpd', 'LKPD'], ['susulan', 'Pengayaan & Remedial'])}`;
+  },
+  init() {
+    const quiz = () => {
+      const best = store.get('quiz-best', null);
+      $('#as-panel').innerHTML = `<p class="muted">13 soal pilihan ganda dari keempat tujuan pembelajaran. Pilih satu jawaban per soal, lalu kirim.${best !== null ? ` Skor terbaikmu di perangkat ini: <b>${best}/13</b>.` : ''}</p>
+      <div id="qz-list">${QZ.map((it, i) => `<div class="mc card flat" data-q="${i}"><span class="chip">${it.tp}</span><div style="margin-top:8px"><b>${i + 1}.</b> ${esc(it.q)}</div>${it.code ? `<div style="margin-top:8px">${code(it.code)}</div>` : ''}<div class="mc-o">${it.o.map((o, j) => `<button class="opt" data-j="${j}">${esc(o)}</button>`).join('')}</div></div>`).join('')}</div>
+      <div class="row"><button class="btn pri" id="qz-send">Kirim jawaban</button><span class="muted" id="qz-cnt">0/13 terjawab</span></div>
+      <div id="qz-res" style="margin-top:20px" aria-live="polite"></div>`;
+      const pick = {};
+      $$('#qz-list .mc').forEach(box => box.addEventListener('click', e => {
+        const b = e.target.closest('.opt'); if (!b || box.dataset.lock) return;
+        $$('.opt', box).forEach(x => x.classList.toggle('pick', x === b)); pick[+box.dataset.q] = +b.dataset.j; $('#qz-cnt').textContent = Object.keys(pick).length + '/13 terjawab';
+      }));
+      $('#qz-send').addEventListener('click', () => {
+        if (Object.keys(pick).length < QZ.length) { $('#qz-res').innerHTML = `<div class="info-note">Masih ada ${QZ.length - Object.keys(pick).length} soal belum dijawab.</div>`; return; }
+        let sc = 0; const per = {};
+        QZ.forEach((it, i) => { per[it.tp] = per[it.tp] || [0, 0]; per[it.tp][1]++; if (pick[i] === it.a) { sc++; per[it.tp][0]++; } });
+        $$('#qz-list .mc').forEach(box => {
+          const i = +box.dataset.q, it = QZ[i]; box.dataset.lock = 1;
+          $$('.opt', box).forEach((o, j) => { o.disabled = true; o.classList.remove('pick'); if (j === it.a) o.classList.add('good'); else if (j === pick[i]) o.classList.add('bad'); });
+          const fb = document.createElement('div'); fb.className = 'mc-fb'; fb.innerHTML = (pick[i] === it.a ? '✅ ' : '❌ ') + esc(it.why); box.appendChild(fb);
+        });
+        if (best === null || sc > best) store.set('quiz-best', sc);
+        const pct = Math.round(sc / QZ.length * 100);
+        const weak = Object.keys(per).filter(k => per[k][0] / per[k][1] < 0.75);
+        $('#qz-res').innerHTML = `<div class="card ${pct >= 75 ? 'mint' : 'sun'}"><h2 style="margin:0 0 6px">Skor: ${sc}/${QZ.length} (${pct}%)</h2>
+          <div class="stack" style="margin:12px 0">${Object.keys(per).map(k => `<div><div class="row" style="justify-content:space-between"><b>${k}</b><span>${per[k][0]}/${per[k][1]}</span></div><div class="bar"><i style="width:${per[k][0] / per[k][1] * 100}%"></i></div></div>`).join('')}</div>
+          <p style="margin:0">${weak.length ? `Fokuskan latihan ulang pada <b>${weak.join(', ')}</b>. Buka <a href="#susulan" data-go="susulan">program remedial</a> atau ulangi aktivitas pertemuannya.` : 'Semua tujuan pembelajaran terkuasai dengan baik. Lanjut ke <a href="#susulan" data-go="susulan">program pengayaan</a>.'}</p>
+          <p class="muted" style="margin:8px 0 0;font-size:.85rem">Batas 75% per tujuan pembelajaran hanya contoh. Gurumu menetapkan KKTP yang sebenarnya.</p>
+          <div class="row" style="margin-top:12px"><button class="btn" id="qz-again">Ulangi kuis</button></div></div>`;
+        $('#qz-again').addEventListener('click', quiz); $('#qz-res').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    };
+    const rubric = () => {
+      const sel = store.get('rub-sel', {});
+      const draw = () => {
+        const vals = RUB.map((_, i) => sel[i]); const answered = vals.filter(v => v).length, total = vals.reduce((s, v) => s + (v || 0), 0);
+        const low = RUB.map((r, i) => sel[i] && sel[i] <= 2 ? r[0].split(': ')[1] || r[0] : null).filter(Boolean);
+        $('#as-panel').innerHTML = `<p class="muted">Rubrik penilaian unjuk kerja / praktik logika pemrograman dan struktur data. Ketuk sel yang paling menggambarkan kinerjamu untuk menghitung skor penilaian diri.</p>
+        <div class="tw"><table class="t rub"><thead><tr><th style="min-width:170px">Kriteria</th>${LV.map(l => `<th style="min-width:170px">${l}</th>`).join('')}</tr></thead><tbody>
+        ${RUB.map((r, i) => `<tr><td><b>${r[0]}</b></td>${r[1].map((d, j) => `<td class="cellp ${sel[i] === 4 - j ? 'pick' : ''}" data-r="${i}" data-s="${4 - j}" tabindex="0" role="button" aria-pressed="${sel[i] === 4 - j}">${d}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+        <div class="card ${answered === RUB.length ? 'lime' : ''}" style="margin-top:16px"><h3 style="margin:0 0 6px">Skor penilaian diri: ${total}/20</h3>
+          <p style="margin:0">${answered < RUB.length ? `Baru ${answered} dari 5 kriteria terisi.` : low.length ? `Kriteria yang masih bernilai 1 atau 2: <b>${low.join('; ')}</b>. Ini kandidat topik <a href="#susulan" data-go="susulan">remedial</a>.` : 'Semua kriteria bernilai 3 atau 4. Kamu siap menjajal <a href="#susulan" data-go="susulan">pengayaan</a>.'}</p>
+          <div class="row" style="margin-top:10px"><button class="btn sm" id="rb-rst">Kosongkan</button></div></div>
+        <p class="muted" style="font-size:.85rem;margin-top:10px">Hasil asesmen dipakai guru untuk memetakan ketercapaian dan menentukan intervensi: pengayaan atau remedial.</p>`;
+        const pickIt = el => { sel[el.dataset.r] = +el.dataset.s; store.set('rub-sel', sel); draw(); };
+        $$('.cellp').forEach(td => { td.addEventListener('click', () => pickIt(td)); td.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickIt(td); } }); });
+        $('#rb-rst').addEventListener('click', () => { Object.keys(sel).forEach(k => delete sel[k]); store.set('rub-sel', sel); draw(); });
+      };
+      draw();
+    };
+    $$('[data-as]').forEach(b => b.addEventListener('click', () => { $$('[data-as]').forEach(x => x.classList.toggle('on', x === b)); b.dataset.as === 'quiz' ? quiz() : rubric(); }));
+    quiz();
+  }
+};
+
+/* ===== Pengayaan & Remedial ===== */
+const cntBubble = a => { a = a.slice(); let c = 0; const n = a.length; for (let i = 0; i < n - 1; i++) { let sw = false; for (let j = 0; j < n - 1 - i; j++) { c++; if (a[j] > a[j + 1]) { const t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; sw = true; } } if (!sw) break; } return c; };
+const cntMerge = a => { let c = 0; const ms = x => { if (x.length <= 1) return x; const m = x.length >> 1, l = ms(x.slice(0, m)), r = ms(x.slice(m)), o = []; let i = 0, j = 0; while (i < l.length && j < r.length) { c++; if (l[i] <= r[j]) o.push(l[i++]); else o.push(r[j++]); } return o.concat(l.slice(i), r.slice(j)); }; ms(a); return c; };
+const cntQuick = a => { let c = 0; const x = a.slice(); const qs = (lo, hi) => { if (lo >= hi) return; const p = x[hi]; let i = lo; for (let j = lo; j < hi; j++) { c++; if (x[j] < p) { const t = x[i]; x[i] = x[j]; x[j] = t; i++; } } const t = x[i]; x[i] = x[hi]; x[hi] = t; qs(lo, i - 1); qs(i + 1, hi); }; qs(0, x.length - 1); return c; };
+
+function divideLevels(arr) {
+  let lv = [[arr.slice()]];
+  while (lv[lv.length - 1].some(g => g.length > 1)) {
+    const prev = lv[lv.length - 1], next = [];
+    prev.forEach(g => { if (g.length > 1) { const m = g.length >> 1; next.push(g.slice(0, m), g.slice(m)); } else next.push(g); });
+    lv.push(next);
+  }
+  return lv;
+}
+const SCAF = [
+  { q: 'Tugas: cetak "Boleh masuk" jika umur minimal 17. Baris pembuka percabangan yang benar?', o: ['IF umur >= 17 THEN', 'IF umur <- 17 THEN', 'WHEN umur >= 17', 'IF umur >= 17'], a: 0, why: 'Konvensi modul: IF kondisi THEN. Tanda "minimal" berarti >=.', hint: 'Ingat: <- hanya untuk memberi nilai, dan percabangan diakhiri kata THEN.' },
+  { q: 'Isi blok THEN yang benar untuk mencetak teks?', o: ['OUTPUT "Boleh masuk"', 'OUTPUT Boleh masuk', 'umur <- "Boleh masuk"', 'THEN "Boleh masuk"'], a: 0, why: 'Teks dibungkus tanda petik dan dicetak dengan OUTPUT.', hint: 'Teks literal selalu memakai tanda petik.' },
+  { q: 'Kata penutup percabangan?', o: ['END', 'ENDIF', 'ENDWHILE', 'STOP'], a: 1, why: 'IF ditutup dengan ENDIF (WHILE ditutup ENDWHILE).', hint: 'Penutup menyebut nama strukturnya.' }
+];
+const PRI = { 1: ['Gawat darurat', 'coral'], 2: ['Mendesak', 'sun'], 3: ['Biasa', 'sky'] };
+
+pages.susulan = {
+  render() {
+    return `<div class="eyebrow">Program susulan</div><h1 style="font-size:clamp(1.9rem,5vw,3rem)">Pengayaan &amp; Remedial</h1>
+    <p class="muted">Pengayaan untuk yang sudah mencapai KKTP lebih cepat. Remedial untuk yang belum mencapai ketercapaian minimal. Pilih jalurmu.</p>
+    <div class="tabs"><button class="tab on" data-su="en">🚀 Pengayaan</button><button class="tab" data-su="re">🧩 Remedial</button></div>
+
+    <div id="su-en">
+      <section class="blk"><h2>Pengurutan tingkat lanjut: Divide and Conquer</h2>
+        <p>Quick Sort dan Merge Sort membagi masalah jadi bagian kecil, menyelesaikannya, lalu menggabungkan. Lihat bagaimana Merge Sort membagi dan menggabung 8 angka.</p>
+        <div class="card"><div class="row" style="margin-bottom:12px"><button class="btn sm" id="mg-new">Angka baru</button></div><div id="mg-view" class="stack"></div></div>
+        <h3 style="margin-top:24px">Balapan perbandingan</h3>
+        <p>Berapa kali tiap algoritma membandingkan dua angka? Tiap ukuran dijalankan 10 kali pada data acak, lalu dirata-rata. Bandingkan pertumbuhannya dengan Bubble Sort.</p>
+        <div class="card"><div class="row"><button class="btn pri" id="rc-run">Jalankan balapan</button><span class="chip" style="background:var(--coral);color:var(--on)">Bubble</span><span class="chip" style="background:var(--sky);color:var(--on)">Merge</span><span class="chip" style="background:var(--mint);color:var(--on)">Quick</span></div>
+        <div id="rc-out" class="stack" style="margin-top:14px"></div></div>
+      </section>
+      <section class="blk"><h2>Variasi antrean</h2>
+        <div class="grid g2">
+          <div class="card stack"><h3 style="margin:0">Circular Queue (kapasitas 5)</h3><p style="margin:0">Ruang yang kosong di depan dipakai ulang karena indeks "memutar" kembali ke 0 (<span class="mono">(indeks + 1) MOD kapasitas</span>).</p>
+            <div class="row"><button class="btn sm pri" id="cq-enq">Enqueue</button><button class="btn sm warn" id="cq-deq">Dequeue</button><button class="btn sm" id="cq-rst">Reset</button></div>
+            <div class="cells" id="cq-cells"></div><div class="info-note" id="cq-msg" aria-live="polite">Isi dan kosongkan antrean, lalu enqueue lagi saat sudah penuh sebagian.</div></div>
+          <div class="card stack"><h3 style="margin:0">Priority Queue (antrean IGD)</h3><p style="margin:0">Yang keluar bukan yang paling dulu datang, melainkan yang paling prioritas. Prioritas sama dilayani sesuai urutan datang.</p>
+            <div class="row"><select id="pq-p" aria-label="Prioritas">${Object.keys(PRI).map(k => `<option value="${k}">${k} - ${PRI[k][0]}</option>`).join('')}</select><button class="btn sm pri" id="pq-enq">Enqueue</button><button class="btn sm warn" id="pq-deq">Dequeue</button><button class="btn sm" id="pq-rst">Reset</button></div>
+            <div class="lane" id="pq-lane" style="padding-top:12px"></div><div class="log" id="pq-log"></div></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="su-re" hidden>
+      <section class="blk"><h2>Pendampingan bertahap: IF-THEN</h2>
+        <p>Susun satu percabangan tunggal langkah demi langkah. Setiap langkah punya petunjuk.</p>
+        ${mcHTML('scaf', SCAF)}<div id="scaf-out"></div>
+      </section>
+      <section class="blk"><h2>Penelusuran visual ulang</h2>
+        <p>Latih tracing berulang dengan kartu angka. Aturan: jika <code class="i">A &gt; B</code> BENAR, cetak <code class="i">"A Lebih Besar"</code>. Jika SALAH, tidak ada luaran. Capai 5 jawaban benar berturut-turut.</p>
+        <div class="card stack">
+          <div class="deck" style="padding:6px"><div class="pc" id="tr-a"></div><span style="align-self:center;font:800 1.6rem var(--f-head)">vs</span><div class="pc" id="tr-b"></div></div>
+          <div class="row" style="justify-content:center"><div class="field"><label for="tr-k">Kondisi A &gt; B</label><select id="tr-k"><option>BENAR</option><option>SALAH</option></select></div>
+            <div class="field"><label for="tr-o">Luaran</label><select id="tr-o"><option value="-">-</option><option value="Cetak &quot;A Lebih Besar&quot;">Cetak "A Lebih Besar"</option></select></div><button class="btn pri" id="tr-chk" style="align-self:flex-end">Cek</button></div>
+          <div class="stat" style="justify-content:center"><div>beruntun<b id="tr-s">0</b></div><div>target<b>5</b></div></div>
+          <div id="tr-msg" aria-live="polite" style="text-align:center"></div>
+        </div>
+      </section>
+    </div>
+    ${pager(['asesmen', 'Asesmen'], ['beranda', 'Beranda'])}`;
+  },
+  init() {
+    $$('[data-su]').forEach(b => b.addEventListener('click', () => { $$('[data-su]').forEach(x => x.classList.toggle('on', x === b)); $('#su-en').hidden = b.dataset.su !== 'en'; $('#su-re').hidden = b.dataset.su !== 're'; }));
+
+    /* merge sort levels */
+    const mg = () => {
+      const arr = shuffle(Array.from({ length: 40 }, (_, i) => i + 1)).slice(0, 8), dv = divideLevels(arr);
+      const box = g => `<span style="display:inline-flex;gap:3px;border:2.5px solid var(--line);border-radius:8px;padding:3px 6px;background:var(--card);font:700 .9rem var(--f-mono)">${g.join(' ')}</span>`;
+      const rowOf = (groups, label) => `<div><div class="muted mono" style="font-size:.72rem;margin-bottom:4px">${label}</div><div class="row" style="gap:6px">${groups.map(box).join('')}</div></div>`;
+      const divRows = dv.map((lv, i) => rowOf(lv, i === 0 ? 'Awal' : `Bagi ${i}`));
+      const mergeRows = dv.slice(0, -1).reverse().map((lv, i) => rowOf(lv.map(g => g.slice().sort((a, b) => a - b)), `Gabung ${i + 1}`));
+      $('#mg-view').innerHTML = divRows.join('') + '<div class="chip" style="align-self:flex-start">↓ lalu digabung dengan urutan benar ↓</div>' + mergeRows.join('') + `<div class="ok-note">Hasil akhir: ${arr.slice().sort((a, b) => a - b).join(', ')}</div>`;
+    };
+    $('#mg-new').addEventListener('click', mg); mg();
+
+    $('#rc-run').addEventListener('click', () => {
+      const sizes = [8, 16, 32, 64, 128, 256], rows = sizes.map(n => {
+        let b = 0, m = 0, q = 0;
+        for (let k = 0; k < 10; k++) { const a = shuffle(Array.from({ length: n }, (_, i) => i)); b += cntBubble(a); m += cntMerge(a); q += cntQuick(a); }
+        return [n, Math.round(b / 10), Math.round(m / 10), Math.round(q / 10)];
+      });
+      $('#rc-out').innerHTML = rows.map(r => { const mx = r[1]; const bar = (v, col) => `<div style="display:flex;align-items:center;gap:8px"><div style="height:14px;width:${Math.max(1.5, v / mx * 100)}%;background:var(--${col});border:2px solid var(--line);border-radius:6px"></div><span class="mono" style="font-size:.78rem">${v}</span></div>`; return `<div><b>n = ${r[0]}</b>${bar(r[1], 'coral')}${bar(r[2], 'sky')}${bar(r[3], 'mint')}</div>`; }).join('') + `<p class="muted" style="margin:0">Saat n bertambah dua kali lipat, Bubble Sort kira-kira naik empat kali lipat, sementara Merge dan Quick Sort hanya sedikit lebih dari dua kali lipat.</p>`;
+    });
+
+    /* circular queue */
+    const CAP = 5; let cq, head, tail, cnt, cqn;
+    const cqRst = () => { cq = Array(CAP).fill(null); head = 0; tail = 0; cnt = 0; cqn = 0; cqDraw(); $('#cq-msg').textContent = 'Isi dan kosongkan antrean, lalu enqueue lagi saat sudah penuh sebagian.'; };
+    const cqDraw = () => { $('#cq-cells').innerHTML = cq.map((v, i) => `<div class="cell ${v !== null && i === head ? 'found' : ''} ${i === tail ? 'mid' : ''}" style="width:58px">${v === null ? '·' : v}<small>[${i}]${v !== null && i === head ? ' F' : ''}${i === tail ? ' R' : ''}</small></div>`).join(''); };
+    $('#cq-enq').addEventListener('click', () => { if (cnt === CAP) { $('#cq-msg').textContent = 'Antrean PENUH. Dequeue dulu.'; return; } cqn++; cq[tail] = cqn; $('#cq-msg').textContent = `Enqueue ${cqn} di indeks ${tail}. Rear pindah ke (${tail} + 1) MOD ${CAP} = ${(tail + 1) % CAP}.`; tail = (tail + 1) % CAP; cnt++; cqDraw(); });
+    $('#cq-deq').addEventListener('click', () => { if (!cnt) { $('#cq-msg').textContent = 'Antrean KOSONG.'; return; } const v = cq[head]; cq[head] = null; $('#cq-msg').textContent = `Dequeue ${v} dari indeks ${head}. Front pindah ke (${head} + 1) MOD ${CAP} = ${(head + 1) % CAP}.`; head = (head + 1) % CAP; cnt--; cqDraw(); });
+    $('#cq-rst').addEventListener('click', cqRst); cqRst();
+
+    /* priority queue */
+    let pq = [], pseq = 0;
+    const pqDraw = () => { const s = pq.slice().sort((a, b) => a.p - b.p || a.s - b.s); $('#pq-lane').innerHTML = s.length ? s.map((x, i) => `<div class="q-i ${i === 0 ? 'front' : ''}" style="background:var(--${PRI[x.p][1]});color:var(--on)">${x.name}<small style="color:#2a2f45">P${x.p} ${PRI[x.p][0]}</small></div>`).join('') : '<div class="q-i empty">kosong</div>'; $('#pq-deq').disabled = !s.length; };
+    const plog = m => { const l = $('#pq-log'); l.innerHTML = m + '<br>' + l.innerHTML; };
+    $('#pq-enq').addEventListener('click', () => { const p = +$('#pq-p').value; pseq++; const x = { p, s: pseq, name: NAMES[(pseq - 1) % NAMES.length] }; pq.push(x); plog(`ENQUEUE ${x.name} (prioritas ${p}).`); pqDraw(); });
+    $('#pq-deq').addEventListener('click', () => { const s = pq.slice().sort((a, b) => a.p - b.p || a.s - b.s); const x = s[0]; pq = pq.filter(y => y !== x); plog(`DEQUEUE ${x.name} (prioritas ${x.p}) dilayani lebih dulu.`); pqDraw(); });
+    $('#pq-rst').addEventListener('click', () => { pq = []; pseq = 0; $('#pq-log').innerHTML = ''; pqDraw(); }); pqDraw();
+
+    /* remedial */
+    mcInit('scaf', SCAF, () => { $('#scaf-out').innerHTML = `<div class="ok-note" style="margin-bottom:10px">Kamu berhasil menyusun IF-THEN utuh:</div>${code('IF umur >= 17 THEN\n  OUTPUT "Boleh masuk"\nENDIF')}`; });
+    let streak = 0, A, B;
+    const trNew = () => { A = 1 + rnd(20); B = 1 + rnd(20); if (rnd(4) === 0) B = A; $('#tr-a').textContent = A; $('#tr-b').textContent = B; };
+    $('#tr-chk').addEventListener('click', () => {
+      const real = A > B, rk = real ? 'BENAR' : 'SALAH', ro = real ? 'Cetak "A Lebih Besar"' : '-';
+      const ok = $('#tr-k').value === rk && $('#tr-o').value === ro;
+      if (ok) { streak++; $('#tr-msg').innerHTML = `<div class="ok-note">Tepat! ${A} &gt; ${B} itu ${rk}.</div>`; } else { streak = 0; $('#tr-msg').innerHTML = `<div class="bad-note">Belum tepat. ${A} &gt; ${B} itu ${rk}${real ? ', jadi ada luaran "A Lebih Besar"' : ', jadi tidak ada luaran'}. Streak diulang dari nol.</div>`; }
+      $('#tr-s').textContent = streak;
+      if (streak >= 5) { $('#tr-msg').innerHTML = '<div class="ok-note">5 benar berturut-turut! Tracing dasarmu sudah kuat. Coba lagi Pertemuan 1 atau kuis asesmen.</div>'; streak = 0; $('#tr-s').textContent = '5'; }
+      trNew();
+    });
+    trNew();
+  }
+};
+
+boot();
+</script>
+
+</body></html>
