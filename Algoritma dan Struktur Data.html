@@ -1,0 +1,618 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Algoritma dan Struktur Data</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Konsep: lembar kerja ala editor kode. Satu tampilan per pertemuan, tiap blok interaktif berlabel kode aktivitas aslinya. */
+:root{
+  --bg:#F2F4F8;--surface:#FFFFFF;--ink:#131A2B;--muted:#586178;--line:#D8DDE9;
+  --accent:#2B5CFF;--accent-ink:#FFFFFF;--hot:#E8452A;--sun:#FFC53D;--sun-ink:#2A2000;
+  --ok:#0F8A55;--bad:#CF3636;--code:#EAEEF7;--tint:#E6ECFF;
+  --f-disp:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1220;--surface:#151C30;--ink:#E8ECF6;--muted:#94A1BE;--line:#28324D;
+  --accent:#7B98FF;--accent-ink:#0B1020;--hot:#FF7A5F;--sun:#FFD05A;--sun-ink:#2A2000;
+  --ok:#3DD598;--bad:#FF7B7B;--code:#0A0F1D;--tint:#1C2748;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1220;--surface:#151C30;--ink:#E8ECF6;--muted:#94A1BE;--line:#28324D;
+  --accent:#7B98FF;--accent-ink:#0B1020;--hot:#FF7A5F;--sun:#FFD05A;--sun-ink:#2A2000;
+  --ok:#3DD598;--bad:#FF7B7B;--code:#0A0F1D;--tint:#1C2748;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--f-disp);line-height:1.12;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.5rem,4.5vw,2.1rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:.5em 0}
+a{color:var(--accent)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.topin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--f-disp);font-weight:800;font-size:1.05rem}
+.logo{background:var(--ink);color:var(--bg);font-family:var(--f-mono);font-weight:600;font-size:.85rem;padding:4px 8px;border-radius:6px}
+.brand b{color:var(--hot)}
+nav{display:flex;gap:4px;overflow-x:auto;flex:1 1 320px;min-width:0;scrollbar-width:none;padding-block:2px}
+nav::-webkit-scrollbar{display:none}
+nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-weight:700;font-size:.88rem;padding:7px 12px;border-radius:999px}
+nav a:hover{color:var(--ink);background:var(--tint)}
+nav a.on{background:var(--accent);color:var(--accent-ink)}
+main{padding-block:28px 56px}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--hot);font-weight:600;margin-bottom:6px}
+.blk{margin-top:44px;min-width:0}
+.blk>p.lead{color:var(--muted);max-width:64ch}
+.hero{padding-block:8px 4px}
+.hero h1{font-size:clamp(2.3rem,9vw,4.6rem);font-weight:800;letter-spacing:-.03em;max-width:14ch}
+.hero h1 mark{background:linear-gradient(transparent 58%,var(--sun) 58%);color:inherit;padding:0 .08em}
+.hero p{max-width:58ch;color:var(--muted);font-size:1.08rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-family:var(--f-mono);font-size:.76rem;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--tint);color:var(--ink);border:1px solid var(--line)}
+.chip.ok{background:transparent;color:var(--ok);border-color:var(--ok)}
+.chip.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+.chip.sun{background:var(--sun);color:var(--sun-ink);border-color:transparent}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));margin-top:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card h3{margin-bottom:4px}
+.card .k{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.card.link{text-decoration:none;color:inherit;display:block;transition:transform .15s,border-color .15s}
+.card.link:hover{transform:translateY(-3px);border-color:var(--accent)}
+.card ul{margin:.4em 0 0;padding-left:1.1em;color:var(--muted);font-size:.93rem}
+.tblwrap{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.93rem}
+th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-family:var(--f-mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--code)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{font-variant-numeric:tabular-nums;text-align:right}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px;min-width:0}
+.lab>h3{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.lab .hint{color:var(--muted);font-size:.92rem;margin:.2em 0 .9em}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-block:10px}
+.row>*{min-width:0}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.8rem;font-weight:700;color:var(--muted)}
+input[type=number],input[type=text],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=number]{width:110px;font-family:var(--f-mono)}
+input[type=text]{width:170px}
+textarea{width:100%;min-height:92px;resize:vertical;line-height:1.5}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;border:1.5px solid var(--ink);background:var(--accent);color:var(--accent-ink);border-color:transparent;padding:9px 16px;border-radius:9px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.hot{background:var(--hot);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.code{font-family:var(--f-mono);font-size:.86rem;background:var(--code);border-radius:8px;padding:12px 14px;margin:10px 0;overflow-x:auto;line-height:1.7;white-space:pre}
+.code .ln{display:block;padding:0 6px;border-radius:4px}
+.code .ln.cur{background:var(--sun);color:var(--sun-ink)}
+.code .ln.skip{opacity:.4}
+.code .ln.hit{background:var(--tint);outline:1.5px solid var(--accent)}
+.kw{color:var(--accent);font-weight:600}
+.out{font-family:var(--f-mono);background:var(--code);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:10px;min-height:44px;overflow-wrap:anywhere}
+.out.ok{border-color:var(--ok)}.out.bad{border-color:var(--bad)}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.two>*{min-width:0}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 6px}
+.tabs button{font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--muted);padding:6px 12px;border-radius:999px}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.phase{display:flex;height:34px;border-radius:9px;overflow:hidden;margin:12px 0 4px;font-size:.78rem;font-weight:700}
+.phase div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;padding:0 6px}
+.phase .a{background:var(--tint);color:var(--ink)}.phase .b{background:var(--accent);color:var(--accent-ink)}.phase .c{background:var(--sun);color:var(--sun-ink)}
+details{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-top:8px}
+summary{cursor:pointer;font-weight:700;padding:10px 14px}
+details>div{padding:0 14px 12px;color:var(--muted);font-size:.93rem}
+details ul{margin:.3em 0;padding-left:1.1em}
+.goal{border-left:5px solid var(--sun);padding:6px 0 6px 16px;margin-top:14px;font-size:1.05rem;max-width:68ch}
+.cards{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.pc{width:54px;height:76px;border-radius:9px;border:2px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:600;font-size:1.25rem;position:relative;transition:transform .18s,background .18s}
+button.pc{cursor:pointer;color:var(--ink);font-size:1.25rem}
+.pc.cmp{border-color:var(--accent);background:var(--tint);transform:translateY(-8px)}
+.pc.swap{border-color:var(--hot);background:var(--hot);color:#fff;transform:translateY(-8px)}
+.pc.sorted{border-color:var(--ok);color:var(--ok)}
+.pc.sel{border-color:var(--sun);background:var(--sun);color:var(--sun-ink);transform:translateY(-8px)}
+.pc.mark::after{content:"min";position:absolute;bottom:-18px;font-size:.62rem;color:var(--hot)}
+.pc small{position:absolute;top:2px;left:5px;font-size:.6rem;font-weight:400;color:var(--muted)}
+.pc.lo{border-color:var(--ok)}.pc.hi{border-color:var(--bad)}.pc.mid{border-color:var(--sun);background:var(--sun);color:var(--sun-ink)}.pc.dim{opacity:.3}.pc.found{background:var(--ok);color:#fff;border-color:var(--ok)}
+.pc.cell{width:46px;height:56px;font-size:1rem}
+.stackbox{display:flex;flex-direction:column-reverse;gap:6px;min-height:230px;width:170px;border:3px solid var(--ink);border-top:0;border-radius:0 0 12px 12px;padding:8px;justify-content:flex-start}
+.item{background:var(--accent);color:var(--accent-ink);font-family:var(--f-mono);font-weight:600;padding:8px 10px;border-radius:7px;text-align:center;overflow:hidden;text-overflow:ellipsis;animation:pop .2s}
+.item.top{background:var(--hot);color:#fff}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+.qbox{display:flex;gap:6px;min-height:64px;border-block:3px solid var(--ink);padding:8px 6px;overflow-x:auto;align-items:center}
+.qbox .item{flex:0 0 auto;min-width:68px}
+.qbox .item.top{background:var(--hot)}
+.qlab{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);margin-top:4px}
+.log{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);max-height:140px;overflow:auto;margin-top:8px}
+.log div{padding:2px 0;border-bottom:1px dashed var(--line)}
+.bar{height:14px;border-radius:7px;background:var(--code);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:7px;transition:width .3s}
+.bar.h i{background:var(--hot)}
+.pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pick button{font:inherit;cursor:pointer;text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);padding:9px 14px;border-radius:9px}
+.pick button:hover{border-color:var(--accent)}
+.pick button.right{border-color:var(--ok);background:transparent;color:var(--ok);font-weight:700}
+.pick button.wrong{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.q{padding:16px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border:0}
+.q .t{font-weight:700}
+.fb{margin-top:8px;font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--code)}
+.score{font-family:var(--f-disp);font-size:3rem;font-weight:800;line-height:1}
+.pager{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:56px;padding-top:20px;border-top:1px solid var(--line)}
+footer{color:var(--muted);font-size:.82rem;padding-bottom:40px;text-align:left}
+svg.fc text{font-family:var(--f-mono);font-size:13px;fill:var(--ink);text-anchor:middle;dominant-baseline:middle}
+svg.fc .fn rect,svg.fc .fn polygon{fill:var(--surface);stroke:var(--line);stroke-width:2;transition:all .25s}
+svg.fc .fn.on rect,svg.fc .fn.on polygon{fill:var(--tint);stroke:var(--accent)}
+svg.fc .fe{stroke:var(--line);stroke-width:2.4;fill:none;transition:stroke .25s}
+svg.fc .fe.on{stroke:var(--accent)}
+svg.fc .lbl{font-size:11px;fill:var(--muted)}
+.meter{display:flex;gap:4px;margin-top:6px}
+.meter i{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.meter i.on{background:var(--ok)}
+.rub label{display:block;border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;margin-top:6px;cursor:pointer;font-size:.9rem}
+.rub input{margin-right:8px;accent-color:var(--accent)}
+.rub label:has(input:checked){border-color:var(--accent);background:var(--tint)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="top"><div class="wrap topin">
+  <a class="brand" href="#beranda"><span class="logo">{ }</span><span>Algoritma <b>&amp;</b> Struktur Data</span></a>
+  <nav id="nav" aria-label="Navigasi modul"></nav>
+</div></header>
+<main class="wrap" id="app"></main>
+<div class="wrap"><footer>Modul Ajar Informatika Fase E (Kelas X), elemen Berpikir Komputasional. Jawaban LKPD tersimpan di peramban ini saja.</footer></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+function load(k,d){try{var v=localStorage.getItem('asd:'+k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem('asd:'+k,JSON.stringify(v))}catch(e){}}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function sec(eb,title,body,lead){return '<section class="blk"><div class="eyebrow">'+eb+'</div><h2>'+title+'</h2>'+(lead?'<p class="lead">'+lead+'</p>':'')+body+'</section>'}
+function code(lines,id){return '<div class="code"'+(id?' id="'+id+'"':'')+'>'+lines.map(function(l,i){return '<span class="ln" data-l="'+(i+1)+'">'+esc(l).replace(/\b(READ|WRITE|IF|THEN|ELSE|ENDIF|WHILE|DO|ENDWHILE|FOR|TO|ENDFOR|FUNCTION|RETURN|AND|OR|NOT|PUSH|POP)\b/g,'<span class="kw">$1</span>')+'</span>'}).join('')+'</div>'}
+function copy(text,btn,fallbackEl){
+  var done=function(){var o=btn.textContent;btn.textContent='Tersalin';setTimeout(function(){btn.textContent=o},1400)};
+  try{navigator.clipboard.writeText(text).then(done,function(){fallbackEl&&(fallbackEl.hidden=false,fallbackEl.value=text,fallbackEl.select())})}
+  catch(e){fallbackEl&&(fallbackEl.hidden=false,fallbackEl.value=text,fallbackEl.select())}
+}
+function tpChips(a){return '<div class="chips">'+a.map(function(t){return '<span class="chip sun">'+t+'</span>'}).join('')+'</div>'}
+function pertHead(n,title,tp,goal,phases,moda){
+  var tot=phases.reduce(function(s,p){return s+p.m},0);
+  var cls=['a','b','c'];
+  return '<div class="hero"><div class="eyebrow">Pertemuan '+n+' dari 4 · 4 JP · '+moda+'</div><h1>'+title+'</h1>'+tpChips(tp)+'<p class="goal">'+goal+'</p></div>'+
+  sec('Alur kelas','Tiga tahap, '+tot+' menit',
+   '<div class="phase" role="img" aria-label="Pembagian waktu">'+phases.map(function(p,i){return '<div class="'+cls[i]+'" style="flex:'+p.m+'">'+p.n+' · '+p.m+'′</div>'}).join('')+'</div>'+
+   phases.map(function(p){return '<details><summary>'+p.n+' ('+p.m+' menit)</summary><div><ul>'+p.items.map(function(i){return '<li>'+i+'</li>'}).join('')+'</ul></div></details>'}).join(''));
+}
+function pager(prev,next){
+  return '<div class="pager">'+(prev?'<a class="btn ghost" href="#'+prev[0]+'" style="text-decoration:none">← '+prev[1]+'</a>':'<span></span>')+(next?'<a class="btn" href="#'+next[0]+'" style="text-decoration:none">'+next[1]+' →</a>':'')+'</div>';
+}
+var views={};
+var order=[['beranda','Beranda'],['pertemuan-1','Pertemuan 1'],['pertemuan-2','Pertemuan 2'],['pertemuan-3','Pertemuan 3'],['pertemuan-4','Pertemuan 4'],['lkpd','LKPD'],['asesmen','Asesmen'],['tindak-lanjut','Tindak Lanjut']];
+
+/* ============ BERANDA ============ */
+views['beranda']={html:function(){
+  var tp=[
+   ['X-BK-01','Memahami kriteria dan standar validitas data serta sumber data.','Menjelaskan kriteria data dan sumber data yang valid. Mengidentifikasi keabsahan data dalam permasalahan komputasi.'],
+   ['X-BK-07','Mengenal pseudocode dan diagram alir sebagai solusi rancangan program sederhana.','Membaca algoritma dengan notasi diagram alir dan pseudocode. Membedakan notasi bahasa manusia, pseudocode, dan bahasa pemrograman.'],
+   ['X-BK-08','Menuliskan solusi rancangan program sederhana dalam format pseudocode yang dekat dengan bahasa komputer.','Menulis rancangan algoritma dengan pseudocode (ekspresi, percabangan, perulangan, fungsi). Merancang kasus uji untuk memvalidasi algoritma.'],
+   ['X-BK-04','Menerapkan algoritma standar untuk menghasilkan berbagai solusi.','Menerapkan algoritma pencarian (Sequential Search, Binary Search). Menerapkan algoritma pengurutan (Bubble Sort, Selection Sort, Insertion Sort).'],
+   ['X-BK-05','Menerapkan struktur data standar untuk menghasilkan berbagai solusi.','Menerapkan struktur data List/Array pada himpunan data sejenis. Menerapkan Stack (LIFO) dan Queue (FIFO) pada studi kasus nyata.']];
+  var pt=[
+   ['pertemuan-1','Pertemuan 1','Diagram alir, pseudocode, menulis algoritma','X-BK-07 · X-BK-01',['10.2-01-U Menelusuri Diagram Alir','10.2-02-U Menelusuri Pseudokode','10.2-03-U Menulis Algoritma'],'Unplugged / Plugged'],
+   ['pertemuan-2','Pertemuan 2','Ekspresi, percabangan, perulangan, fungsi, kasus uji','X-BK-08',['10.2-04-UP Latihan Ekspresi','10.2-05-UP Latihan Percabangan','10.2-06-UP Latihan Perulangan','10.2-07-UP Latihan Fungsi','10.2-08-UP Membuat Kasus Uji'],'Plugged / Unplugged'],
+   ['pertemuan-3','Pertemuan 3','Pencarian dan pengurutan','X-BK-04',['10.2-09-U Pencarian dan Pengurutan','10.2-10-UP Tebak Angka (Binary Search)','10.2-11-UP Kartu Pengurutan'],'Unplugged / Plugged'],
+   ['pertemuan-4','Pertemuan 4','List, Stack, dan Queue','X-BK-05',['10.2-12-U Stack & Queue secara Tepat','10.2-13-UP Simulasi Stack','10.2-14-UP Simulasi Queue'],'Unplugged / Plugged']];
+  return '<div class="hero"><div class="eyebrow">Informatika · Fase E / Kelas X · Semester 1</div>'+
+   '<h1>Algoritma <mark>&amp;</mark> Struktur Data</h1>'+
+   '<p>Belajar cara komputer berpikir: menulis langkah yang presisi, mencari dan mengurutkan data, lalu menyimpannya dengan struktur yang tepat. Semua aktivitas di modul ini bisa kamu coba langsung di halaman ini.</p>'+
+   '<div class="chips"><span class="chip">Berpikir Komputasional</span><span class="chip">16 JP · 4 pertemuan</span><span class="chip">PBL + Inquiry</span><span class="chip">Plugged &amp; Unplugged</span></div></div>'+
+  sec('Peta belajar','4 pertemuan, 5 tujuan pembelajaran',
+   '<div class="grid">'+pt.map(function(p){return '<a class="card link" href="#'+p[0]+'"><div class="k">'+p[1]+' · '+p[3]+'</div><h3>'+p[2]+'</h3><ul>'+p[4].map(function(a){return '<li>'+a+'</li>'}).join('')+'</ul><div class="chips"><span class="chip">'+p[5]+' · 4 JP</span></div></a>'}).join('')+'</div>')+
+  sec('Pertanyaan pemantik','Tiga pertanyaan untuk dipikirkan',
+   '<div class="grid">'+[
+    ['Pertemuan 3','Bagaimana komputer menemukan satu nama dari jutaan pengguna media sosial dalam hitungan milidetik?'],
+    ['Pertemuan 4','Mengapa tombol Undo selalu membatalkan tindakan terakhir, bukan yang pertama?'],
+    ['Pertemuan 1 dan 2','Bagaimana menyusun langkah yang presisi agar komputer tidak salah tafsir?']].map(function(q){return '<div class="card"><div class="k">'+q[0]+'</div><h3>'+q[1]+'</h3></div>'}).join('')+'</div>'+
+   '<p class="goal"><b>Pemahaman bermakna.</b> Algoritma dan struktur data adalah fondasi komputasi. Dengan mengatur data (List, Stack, Queue) dan memilih langkah penyelesaian (Search dan Sort), kita bisa merancang aplikasi yang efisien untuk masalah sehari-hari.</p>')+
+  sec('Capaian dan tujuan','Capaian Pembelajaran Fase E',
+   '<p class="lead">Di akhir fase ini kamu mampu memahami validitas sumber data, memahami struktur data dan algoritma standar, mengolah data agar bersih dan terpercaya, menerapkan struktur data dan algoritma standar pada himpunan data berstruktur dengan volume tidak kecil, dan menuliskan rancangan program sederhana dalam pseudocode.</p>'+
+   '<div class="tblwrap"><table><thead><tr><th>Kode</th><th>Tujuan pembelajaran</th><th>Indikator</th></tr></thead><tbody>'+tp.map(function(t){return '<tr><td><span class="chip sun">'+t[0]+'</span></td><td>'+t[1]+'</td><td>'+t[2]+'</td></tr>'}).join('')+'</tbody></table></div>')+
+  sec('Profil Pelajar Pancasila','Empat dimensi yang dilatih',
+   '<div class="grid">'+[
+    ['Bernalar kritis','Mengolah informasi dan menganalisis efisiensi algoritma serta struktur data.'],
+    ['Bergotong royong','Berkolaborasi saat membandingkan algoritma dalam kelompok.'],
+    ['Mandiri','Menyelesaikan masalah komputasional dan menulis pseudocode sendiri.'],
+    ['Kreatif','Menyusun instruksi algoritma orisinal untuk masalah nyata.']].map(function(d){return '<div class="card"><h3>'+d[0]+'</h3><p style="color:var(--muted);margin:0">'+d[1]+'</p></div>'}).join('')+'</div>')+
+  sec('Mulai','Pilih pertemuan pertama',
+   '<div class="row"><a class="btn" href="#pertemuan-1" style="text-decoration:none">Mulai Pertemuan 1</a><a class="btn ghost" href="#lkpd" style="text-decoration:none">Buka LKPD</a><a class="btn ghost" href="#asesmen" style="text-decoration:none">Langsung ke Asesmen</a></div>');
+},init:function(){}};
+
+/* ============ PERTEMUAN 1 ============ */
+views['pertemuan-1']={html:function(){
+  var h=pertHead(1,'Diagram alir, pseudocode, dan menulis algoritma',['X-BK-07','X-BK-01'],
+   'Kamu mampu menelusuri alur diagram alir, membaca notasi pseudocode, dan merancang algoritma langkah demi langkah untuk masalah sehari-hari.',
+   [{n:'Pendahuluan',m:20,items:['Salam, doa, dan presensi.','Apersepsi: instruksi membuat mi instan atau membayar bakso di kantin. Instruksi yang ambigu menghasilkan hasil yang salah.','Guru menyampaikan tujuan dan pentingnya abstraksi algoritma.']},
+    {n:'Kegiatan inti',m:145,items:['Pemaparan tiga bentuk penyajian algoritma: bahasa alami, diagram alir, pseudocode.','10.2-01-U Menelusuri Diagram Alir.','10.2-02-U Menelusuri Pseudokode.','10.2-03-U Menulis Algoritma (total pembayaran dan kembalian kantin).']},
+    {n:'Penutup',m:15,items:['Refleksi: kendala saat mengubah bahasa naratif menjadi pseudocode.','Umpan balik guru dan info materi struktur kendali untuk pertemuan 2.']}],'Unplugged / Plugged');
+  var s1=sec('Konsep','Satu masalah, tiga cara menuliskannya',
+   '<div class="lab"><h3>Masalah: menentukan ketuntasan nilai</h3><p class="hint">Ketuntasan jika nilai minimal 75. Pilih bentuk penyajiannya.</p>'+
+   '<div class="tabs" role="tablist" id="rep-tabs"><button role="tab" aria-selected="true" data-r="0">Bahasa alami</button><button role="tab" aria-selected="false" data-r="1">Pseudocode</button><button role="tab" aria-selected="false" data-r="2">Bahasa Python</button></div>'+
+   '<div id="rep-0"><div class="out">Terima sebuah nilai. Jika nilai itu 75 atau lebih, tulis bahwa siswa tuntas. Jika tidak, tulis bahwa siswa perlu remedial.</div></div>'+
+   '<div id="rep-1" hidden>'+code(['READ nilai','IF nilai >= 75 THEN','  WRITE "Tuntas"','ELSE','  WRITE "Remedial"','ENDIF'])+'</div>'+
+   '<div id="rep-2" hidden>'+code(['nilai = int(input())','if nilai >= 75:','    print("Tuntas")','else:','    print("Remedial")'])+'</div>'+
+   '<div class="tblwrap"><table><thead><tr><th>Bentuk</th><th>Ciri</th><th>Dibaca oleh</th></tr></thead><tbody><tr><td>Bahasa alami</td><td>Kalimat bebas, mudah dibaca, bisa ambigu</td><td>Manusia</td></tr><tr><td>Pseudocode</td><td>Mirip kode, tanpa aturan sintaks ketat</td><td>Manusia (dan programmer)</td></tr><tr><td>Bahasa pemrograman</td><td>Sintaks ketat, harus persis</td><td>Komputer</td></tr></tbody></table></div></div>');
+  var s2=sec('Aktivitas 10.2-01-U','Menelusuri diagram alir',
+   '<div class="lab"><h3>Telusuri jalurnya</h3><p class="hint">Masukkan nilai, lalu tekan Langkah berikutnya. Jalur yang kamu lalui akan menyala.</p>'+
+   '<div class="row"><label class="f">nilai<input type="number" id="fc-in" value="82" min="0" max="100"></label><button class="btn" id="fc-next">Langkah berikutnya</button><button class="btn ghost" id="fc-reset">Ulangi</button></div>'+
+   '<svg class="fc" id="fc-svg" viewBox="0 0 560 345" width="100%" style="max-width:560px" role="img" aria-label="Diagram alir penentuan ketuntasan">'+
+   '<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a93a8"/></marker></defs>'+
+   '<path class="fe" id="fc-e1" d="M280,46 L280,66" marker-end="url(#ar)"/><path class="fe" id="fc-e2" d="M280,110 L280,130" marker-end="url(#ar)"/>'+
+   '<path class="fe" id="fc-e3" d="M180,170 L130,170 L130,228" marker-end="url(#ar)"/><path class="fe" id="fc-e4" d="M380,170 L430,170 L430,228" marker-end="url(#ar)"/>'+
+   '<path class="fe" id="fc-e5" d="M130,270 L130,314 L238,314" marker-end="url(#ar)"/><path class="fe" id="fc-e6" d="M430,270 L430,314 L322,314" marker-end="url(#ar)"/>'+
+   '<g class="fn" id="fc-start"><rect x="220" y="8" width="120" height="38" rx="19"/><text x="280" y="28">Mulai</text></g>'+
+   '<g class="fn" id="fc-read"><polygon points="232,66 346,66 334,110 220,110"/><text x="283" y="89">READ nilai</text></g>'+
+   '<g class="fn" id="fc-dec"><polygon points="280,130 380,170 280,210 180,170"/><text x="280" y="170">nilai ≥ 75 ?</text></g>'+
+   '<text class="lbl" x="150" y="160">Ya</text><text class="lbl" x="410" y="160">Tidak</text>'+
+   '<g class="fn" id="fc-yes"><rect x="62" y="230" width="136" height="40" rx="6"/><text x="130" y="250">WRITE Tuntas</text></g>'+
+   '<g class="fn" id="fc-no"><rect x="362" y="230" width="136" height="40" rx="6"/><text x="430" y="250">WRITE Remedial</text></g>'+
+   '<g class="fn" id="fc-end"><rect x="240" y="296" width="80" height="36" rx="18"/><text x="280" y="314">Selesai</text></g></svg>'+
+   '<div class="out" id="fc-info">Tekan Langkah berikutnya untuk mulai.</div></div>');
+  var s3=sec('Aktivitas 10.2-02-U','Menelusuri pseudokode',
+   '<div class="lab"><h3>Kasir kantin: baris demi baris</h3><p class="hint">Atur harga dan uang bayar. Perhatikan nilai variabel di tabel setiap baris dijalankan.</p>'+
+   '<div class="row"><label class="f">harga (Rp)<input type="number" id="ps-h" value="12000" step="500"></label><label class="f">bayar (Rp)<input type="number" id="ps-b" value="15000" step="500"></label><button class="btn" id="ps-next">Jalankan baris berikutnya</button><button class="btn ghost" id="ps-reset">Ulangi</button></div>'+
+   '<div class="two"><div>'+code(['READ harga','READ bayar','kembalian ← bayar - harga','IF kembalian < 0 THEN','  WRITE "Uang kurang"','ELSE','  WRITE kembalian','ENDIF'],'ps-code')+'</div>'+
+   '<div class="tblwrap" style="margin:10px 0"><table style="min-width:0"><thead><tr><th>Variabel</th><th class="num">Nilai</th></tr></thead><tbody id="ps-vars"></tbody></table></div></div>'+
+   '<div class="out" id="ps-out">Luaran: (belum ada)</div></div>');
+  var s4=sec('Aktivitas 10.2-03-U','Menulis algoritma',
+   '<div class="lab"><h3>Susun langkah membayar bakso</h3><p class="hint">Klik langkah satu per satu sesuai urutan yang benar. Urutan yang salah membuat hasil yang salah, sama seperti pada komputer.</p>'+
+   '<div class="pick" id="ord-src"></div><h3 style="margin-top:16px;font-size:.95rem">Urutanmu</h3><ol id="ord-ans" style="padding-left:1.3em;min-height:30px"></ol>'+
+   '<div class="row"><button class="btn" id="ord-check">Periksa</button><button class="btn ghost" id="ord-reset">Acak ulang</button></div><div class="out" id="ord-out">Susun lima langkah, lalu tekan Periksa.</div>'+
+   '<p class="hint">Lanjutkan di <a href="#lkpd">LKPD Pertemuan 1</a> untuk menulis algoritma total pembayaran dan kembalian dalam pseudocode.</p></div>');
+  var s5=sec('Indikator X-BK-01','Seberapa valid datanya?',
+   '<div class="lab"><h3>Nilai kepercayaan data</h3><p class="hint">Data yang dipakai algoritma harus bersih, benar, dan berasal dari sumber yang bisa dipertanggungjawabkan. Nilai tiap kasus.</p><div id="val-list"></div><div class="out" id="val-out">Skor: 0 dari 4</div></div>');
+  return h+s1+s2+s3+s4+s5+pager(['beranda','Beranda'],['pertemuan-2','Pertemuan 2']);
+},init:function(r){
+  // representasi
+  $$('#rep-tabs button',r).forEach(function(b){b.onclick=function(){$$('#rep-tabs button',r).forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false')});[0,1,2].forEach(function(i){$('#rep-'+i,r).hidden=(String(i)!==b.dataset.r)})}});
+  // flowchart
+  var inp=$('#fc-in',r),info=$('#fc-info',r),st=0,seq=[];
+  function build(){var v=Number(inp.value),ok=v>=75;seq=[['fc-start','Algoritma dimulai.'],['fc-e1'],['fc-read','READ nilai: nilai = '+v+'.'],['fc-e2'],['fc-dec','Cek '+v+' ≥ 75. Hasil: '+(ok?'benar, ambil jalur Ya.':'salah, ambil jalur Tidak.')],[ok?'fc-e3':'fc-e4'],[ok?'fc-yes':'fc-no','WRITE '+(ok?'"Tuntas"':'"Remedial"')+'.'],[ok?'fc-e5':'fc-e6'],['fc-end','Selesai. Luaran: '+(ok?'Tuntas':'Remedial')+'.']]}
+  function showFc(){$$('#fc-svg .on',r).forEach(function(e){e.classList.remove('on')});var note='Tekan Langkah berikutnya untuk mulai.';for(var i=0;i<st;i++){$('#'+seq[i][0],r).classList.add('on');if(seq[i][1])note=seq[i][1]}info.textContent=note;$('#fc-next',r).disabled=(st>=seq.length)}
+  build();
+  $('#fc-next',r).onclick=function(){if(st===0)build();if(st<seq.length)st++;
+    while(st<seq.length&&!seq[st-1][1]&&false){st++}
+    showFc()};
+  $('#fc-reset',r).onclick=function(){st=0;build();showFc()};
+  inp.oninput=function(){st=0;build();showFc()};
+  // pseudocode tracer
+  var pf=[],pi=0;
+  function pbuild(){var h=Number($('#ps-h',r).value),b=Number($('#ps-b',r).value),k=b-h;pf=[{l:1,v:{harga:h}},{l:2,v:{harga:h,bayar:b}},{l:3,v:{harga:h,bayar:b,kembalian:k}},{l:4,v:{harga:h,bayar:b,kembalian:k},n:'kembalian < 0 ? '+(k<0?'Benar':'Salah')}];
+    if(k<0)pf.push({l:5,v:{harga:h,bayar:b,kembalian:k},o:'Uang kurang'});else pf.push({l:7,v:{harga:h,bayar:b,kembalian:k},o:String(k)});pf.push({l:8,v:{harga:h,bayar:b,kembalian:k}})}
+  function pshow(){var f=pi>0?pf[pi-1]:null;$$('#ps-code .ln',r).forEach(function(e){e.classList.remove('cur');if(f&&Number(e.dataset.l)===f.l)e.classList.add('cur')});
+    var vs=f?f.v:{};$('#ps-vars',r).innerHTML=Object.keys(vs).map(function(k){return '<tr><td><code>'+k+'</code></td><td class="num">'+vs[k]+'</td></tr>'}).join('')||'<tr><td colspan="2" style="color:var(--muted)">Belum ada variabel</td></tr>';
+    var out='(belum ada)';for(var i=0;i<pi;i++)if(pf[i].o)out=pf[i].o;$('#ps-out',r).textContent='Luaran: '+out+(f&&f.n?'   ['+f.n+']':'');$('#ps-next',r).disabled=(pi>=pf.length)}
+  pbuild();pshow();
+  $('#ps-next',r).onclick=function(){if(pi===0)pbuild();pi++;pshow()};
+  $('#ps-reset',r).onclick=function(){pi=0;pbuild();pshow()};
+  $('#ps-h',r).oninput=$('#ps-b',r).oninput=function(){pi=0;pbuild();pshow()};
+  // ordering
+  var steps=['Antre dan sebutkan pesanan ke penjual','Penjual menyebutkan total harga','Serahkan uang ke penjual','Penjual menghitung dan memberi kembalian','Terima kembalian dan semangkuk bakso'];
+  var picked=[];
+  function oshow(){var src=$('#ord-src',r);src.innerHTML='';shuf.forEach(function(i){var b=document.createElement('button');b.textContent=steps[i];b.disabled=picked.indexOf(i)>-1;b.onclick=function(){picked.push(i);oshow()};src.appendChild(b)});
+    $('#ord-ans',r).innerHTML=picked.map(function(i){return '<li>'+steps[i]+'</li>'}).join('')}
+  var shuf=shuffle([0,1,2,3,4]);oshow();
+  $('#ord-check',r).onclick=function(){var o=$('#ord-out',r);if(picked.length<5){o.className='out';o.textContent='Pilih kelima langkah dulu.';return}
+    var good=picked.filter(function(v,i){return v===i}).length;o.className='out '+(good===5?'ok':'bad');o.textContent=good===5?'Tepat. Urutan algoritmamu benar.':good+' dari 5 langkah sudah di posisi yang benar. Coba tukar urutannya.'};
+  $('#ord-reset',r).onclick=function(){picked=[];shuf=shuffle([0,1,2,3,4]);$('#ord-out',r).className='out';$('#ord-out',r).textContent='Susun lima langkah, lalu tekan Periksa.';oshow()};
+  // validitas data
+  var vals=[['Jumlah penduduk dari situs resmi badan statistik pemerintah, lengkap dengan tahun dan metode.',true,'Sumber resmi, terdokumentasi, dan bisa diverifikasi.'],
+   ['Kolom tinggi badan siswa berisi angka 1720 cm.',false,'Nilai mustahil. Perlu dibersihkan sebelum diolah.'],
+   ['Hasil polling 5 orang di kelas, diklaim mewakili seluruh siswa sekolah.',false,'Sampel terlalu kecil dan tidak mewakili, kesimpulannya meragukan.'],
+   ['Tangkapan layar tanpa sumber yang dibagikan berantai di grup pesan.',false,'Tidak ada sumber asli, tidak bisa ditelusuri.']];
+  var vs=0,vd={};
+  $('#val-list',r).innerHTML=vals.map(function(v,i){return '<div class="q"><div class="t">'+v[0]+'</div><div class="pick" data-i="'+i+'"><button data-a="1">Dapat dipercaya</button><button data-a="0">Meragukan</button></div><div class="fb" hidden></div></div>'}).join('');
+  $$('#val-list .pick',r).forEach(function(p){$$('button',p).forEach(function(b){b.onclick=function(){var i=Number(p.dataset.i);if(vd[i]!==undefined)return;var ans=b.dataset.a==='1';vd[i]=1;var ok=ans===vals[i][1];if(ok)vs++;b.classList.add(ok?'right':'wrong');var fb=p.nextElementSibling;fb.hidden=false;fb.textContent=(ok?'Benar. ':'Kurang tepat. ')+vals[i][2];$('#val-out',r).textContent='Skor: '+vs+' dari 4'}})});
+}};
+
+/* ============ PERTEMUAN 2 ============ */
+var MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function kategori(n){if(n<0||n>100)return 'Tidak valid';if(n>=90)return 'A';if(n>=75)return 'B';if(n>=60)return 'C';return 'D'}
+views['pertemuan-2']={html:function(){
+  var h=pertHead(2,'Ekspresi, percabangan, perulangan, fungsi, dan kasus uji',['X-BK-08'],
+   'Kamu mampu menulis pseudocode dengan ekspresi, percabangan IF-THEN-ELSE, perulangan, dan fungsi, lalu membuat kasus uji untuk memeriksa algoritmamu.',
+   [{n:'Pendahuluan',m:15,items:['Pengondisian kelas dan review singkat notasi dasar pseudocode.','Pemantik: bagaimana komputer mengambil keputusan saat menyaring angka positif dan negatif, atau mengulang pekerjaan ribuan kali?']},
+    {n:'Kegiatan inti',m:150,items:['10.2-04-UP Latihan Ekspresi.','10.2-05-UP Latihan Struktur Percabangan.','10.2-06-UP Latihan Struktur Perulangan.','10.2-07-UP Latihan Fungsi.','10.2-08-UP Membuat Kasus Uji.']},
+    {n:'Penutup',m:15,items:['Diskusi kelompok: mengapa kasus uji penting agar program bebas bug.','Penugasan reflektif mandiri.']}],'Plugged / Unplugged');
+  var s1=sec('Aktivitas 10.2-04-UP','Latihan ekspresi',
+   '<div class="lab"><h3>Evaluasi ekspresi</h3><p class="hint">Ubah nilai a dan b. Lihat hasil ekspresi aritmatika dan logika.</p><div class="row"><label class="f">a<input type="number" id="ex-a" value="12"></label><label class="f">b<input type="number" id="ex-b" value="5"></label></div><div class="tblwrap"><table style="min-width:0"><thead><tr><th>Ekspresi</th><th>Jenis</th><th>Hasil</th></tr></thead><tbody id="ex-t"></tbody></table></div></div>');
+  var s2=sec('Aktivitas 10.2-05-UP','Latihan struktur percabangan',
+   '<div class="two"><div class="lab"><h3>Nama bulan dari angka</h3><p class="hint">Percabangan bertingkat dicek dari atas. Baris yang sudah dicek dan salah diredupkan.</p><div class="row"><label class="f">bulan<input type="number" id="br-m" value="3"></label></div><div id="br-code"></div><div class="out" id="br-out"></div></div>'+
+   '<div class="lab"><h3>Positif, negatif, atau nol</h3><div class="row"><label class="f">angka<input type="number" id="sg-n" value="-4"></label></div>'+code(['READ n','IF n > 0 THEN','  WRITE "Positif"','ELSE IF n < 0 THEN','  WRITE "Negatif"','ELSE','  WRITE "Nol"','ENDIF'],'sg-code')+'<div class="out" id="sg-out"></div></div></div>');
+  var s3=sec('Aktivitas 10.2-06-UP','Latihan struktur perulangan',
+   '<div class="two"><div class="lab"><h3>Hitung mundur</h3>'+code(['READ n','WHILE n > 0 DO','  WRITE n','  n ← n - 1','ENDWHILE','WRITE "Selesai"'])+'<div class="row"><label class="f">n (1 sampai 10)<input type="number" id="lp-n" value="5" min="1" max="10"></label><button class="btn" id="lp-go">Jalankan</button></div><div class="out" id="lp-out">Tekan Jalankan.</div></div>'+
+   '<div class="lab"><h3>Rata-rata dan terbesar</h3>'+code(['jumlah ← 0','terbesar ← data[1]','FOR i ← 1 TO n DO','  jumlah ← jumlah + data[i]','  IF data[i] > terbesar THEN','    terbesar ← data[i]','  ENDIF','ENDFOR','rata ← jumlah / n'])+'<label class="f">data (pisahkan dengan koma)<input type="text" id="av-d" value="80, 65, 92, 74, 88" style="width:100%"></label><div class="tblwrap"><table style="min-width:0"><thead><tr><th class="num">i</th><th class="num">data[i]</th><th class="num">jumlah</th><th class="num">terbesar</th></tr></thead><tbody id="av-t"></tbody></table></div><div class="out" id="av-out"></div></div></div>');
+  var s4=sec('Aktivitas 10.2-07-UP','Latihan fungsi',
+   '<div class="lab"><h3>Pecah jadi fungsi</h3><p class="hint">Fungsi memecah algoritma besar menjadi bagian yang bisa dipakai ulang.</p><div class="row"><label class="f">bangun<select id="fn-s"><option value="pp">Persegi panjang</option><option value="lg">Lingkaran</option><option value="bk">Balok</option></select></label><span id="fn-in" class="row" style="margin:0"></span></div><div id="fn-code"></div><div class="out" id="fn-out"></div></div>');
+  var s5=sec('Aktivitas 10.2-08-UP','Membuat kasus uji',
+   '<div class="lab"><h3>Uji fungsi kategori nilai</h3><p class="hint">Rancang kasus uji yang mencakup nilai normal, nilai batas, dan masukan tidak valid. Tebak luarannya dulu, lalu jalankan.</p>'+
+   code(['FUNCTION kategori(n)','  IF n < 0 OR n > 100 THEN RETURN "Tidak valid"','  ELSE IF n >= 90 THEN RETURN "A"','  ELSE IF n >= 75 THEN RETURN "B"','  ELSE IF n >= 60 THEN RETURN "C"','  ELSE RETURN "D"'])+
+   '<div class="row"><label class="f">masukan n<input type="number" id="tc-n" value="75"></label><label class="f">luaran yang kamu duga<select id="tc-e"><option>A</option><option selected>B</option><option>C</option><option>D</option><option>Tidak valid</option></select></label><button class="btn" id="tc-add">Tambah kasus</button><button class="btn hot" id="tc-run">Jalankan semua</button><button class="btn ghost" id="tc-clr">Kosongkan</button></div>'+
+   '<div class="tblwrap"><table style="min-width:0"><thead><tr><th class="num">n</th><th>Dugaan</th><th>Aktual</th><th>Status</th><th>Jenis</th></tr></thead><tbody id="tc-t"></tbody></table></div><div class="chips" id="tc-cov"></div></div>');
+  return h+s1+s2+s3+s4+s5+pager(['pertemuan-1','Pertemuan 1'],['pertemuan-3','Pertemuan 3']);
+},init:function(r){
+  function ex(){var a=Number($('#ex-a',r).value),b=Number($('#ex-b',r).value);
+    var rows=[['a + b','Aritmatika',a+b],['a - b','Aritmatika',a-b],['a * b','Aritmatika',a*b],['a / b','Aritmatika',b===0?'tidak terdefinisi':Math.round(a/b*100)/100],['a MOD b','Aritmatika',b===0?'tidak terdefinisi':((a%b)+b)%b],['a > b','Perbandingan',a>b],['a == b','Perbandingan',a===b],['(a > b) AND (b > 0)','Logika',(a>b)&&(b>0)],['(a < 0) OR (b < 0)','Logika',(a<0)||(b<0)],['NOT (a > b)','Logika',!(a>b)]];
+    $('#ex-t',r).innerHTML=rows.map(function(x){var v=x[2];var s=typeof v==='boolean'?('<span class="chip '+(v?'ok':'bad')+'">'+(v?'TRUE':'FALSE')+'</span>'):'<span style="font-family:var(--f-mono)">'+v+'</span>';return '<tr><td><code>'+esc(x[0])+'</code></td><td>'+x[1]+'</td><td>'+s+'</td></tr>'}).join('')}
+  $('#ex-a',r).oninput=$('#ex-b',r).oninput=ex;ex();
+  function br(){var m=Number($('#br-m',r).value);var lines=[],hit=-1;for(var i=0;i<12;i++){lines.push((i?'ELSE IF':'IF')+' bulan = '+(i+1)+' THEN WRITE "'+MONTHS[i]+'"');if(m===i+1)hit=i}lines.push('ELSE WRITE "Bulan tidak valid"');if(hit<0)hit=12;
+    $('#br-code',r).innerHTML='<div class="code" style="max-height:230px;overflow:auto">'+lines.map(function(l,i){return '<span class="ln '+(i<hit?'skip':i===hit?'hit':'')+'">'+esc(l)+'</span>'}).join('')+'</div>';
+    $('#br-out',r).textContent=(hit<12?MONTHS[hit]:'Bulan tidak valid')+'   (dicek '+Math.min(hit+1,13)+' kondisi)'}
+  $('#br-m',r).oninput=br;br();
+  function sg(){var n=Number($('#sg-n',r).value),l=n>0?3:n<0?5:7;$$('#sg-code .ln',r).forEach(function(e){e.classList.toggle('hit',Number(e.dataset.l)===l)});$('#sg-out',r).textContent=n>0?'Positif':n<0?'Negatif':'Nol'}
+  $('#sg-n',r).oninput=sg;sg();
+  var timer;$('#lp-go',r).onclick=function(){clearInterval(timer);var n=Math.max(1,Math.min(10,Number($('#lp-n',r).value)||1)),o=$('#lp-out',r);o.textContent='';var cur=n;timer=setInterval(function(){if(cur>0){o.textContent+=cur+'  ';cur--}else{o.textContent+='Selesai';clearInterval(timer)}},420)};
+  function av(){var d=$('#av-d',r).value.split(',').map(function(x){return parseFloat(x.trim())}).filter(function(x){return !isNaN(x)});var j=0,t=d[0],rows='';d.forEach(function(x,i){j+=x;if(x>t)t=x;rows+='<tr><td class="num">'+(i+1)+'</td><td class="num">'+x+'</td><td class="num">'+j+'</td><td class="num">'+t+'</td></tr>'});
+    $('#av-t',r).innerHTML=rows;$('#av-out',r).textContent=d.length?('rata = '+j+' / '+d.length+' = '+Math.round(j/d.length*100)/100+'   terbesar = '+t):'Masukkan angka.'}
+  $('#av-d',r).oninput=av;av();
+  function fnv(){var s=$('#fn-s',r).value,inp=$('#fn-in',r),c,res;
+    var F={pp:{f:[['p',8],['l',5]],c:['FUNCTION luas(p, l)','  RETURN p * l','FUNCTION keliling(p, l)','  RETURN 2 * (p + l)','','WRITE luas(p, l)','WRITE keliling(p, l)']},lg:{f:[['r',7]],c:['CONST pi ← 3.14','FUNCTION luas(r)','  RETURN pi * r * r','FUNCTION keliling(r)','  RETURN 2 * pi * r','','WRITE luas(r)','WRITE keliling(r)']},bk:{f:[['p',6],['l',4],['t',3]],c:['FUNCTION volume(p, l, t)','  RETURN p * l * t','FUNCTION luasPermukaan(p, l, t)','  RETURN 2 * (p*l + p*t + l*t)','','WRITE volume(p, l, t)','WRITE luasPermukaan(p, l, t)']}}[s];
+    if(inp.dataset.s!==s){inp.dataset.s=s;inp.innerHTML=F.f.map(function(x){return '<label class="f">'+x[0]+'<input type="number" class="fi" value="'+x[1]+'" min="0" style="width:80px"></label>'}).join('');$$('.fi',inp).forEach(function(e){e.oninput=fnv})}
+    var v=$$('.fi',inp).map(function(e){return Number(e.value)||0});
+    if(s==='pp')res=['luas = '+(v[0]*v[1]),'keliling = '+(2*(v[0]+v[1]))];else if(s==='lg')res=['luas = '+(Math.round(3.14*v[0]*v[0]*100)/100),'keliling = '+(Math.round(2*3.14*v[0]*100)/100)];else res=['volume = '+(v[0]*v[1]*v[2]),'luas permukaan = '+(2*(v[0]*v[1]+v[0]*v[2]+v[1]*v[2]))];
+    $('#fn-code',r).innerHTML=code(F.c);$('#fn-out',r).innerHTML=res.join('<br>')}
+  $('#fn-s',r).onchange=fnv;fnv();
+  var cases=load('cases',[[75,'B'],[101,'Tidak valid']]);
+  function jenis(n){if(n<0||n>100)return 'Tidak valid';return [0,59,60,74,75,89,90,100].indexOf(n)>-1?'Batas':'Normal'}
+  var ran=false;
+  function tc(){$('#tc-t',r).innerHTML=cases.map(function(c){var a=kategori(c[0]),ok=a===c[1];return '<tr><td class="num">'+c[0]+'</td><td>'+c[1]+'</td><td>'+(ran?a:'-')+'</td><td>'+(ran?'<span class="chip '+(ok?'ok':'bad')+'">'+(ok?'LOLOS':'GAGAL')+'</span>':'-')+'</td><td>'+jenis(c[0])+'</td></tr>'}).join('')||'<tr><td colspan="5" style="color:var(--muted)">Belum ada kasus uji.</td></tr>';
+    var cov={Normal:0,Batas:0,'Tidak valid':0};cases.forEach(function(c){cov[jenis(c[0])]++});
+    $('#tc-cov',r).innerHTML=Object.keys(cov).map(function(k){return '<span class="chip '+(cov[k]?'ok':'')+'">'+k+': '+cov[k]+'</span>'}).join('')+(cases.length&&Object.keys(cov).every(function(k){return cov[k]})?'<span class="chip sun">Cakupan lengkap</span>':'')}
+  $('#tc-add',r).onclick=function(){var n=Number($('#tc-n',r).value);if(isNaN(n))return;cases.push([n,$('#tc-e',r).value]);ran=false;save('cases',cases);tc()};
+  $('#tc-run',r).onclick=function(){ran=true;tc()};
+  $('#tc-clr',r).onclick=function(){cases=[];ran=false;save('cases',cases);tc()};
+  tc();
+}};
+
+/* ============ PERTEMUAN 3 ============ */
+function framesBubble(a0){var a=a0.slice(),n=a.length,F=[{a:a.slice(),hi:[],note:'Kondisi awal.',sl:0,sr:0}];
+  for(var i=0;i<n-1;i++){var sw=false;for(var j=0;j<n-i-1;j++){F.push({a:a.slice(),hi:[j,j+1],kind:'cmp',note:'Bandingkan '+a[j]+' dan '+a[j+1]+'.',sl:0,sr:i});
+    if(a[j]>a[j+1]){var t=a[j];a[j]=a[j+1];a[j+1]=t;sw=true;F.push({a:a.slice(),hi:[j,j+1],kind:'swap',note:'Tukar. Sekarang '+a[j]+' berada di depan '+a[j+1]+'.',sl:0,sr:i})}}
+    if(!sw)break}
+  F.push({a:a.slice(),hi:[],note:'Selesai. Data terurut naik.',sl:n,sr:0});return F}
+function framesSel(a0){var a=a0.slice(),n=a.length,F=[{a:a.slice(),hi:[],note:'Kondisi awal.',sl:0}];
+  for(var i=0;i<n-1;i++){var m=i;F.push({a:a.slice(),hi:[i],kind:'cmp',mark:m,note:'Putaran '+(i+1)+': anggap '+a[i]+' sebagai yang terkecil sementara.',sl:i});
+    for(var j=i+1;j<n;j++){F.push({a:a.slice(),hi:[m,j],kind:'cmp',mark:m,note:'Bandingkan '+a[j]+' dengan terkecil sementara '+a[m]+'.',sl:i});if(a[j]<a[m]){m=j;F.push({a:a.slice(),hi:[m],kind:'cmp',mark:m,note:a[m]+' lebih kecil, jadi terkecil yang baru.',sl:i})}}
+    if(m!==i){var t=a[i];a[i]=a[m];a[m]=t;F.push({a:a.slice(),hi:[i,m],kind:'swap',note:'Tukar terkecil ('+a[i]+') ke posisi '+(i+1)+'.',sl:i+1})}else F.push({a:a.slice(),hi:[i],note:a[i]+' sudah di posisi yang benar.',sl:i+1})}
+  F.push({a:a.slice(),hi:[],note:'Selesai. Data terurut naik.',sl:n});return F}
+function framesIns(a0){var a=a0.slice(),n=a.length,F=[{a:a.slice(),hi:[],note:'Kondisi awal. Elemen pertama dianggap sudah urut.',sl:1}];
+  for(var i=1;i<n;i++){F.push({a:a.slice(),hi:[i],kind:'cmp',note:'Ambil '+a[i]+' dan sisipkan ke bagian kiri yang sudah urut.',sl:i});var j=i;
+    while(j>0&&a[j-1]>a[j]){var t=a[j];a[j]=a[j-1];a[j-1]=t;F.push({a:a.slice(),hi:[j-1,j],kind:'swap',note:'Geser '+a[j]+' ke kanan, '+a[j-1]+' maju ke kiri.',sl:i});j--}
+    F.push({a:a.slice(),hi:[j],note:a[j]+' sudah di posisi yang tepat.',sl:i+1})}
+  F.push({a:a.slice(),hi:[],note:'Selesai. Data terurut naik.',sl:n});return F}
+function cardsHtml(f){var n=f.a.length;return f.a.map(function(v,i){var c='pc';if(f.hi&&f.hi.indexOf(i)>-1)c+=' '+(f.kind||'cmp');else if(i<(f.sl||0)||i>=n-(f.sr||0))c+=' sorted';if(f.mark===i)c+=' mark';return '<div class="'+c+'"><small>'+i+'</small>'+v+'</div>'}).join('')}
+views['pertemuan-3']={html:function(){
+  var h=pertHead(3,'Pencarian dan pengurutan',['X-BK-04'],
+   'Kamu mampu memahami dan menerapkan Sequential Search, Binary Search, Bubble Sort, Selection Sort, dan Insertion Sort pada masalah kontekstual.',
+   [{n:'Pendahuluan',m:15,items:['Apersepsi: mencari kata di kamus cetak tebal. Dibuka halaman demi halaman dari awal (sequential) atau dibelah di tengah (binary)?']},
+    {n:'Kegiatan inti',m:150,items:['10.2-09-U Pencarian dan Pengurutan (konsep dasar).','10.2-10-UP Tebak Angka (Binary Search) berpasangan.','10.2-11-UP Bermain Kartu Pengurutan (Bubble Sort dan Selection Sort).']},
+    {n:'Penutup',m:15,items:['Simpulan: Binary Search hanya bisa dipakai pada data yang sudah terurut.','Apresiasi keaktifan kelompok.']}],'Unplugged / Plugged');
+  var s1=sec('Aktivitas 10.2-10-UP','Tebak angka dari 1 sampai 100',
+   '<div class="two"><div class="lab"><h3>Kamu menebak</h3><p class="hint">Komputer menyimpan angka rahasia. Kamu hanya diberi tahu terlalu besar atau terlalu kecil.</p><div class="row"><label class="f">tebakanmu<input type="number" id="gs-n" min="1" max="100"></label><button class="btn" id="gs-go">Tebak</button><button class="btn ghost" id="gs-hint">Saran strategi biner</button><button class="btn ghost" id="gs-new">Main lagi</button></div>'+
+   '<div class="chips"><span class="chip" id="gs-cnt">Tebakan: 0</span><span class="chip" id="gs-rng">Rentang: 1 sampai 100</span></div><div class="bar"><i id="gs-bar" style="width:100%"></i></div><div class="out" id="gs-out">Mulai dengan tebakan pertamamu.</div><div class="log" id="gs-log"></div></div>'+
+   '<div class="lab"><h3>Kenapa membelah dua jauh lebih cepat?</h3><p class="hint">Setiap tebakan di tengah membuang separuh kemungkinan. Jumlah tebakan terburuk:</p><div class="tblwrap"><table style="min-width:0"><thead><tr><th class="num">Jumlah data</th><th class="num">Sequential</th><th class="num">Binary</th></tr></thead><tbody id="cx-t"></tbody></table></div><div class="out">Pada 1.000.000 data, Binary Search paling banyak butuh 20 langkah.</div></div></div>');
+  var s2=sec('Aktivitas 10.2-09-U','Sequential dan Binary Search, berdampingan',
+   '<div class="lab"><h3>Cari angka di data terurut</h3><p class="hint">Data harus sudah terurut agar Binary Search boleh dipakai. Pilih target, lalu jalankan langkah demi langkah.</p><div class="row"><label class="f">target<input type="number" id="bs-t" value="67"></label><button class="btn" id="bs-next">Langkah berikutnya</button><button class="btn ghost" id="bs-reset">Ulangi</button></div>'+
+   '<h3 style="font-size:.95rem">Binary Search</h3><div class="cards" id="bs-cards"></div><div class="out" id="bs-out"></div><h3 style="font-size:.95rem;margin-top:14px">Sequential Search</h3><div class="cards" id="sq-cards"></div><div class="out" id="sq-out"></div></div>');
+  var s3=sec('Aktivitas 10.2-11-UP','Kartu pengurutan, dijalankan otomatis',
+   '<div class="lab"><h3>Lihat tiga algoritma bekerja</h3><div class="row"><label class="f">algoritma<select id="so-a"><option value="b">Bubble Sort</option><option value="s">Selection Sort</option><option value="i">Insertion Sort</option></select></label><button class="btn" id="so-next">Langkah</button><button class="btn hot" id="so-play">Putar otomatis</button><button class="btn ghost" id="so-new">Acak kartu baru</button></div>'+
+   '<div class="cards" id="so-cards" style="padding-bottom:14px"></div><div class="out" id="so-out"></div><div class="chips"><span class="chip" id="so-cnt">Langkah: 0</span><span class="chip ok">hijau = sudah urut</span><span class="chip">biru = dibandingkan</span><span class="chip bad">oranye = ditukar</span></div></div>');
+  var s4=sec('Bermain kartu','Urutkan sendiri dengan menukar kartu',
+   '<div class="lab"><h3>Tukar dua kartu sampai urut naik</h3><p class="hint">Klik satu kartu, lalu klik kartu lain untuk menukarnya. Berapa penukaran yang kamu butuhkan?</p><div class="cards" id="mn-cards"></div><div class="row"><button class="btn" id="mn-check">Periksa urutan</button><button class="btn ghost" id="mn-new">Kartu baru</button><span class="chip" id="mn-cnt">Penukaran: 0</span></div><div class="out" id="mn-out">Urutkan dari kecil ke besar.</div></div>');
+  return h+s1+s2+s3+s4+pager(['pertemuan-2','Pertemuan 2'],['pertemuan-4','Pertemuan 4']);
+},init:function(r){
+  var sec_,lo,hi,cnt,log;
+  function gnew(){sec_=rnd(1,100);lo=1;hi=100;cnt=0;$('#gs-cnt',r).textContent='Tebakan: 0';$('#gs-rng',r).textContent='Rentang: 1 sampai 100';$('#gs-bar',r).style.width='100%';$('#gs-out',r).className='out';$('#gs-out',r).textContent='Angka baru sudah disimpan. Silakan menebak.';$('#gs-log',r).innerHTML='';$('#gs-n',r).value='';$('#gs-go',r).disabled=false}
+  gnew();
+  function guess(){var g=Number($('#gs-n',r).value),o=$('#gs-out',r);if(!g||g<1||g>100){o.className='out bad';o.textContent='Masukkan angka 1 sampai 100.';return}
+    cnt++;var msg;if(g===sec_){o.className='out ok';msg='Benar, '+g+' adalah angkanya. '+cnt+' tebakan. Strategi biner menjamin paling banyak 7 tebakan.';$('#gs-go',r).disabled=true}
+    else if(g>sec_){hi=Math.min(hi,g-1);o.className='out bad';msg='Terlalu besar.'}else{lo=Math.max(lo,g+1);o.className='out bad';msg='Terlalu kecil.'}
+    o.textContent=msg;$('#gs-cnt',r).textContent='Tebakan: '+cnt;$('#gs-rng',r).textContent='Rentang: '+lo+' sampai '+hi;$('#gs-bar',r).style.width=Math.max(1,(hi-lo+1))+'%';
+    var d=document.createElement('div');d.textContent='#'+cnt+'  '+g+'  →  '+(g===sec_?'benar':g>sec_?'terlalu besar':'terlalu kecil');$('#gs-log',r).prepend(d);$('#gs-n',r).value=''}
+  $('#gs-go',r).onclick=guess;$('#gs-n',r).onkeydown=function(e){if(e.key==='Enter')guess()};
+  $('#gs-hint',r).onclick=function(){$('#gs-n',r).value=Math.floor((lo+hi)/2)};$('#gs-new',r).onclick=gnew;
+  $('#cx-t',r).innerHTML=[10,100,1000,1000000].map(function(n){return '<tr><td class="num">'+n.toLocaleString('id-ID')+'</td><td class="num">'+n.toLocaleString('id-ID')+'</td><td class="num">'+Math.ceil(Math.log2(n+1))+'</td></tr>'}).join('');
+  // search viz
+  var arr=[3,8,12,19,23,31,37,42,48,55,61,67,74,82,90],bf=[],bi=0,sf=[];
+  function bsb(){var t=Number($('#bs-t',r).value),l=0,h=arr.length-1;bf=[{l:l,h:h,m:null,note:'Rentang awal mencakup seluruh data.'}];var found=-1;
+    while(l<=h){var m=Math.floor((l+h)/2);if(arr[m]===t){bf.push({l:l,h:h,m:m,found:true,note:'Indeks tengah = '+m+', nilainya '+arr[m]+'. Sama dengan target '+t+'. Ditemukan.'});found=m;break}
+      else if(arr[m]<t){bf.push({l:l,h:h,m:m,note:'Tengah = '+arr[m]+' lebih kecil dari '+t+'. Buang bagian kiri.'});l=m+1}else{bf.push({l:l,h:h,m:m,note:'Tengah = '+arr[m]+' lebih besar dari '+t+'. Buang bagian kanan.'});h=m-1}}
+    if(found<0)bf.push({l:l,h:h,m:null,none:true,note:'Rentang habis. '+t+' tidak ada di data.'});
+    var k=arr.indexOf(t);sf=[];var n=k<0?arr.length:k+1;for(var i=0;i<n;i++)sf.push(i);bi=0}
+  function bsr(){var f=bf[Math.min(bi,bf.length-1)];$('#bs-cards',r).innerHTML=arr.map(function(v,i){var c='pc cell';if(f.found&&i===f.m)c+=' found';else if(i===f.m)c+=' mid';else if(i<f.l||i>f.h)c+=' dim';return '<div class="'+c+'"><small>'+i+'</small>'+v+'</div>'}).join('');
+    $('#bs-out',r).textContent='Langkah '+bi+' dari '+(bf.length-1)+'. '+f.note;
+    var t=Number($('#bs-t',r).value),s=Math.min(bi,sf.length);$('#sq-cards',r).innerHTML=arr.map(function(v,i){var c='pc cell';if(i<s){c+=(v===t)?' found':' dim'}return '<div class="'+c+'"><small>'+i+'</small>'+v+'</div>'}).join('');
+    $('#sq-out',r).textContent='Sequential memeriksa '+s+' dari total '+sf.length+' elemen yang dibutuhkan. Binary butuh '+(bf.length-1)+' langkah.';$('#bs-next',r).disabled=bi>=bf.length-1&&bi>=sf.length}
+  bsb();bsr();
+  $('#bs-next',r).onclick=function(){bi++;bsr()};$('#bs-reset',r).onclick=function(){bsb();bsr()};$('#bs-t',r).oninput=function(){bsb();bsr()};
+  // sort viz
+  var data,fr,fi,tm;
+  function snew(){clearInterval(tm);data=shuffle([1,2,3,4,5,6,7,8,9,10,11,12]).slice(0,7);sset()}
+  function sset(){clearInterval(tm);var a=$('#so-a',r).value;fr=(a==='b'?framesBubble:a==='s'?framesSel:framesIns)(data);fi=0;srender()}
+  function srender(){var f=fr[fi];$('#so-cards',r).innerHTML=cardsHtml(f);$('#so-out',r).textContent=f.note;$('#so-cnt',r).textContent='Langkah: '+fi+' dari '+(fr.length-1);$('#so-next',r).disabled=fi>=fr.length-1}
+  $('#so-next',r).onclick=function(){if(fi<fr.length-1){fi++;srender()}};
+  $('#so-play',r).onclick=function(){clearInterval(tm);if(fi>=fr.length-1)fi=0;tm=setInterval(function(){if(fi<fr.length-1){fi++;srender()}else clearInterval(tm)},650)};
+  $('#so-new',r).onclick=snew;$('#so-a',r).onchange=sset;snew();
+  // manual
+  var mn,sel,mc;
+  function mnew(){mn=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,6);sel=-1;mc=0;mrender();$('#mn-out',r).className='out';$('#mn-out',r).textContent='Urutkan dari kecil ke besar.'}
+  function mrender(){var box=$('#mn-cards',r);box.innerHTML='';mn.forEach(function(v,i){var b=document.createElement('button');b.className='pc'+(i===sel?' sel':'');b.textContent=v;b.setAttribute('aria-label','Kartu '+v+' posisi '+(i+1));b.onclick=function(){if(sel<0){sel=i}else if(sel===i){sel=-1}else{var t=mn[sel];mn[sel]=mn[i];mn[i]=t;mc++;sel=-1}mrender()};box.appendChild(b)});$('#mn-cnt',r).textContent='Penukaran: '+mc}
+  $('#mn-check',r).onclick=function(){var ok=mn.every(function(v,i){return i===0||mn[i-1]<=v}),o=$('#mn-out',r);o.className='out '+(ok?'ok':'bad');o.textContent=ok?'Terurut dalam '+mc+' penukaran. Catat strategimu: apakah mirip Bubble atau Selection Sort?':'Belum terurut. Lanjutkan menukar.'};
+  $('#mn-new',r).onclick=mnew;mnew();
+}};
+
+/* ============ PERTEMUAN 4 ============ */
+function mkStack(root){
+  var items=[],log=[];
+  function render(){$('.stackbox',root).innerHTML=items.map(function(v,i){return '<div class="item'+(i===items.length-1?' top':'')+'">'+esc(v)+(i===items.length-1?'  ◀ TOP':'')+'</div>'}).join('');$('.log',root).innerHTML=log.slice(-8).reverse().map(function(l){return '<div>'+esc(l)+'</div>'}).join('');$('.cnt',root).textContent='Isi tumpukan: '+items.length;$('.pop',root).disabled=!items.length}
+  $('.push',root).onclick=function(){var i=$('input',root);var v=i.value.trim()||String.fromCharCode(65+items.length%26);if(items.length>=7){log.push('Penuh (maks 7): '+v+' ditolak');render();return}items.push(v);log.push('PUSH '+v);i.value='';render()};
+  $('.pop',root).onclick=function(){if(!items.length)return;var v=items.pop();log.push('POP → '+v);render()};
+  render()}
+views['pertemuan-4']={html:function(){
+  var h=pertHead(4,'List, Stack, dan Queue',['X-BK-05'],
+   'Kamu mampu menganalisis karakteristik serta menerapkan List/Array, Stack (LIFO), dan Queue (FIFO) untuk menyelesaikan persoalan nyata.',
+   [{n:'Pendahuluan',m:15,items:['Apersepsi: tumpukan piring di kantin dan antrean pembeli di kasir swalayan.']},
+    {n:'Kegiatan inti',m:150,items:['10.2-12-U Penggunaan Stack dan Queue secara Tepat.','10.2-13-UP Simulasi Stack: permainan peran Pemberi Perintah dan Simulator (PUSH dan POP).','10.2-14-UP Simulasi Queue: INSERT dan REMOVE, penerapan pada antrean rumah sakit dan printer.']},
+    {n:'Penutup',m:15,items:['Refleksi keseluruhan: bagaimana algoritma dan struktur data membentuk pola pikir komputasional.','Penyampaian umpan balik pembelajaran.']}],'Unplugged / Plugged');
+  var s0=sec('Struktur dasar','List / Array',
+   '<div class="lab"><h3>Himpunan data sejenis, diakses lewat indeks</h3><p class="hint">Indeks dimulai dari 0. Klik sebuah kotak untuk membaca isinya.</p><div class="cards" id="ar-c"></div><div class="row"><label class="f">nilai baru<input type="number" id="ar-v" value="88"></label><button class="btn" id="ar-add">Tambah di akhir</button><button class="btn ghost" id="ar-del">Hapus elemen akhir</button></div><div class="out" id="ar-out">Klik salah satu kotak.</div></div>');
+  var s1=sec('Aktivitas 10.2-12-U','Stack atau Queue?',
+   '<div class="two"><div class="card"><div class="k">Stack · LIFO</div><h3>Last-In, First-Out</h3><p style="color:var(--muted);margin:0">Yang terakhir masuk, pertama keluar. Seperti tumpukan piring: ambil dari atas.</p></div><div class="card"><div class="k">Queue · FIFO</div><h3>First-In, First-Out</h3><p style="color:var(--muted);margin:0">Yang pertama masuk, pertama keluar. Seperti antrean kasir: layani dari depan.</p></div></div>'+
+   '<div class="lab"><h3>Tentukan struktur data yang tepat</h3><div id="sq-list"></div><div class="out" id="sq-score">Skor: 0 dari 8</div></div>');
+  var s2=sec('Aktivitas 10.2-13-UP','Simulasi Stack',
+   '<div class="two"><div class="lab" id="stk"><h3>PUSH dan POP</h3><p class="hint">Pemberi Perintah menyebut perintah, Simulator menjalankannya dan mencatat status tumpukan.</p><div class="row"><label class="f">data<input type="text" maxlength="8" placeholder="mis. A"></label><button class="btn push">PUSH</button><button class="btn hot pop">POP</button></div><span class="chip cnt"></span><div class="row" style="align-items:flex-start;margin-bottom:0"><div class="stackbox"></div></div><div class="log"></div></div>'+
+   '<div class="lab"><h3>Undo dan Redo di pengolah kata</h3><p class="hint">Setiap tindakan dimasukkan ke tumpukan Undo. Tombol Undo mengambil yang paling atas.</p><div class="row"><button class="btn ghost ud" data-a="Ketik judul">Ketik judul</button><button class="btn ghost ud" data-a="Tebalkan teks">Tebalkan</button><button class="btn ghost ud" data-a="Ganti font">Ganti font</button><button class="btn ghost ud" data-a="Sisipkan gambar">Sisipkan gambar</button></div><div class="row"><button class="btn hot" id="ud-undo">Undo</button><button class="btn" id="ud-redo">Redo</button></div><div class="two"><div><div class="k" style="font-family:var(--f-mono);font-size:.74rem">TUMPUKAN UNDO</div><div class="stackbox" id="ud-s" style="min-height:140px;width:100%"></div></div><div><div class="k" style="font-family:var(--f-mono);font-size:.74rem">TUMPUKAN REDO</div><div class="stackbox" id="rd-s" style="min-height:140px;width:100%"></div></div></div></div></div>');
+  var s3=sec('Aktivitas 10.2-14-UP','Simulasi Queue',
+   '<div class="two"><div class="lab" id="que"><h3>INSERT dan REMOVE</h3><div class="row"><label class="f">data<input type="text" maxlength="8" placeholder="mis. Rani"></label><button class="btn ins">INSERT</button><button class="btn hot rem">REMOVE</button></div><span class="chip cnt"></span><div class="qbox"></div><div class="qlab"><span>DEPAN (keluar)</span><span>BELAKANG (masuk)</span></div><div class="log"></div></div>'+
+   '<div class="lab" id="prn"><h3>Antrean printer</h3><p class="hint">Dokumen yang dikirim lebih dulu dicetak lebih dulu.</p><div class="row"><button class="btn ghost pd" data-d="Laporan.docx">Kirim Laporan</button><button class="btn ghost pd" data-d="Foto.png">Kirim Foto</button><button class="btn ghost pd" data-d="Tugas.pdf">Kirim Tugas</button></div><div class="row"><button class="btn hot rem">Printer selesai mencetak</button></div><span class="chip cnt"></span><div class="qbox"></div><div class="qlab"><span>sedang dicetak</span><span>antre terakhir</span></div><div class="log"></div></div></div>');
+  return h+s0+s1+s2+s3+pager(['pertemuan-3','Pertemuan 3'],['lkpd','LKPD']);
+},init:function(r){
+  var ar=[78,85,90,67,72],sl=-1;
+  function arr(){$('#ar-c',r).innerHTML=ar.map(function(v,i){return '<button class="pc cell'+(i===sl?' sel':'')+'" data-i="'+i+'"><small>'+i+'</small>'+v+'</button>'}).join('');$$('#ar-c .pc',r).forEach(function(b){b.onclick=function(){sl=Number(b.dataset.i);$('#ar-out',r).textContent='nilai['+sl+'] = '+ar[sl]+'   (panjang list = '+ar.length+')';arr()}})}
+  arr();$('#ar-add',r).onclick=function(){if(ar.length<10){ar.push(Number($('#ar-v',r).value)||0);arr()}};$('#ar-del',r).onclick=function(){ar.pop();sl=-1;arr()};
+  var sc=[['Tombol Undo pada pengolah kata','s'],['Antrean pasien di rumah sakit','q'],['Riwayat halaman yang dibuka, tombol Back peramban','s'],['Dokumen menunggu dicetak printer','q'],['Daftar nilai 5 siswa yang diakses lewat nomor urut','l'],['Penjual melayani pembeli sesuai urutan datang','q'],['Menumpuk buku lalu mengambil dari atas','s'],['Tumpukan piring bersih yang diambil dari paling atas','s']];
+  var names={s:'Stack',q:'Queue',l:'List'},gs=0,gd={};
+  $('#sq-list',r).innerHTML=sc.map(function(c,i){return '<div class="q"><div class="t">'+c[0]+'</div><div class="pick" data-i="'+i+'"><button data-a="s">Stack (LIFO)</button><button data-a="q">Queue (FIFO)</button><button data-a="l">List / Array</button></div></div>'}).join('');
+  $$('#sq-list .pick',r).forEach(function(p){$$('button',p).forEach(function(b){b.onclick=function(){var i=Number(p.dataset.i);if(gd[i])return;gd[i]=1;var ok=b.dataset.a===sc[i][1];if(ok)gs++;b.classList.add(ok?'right':'wrong');if(!ok)$('[data-a="'+sc[i][1]+'"]',p).classList.add('right');$('#sq-score',r).textContent='Skor: '+gs+' dari 8'}})});
+  mkStack($('#stk',r));
+  var us=[],rs=[],doc;
+  function udr(){var f=function(a){return a.map(function(v,i){return '<div class="item'+(i===a.length-1?' top':'')+'">'+esc(v)+'</div>'}).join('')};$('#ud-s',r).innerHTML=f(us);$('#rd-s',r).innerHTML=f(rs);$('#ud-undo',r).disabled=!us.length;$('#ud-redo',r).disabled=!rs.length}
+  $$('.ud',r).forEach(function(b){b.onclick=function(){us.push(b.dataset.a);rs=[];udr()}});
+  $('#ud-undo',r).onclick=function(){if(us.length){rs.push(us.pop());udr()}};$('#ud-redo',r).onclick=function(){if(rs.length){us.push(rs.pop());udr()}};udr();
+  function mkQ(root,addSel){var q=[],log=[];
+    function rn(){$('.qbox',root).innerHTML=q.map(function(v,i){return '<div class="item'+(i===0?' top':'')+'">'+esc(v)+'</div>'}).join('')||'<span style="color:var(--muted);font-size:.85rem">Antrean kosong</span>';$('.log',root).innerHTML=log.slice(-8).reverse().map(function(l){return '<div>'+esc(l)+'</div>'}).join('');$('.cnt',root).textContent='Jumlah antrean: '+q.length;$('.rem',root).disabled=!q.length}
+    function add(v){if(q.length>=8){log.push('Antrean penuh: '+v+' ditolak');rn();return}q.push(v);log.push('INSERT '+v);rn()}
+    var ins=$('.ins',root);if(ins)ins.onclick=function(){var i=$('input',root);add(i.value.trim()||('P'+(q.length+1)));i.value=''};
+    $$('.pd',root).forEach(function(b){b.onclick=function(){add(b.dataset.d)}});
+    $('.rem',root).onclick=function(){if(q.length){log.push('REMOVE → '+q.shift());rn()}};rn()}
+  mkQ($('#que',r));mkQ($('#prn',r));
+}};
+
+/* ============ LKPD ============ */
+var LK=[
+ {id:'p1',t:'LKPD Pertemuan 1',s:'Algoritma, diagram alir, pseudocode',q:[
+  ['Tulis langkah membayar bakso di kantin dengan bahasa alami. Pastikan tidak ada kalimat yang bisa ditafsirkan ganda.'],
+  ['Ubah algoritma total pembayaran dan kembalian kantin menjadi pseudocode (gunakan READ, WRITE, dan IF-THEN).'],
+  ['Telusuri pseudocodemu dengan harga 12000 dan bayar 20000. Tulis nilai setiap variabel.'],
+  ['Refleksi: kendala apa yang kamu temui saat mengubah kalimat biasa menjadi pseudocode?']]},
+ {id:'p2',t:'LKPD Pertemuan 2',s:'Struktur kendali, fungsi, kasus uji',q:[
+  ['Tulis pseudocode percabangan bertingkat untuk mencetak nama bulan dari angka 1 sampai 12.'],
+  ['Tulis pseudocode perulangan untuk menghitung rata-rata n bilangan dan menentukan bilangan terbesar.'],
+  ['Pecah menjadi fungsi: tulis fungsi luas dan keliling untuk satu bangun datar atau bangun ruang pilihanmu.'],
+  ['Rancang tabel kasus uji (minimal 5 baris) untuk fungsi kategori nilai: masukan, luaran yang diharapkan, dan jenisnya (normal, batas, tidak valid).'],
+  ['Mengapa kasus uji membantu mencegah bug? Jawab dengan contoh dari tabelmu.']]},
+ {id:'p3',t:'LKPD Pertemuan 3',s:'Pencarian dan pengurutan',q:[
+  ['Catat hasil permainan tebak angka: berapa tebakan yang kamu butuhkan dengan menebak urut, dan dengan membelah dua rentang?'],
+  ['Lakukan Bubble Sort pada kartu 5, 3, 8, 1, 4. Tulis kondisi kartu setelah setiap putaran.'],
+  ['Lakukan Selection Sort pada kartu yang sama. Bandingkan jumlah penukarannya dengan Bubble Sort.'],
+  ['Simpulkan: apa syarat utama agar Binary Search bisa dipakai, dan apa yang terjadi jika syarat itu dilanggar?']]},
+ {id:'p4',t:'LKPD Pertemuan 4',s:'List, Stack, dan Queue',q:[
+  ['Catat status tumpukan setelah rangkaian perintah: PUSH 4, PUSH 7, POP, PUSH 2, PUSH 9, POP, POP. Tulis isi tumpukan setiap langkah.'],
+  ['Catat status antrean setelah: INSERT Ani, INSERT Budi, REMOVE, INSERT Citra, REMOVE. Siapa yang tersisa?'],
+  ['Analisis: mengapa Undo/Redo memakai Stack, dan mengapa antrean rumah sakit atau printer memakai Queue?'],
+  ['Refleksi seluruh bab: bagaimana algoritma dan struktur data membantumu memecahkan masalah sehari-hari?']]}];
+views['lkpd']={html:function(){
+  return '<div class="hero"><div class="eyebrow">Lembar Kerja Peserta Didik</div><h1>LKPD empat pertemuan</h1><p>Jawabanmu tersimpan otomatis di peramban ini. Salin semuanya untuk dikumpulkan atau ditempel ke dokumen.</p></div>'+
+  '<div class="lab"><div class="row"><label class="f">Nama<input type="text" id="lk-name" placeholder="Nama lengkap"></label><label class="f">Kelas<input type="text" id="lk-kelas" placeholder="X ..." style="width:110px"></label><label class="f">Kelompok<input type="text" id="lk-kel" placeholder="mis. 3" style="width:90px"></label></div></div>'+
+  LK.map(function(s){return sec(s.s,s.t,'<div class="meter" id="m-'+s.id+'">'+s.q.map(function(){return '<i></i>'}).join('')+'</div>'+s.q.map(function(q,i){return '<div class="lab"><h3 style="font-size:1rem"><span class="chip sun">'+(i+1)+'</span>'+q[0]+'</h3><textarea id="lk-'+s.id+'-'+i+'" placeholder="Tulis jawabanmu di sini"></textarea></div>'}).join(''))}).join('')+
+  '<div class="lab" style="margin-top:36px"><h3>Kumpulkan</h3><div class="row"><button class="btn" id="lk-copy">Salin semua jawaban</button><button class="btn ghost" id="lk-clr">Hapus semua jawaban</button></div><textarea id="lk-fb" hidden readonly aria-label="Teks jawaban untuk disalin manual"></textarea></div>'+
+  pager(['pertemuan-4','Pertemuan 4'],['asesmen','Asesmen']);
+},init:function(r){
+  var d=load('lkpd',{});
+  function meter(){LK.forEach(function(s){$$('#m-'+s.id+' i',r).forEach(function(e,i){e.classList.toggle('on',!!(d[s.id+'-'+i]||'').trim())})})}
+  ['name','kelas','kel'].forEach(function(k){var e=$('#lk-'+k,r);e.value=d['f-'+k]||'';e.oninput=function(){d['f-'+k]=e.value;save('lkpd',d)}});
+  LK.forEach(function(s){s.q.forEach(function(q,i){var e=$('#lk-'+s.id+'-'+i,r),k=s.id+'-'+i;e.value=d[k]||'';e.oninput=function(){d[k]=e.value;save('lkpd',d);meter()}})});meter();
+  $('#lk-copy',r).onclick=function(){var t='LKPD Algoritma dan Struktur Data\nNama: '+(d['f-name']||'-')+' | Kelas: '+(d['f-kelas']||'-')+' | Kelompok: '+(d['f-kel']||'-')+'\n';LK.forEach(function(s){t+='\n== '+s.t+' ==\n';s.q.forEach(function(q,i){t+='\n'+(i+1)+'. '+q[0]+'\nJawab: '+((d[s.id+'-'+i]||'').trim()||'(belum diisi)')+'\n'})});copy(t,$('#lk-copy',r),$('#lk-fb',r))};
+  var armed=false;$('#lk-clr',r).onclick=function(){var b=$('#lk-clr',r);if(!armed){armed=true;b.textContent='Yakin? Tekan sekali lagi';b.className='btn hot';setTimeout(function(){armed=false;b.textContent='Hapus semua jawaban';b.className='btn ghost'},3000);return}d={};save('lkpd',d);render()};
+}};
+
+/* ============ ASESMEN ============ */
+var QZ=[
+ ['X-BK-01','Sumber data manakah yang paling dapat dipercaya untuk data jumlah penduduk suatu kota?',['Unggahan anonim di media sosial','Publikasi resmi lembaga statistik pemerintah','Cerita teman','Tangkapan layar tanpa keterangan'],1,'Sumber resmi menyertakan metode, waktu, dan bisa diverifikasi.'],
+ ['X-BK-01','Kolom tinggi badan berisi angka 1720 cm. Apa yang sebaiknya dilakukan sebelum data diolah?',['Langsung dipakai','Dianggap valid karena sudah tersimpan','Diperiksa dan dibersihkan karena nilai tidak masuk akal','Semua data dihapus'],2,'Data valid harus bersih dan masuk akal. Nilai mustahil harus diperiksa.'],
+ ['X-BK-07','Simbol belah ketupat pada diagram alir dipakai untuk apa?',['Mulai atau selesai','Masukan atau luaran','Pengambilan keputusan (percabangan)','Proses hitung'],2,'Belah ketupat menandai kondisi dengan jalur Ya dan Tidak.'],
+ ['X-BK-07','Apa perbedaan utama pseudocode dan bahasa pemrograman?',['Pseudocode lebih cepat dijalankan','Pseudocode tidak terikat sintaks ketat dan tidak dijalankan langsung oleh komputer','Pseudocode hanya boleh memakai bahasa Inggris','Tidak ada perbedaan'],1,'Pseudocode untuk manusia merancang logika; bahasa pemrograman harus mengikuti sintaks.'],
+ ['X-BK-08','x ← 5. WHILE x > 0: x ← x - 2. Setelah perulangan, WRITE x. Apa luarannya?',['1','0','-1','-3'],2,'x berturut-turut 5, 3, 1, lalu -1. Karena -1 tidak > 0, perulangan berhenti dan -1 tercetak.'],
+ ['X-BK-08','Aturan: lulus jika nilai ≥ 75. Pasangan nilai batas yang paling tepat diuji adalah...',['10 dan 20','74 dan 75','50 dan 100','0 dan 1000'],1,'Nilai batas berada di dua sisi garis keputusan: 74 gagal, 75 lulus.'],
+ ['X-BK-04','Syarat utama agar Binary Search dapat dipakai adalah...',['Data berjumlah genap','Data berisi angka bulat saja','Data sudah terurut','Data kurang dari 10 elemen'],2,'Membuang separuh rentang hanya masuk akal jika data terurut.'],
+ ['X-BK-04','Berapa tebakan paling banyak untuk menebak angka 1 sampai 100 dengan strategi membelah dua?',['5','7','50','100'],1,'2 pangkat 7 = 128 ≥ 100, jadi 7 tebakan sudah cukup.'],
+ ['X-BK-04','Satu putaran pertama Bubble Sort pada [5, 3, 8, 1] menghasilkan...',['[1, 3, 5, 8]','[3, 5, 1, 8]','[3, 5, 8, 1]','[5, 3, 1, 8]'],1,'5>3 tukar; 5<8 tetap; 8>1 tukar. Hasil [3, 5, 1, 8].'],
+ ['X-BK-04','Pada Selection Sort, tiap putaran melakukan apa?',['Menukar dua elemen bersebelahan terus-menerus','Memilih nilai terkecil dari sisa data lalu menaruhnya di posisi depan','Membagi data menjadi dua','Menghapus elemen terbesar'],1,'Selection Sort memilih minimum lalu menempatkannya di posisi yang benar.'],
+ ['X-BK-05','Push A, Push B, Push C, lalu Pop dua kali. Elemen yang tersisa di Stack adalah...',['A','B','C','Kosong'],0,'Pop mengambil C, lalu B. Yang tersisa A.'],
+ ['X-BK-05','Antrean dokumen pada printer paling tepat dimodelkan dengan...',['Stack (LIFO)','Queue (FIFO)','Variabel tunggal','Diagram alir'],1,'Dokumen yang masuk lebih dulu dicetak lebih dulu, itu FIFO.']];
+var RB=[
+ ['Penyusunan notasi pseudocode',['Tidak terstruktur dan tidak dapat dibaca sebagai algoritma.','Notasi kurang konsisten, struktur kendali belum lengkap.','Rapi dan struktur kendali tepat, ada kesalahan logika kecil.','Sangat rapi, konsisten, struktur percabangan/perulangan tepat, bebas kesalahan logika.']],
+ ['Penerapan algoritma Search dan Sort',['Tidak mampu mensimulasikan pengurutan dan pencarian.','Kesulitan membedakan alur pencarian sekuensial dan biner.','Mampu mensimulasikan dengan baik, butuh sedikit bantuan pada langkah penukaran.','Mensimulasikan Binary Search dan pengurutan kartu secara presisi tanpa salah alur.']],
+ ['Pemahaman Stack dan Queue',['Tidak memahami konsep dasar tumpukan dan antrean.','Keliru membedakan LIFO dan FIFO pada studi kasus.','Mengoperasikan dengan benar, kurang lancar menjelaskan perbedaan prinsip kerja.','Mengidentifikasi dan mensimulasikan PUSH/POP dan INSERT/REMOVE secara sempurna.']],
+ ['Perancangan kasus uji',['Tidak membuat kasus uji.','Kasus uji hanya satu contoh masukan sederhana.','Mencakup nilai normal dan beberapa nilai batas.','Komprehensif: nilai normal, batas, dan masukan ekstrem/tidak valid.']]];
+views['asesmen']={html:function(){
+  return '<div class="hero"><div class="eyebrow">Asesmen</div><h1>Uji pemahamanmu</h1><p>Dua bagian: kuis pilihan ganda untuk mengecek konsep, dan rubrik unjuk kerja untuk menilai praktik logika pemrograman dan struktur data.</p></div>'+
+  sec('Bagian 1','Kuis konsep, 12 soal','<div class="lab" id="qz"></div><div class="lab" id="qz-res" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div class="score" id="qz-sc">0/12</div><div style="flex:1 1 220px"><div id="qz-msg" style="font-weight:700">Jawab semua soal untuk melihat hasil.</div><div class="chips" id="qz-tp"></div></div><button class="btn ghost" id="qz-re">Ulangi kuis</button></div>')+
+  sec('Bagian 2','Rubrik unjuk kerja','<p class="lead">Nilai dirimu sendiri pada empat aspek. Skor 4 paling tinggi, skor 1 paling rendah. Guru dapat memakai rubrik yang sama untuk penilaian.</p><div class="two" id="rb"></div><div class="lab" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div class="score" id="rb-sc">0/16</div><div style="flex:1 1 220px"><div id="rb-msg" style="font-weight:700">Pilih tingkat untuk tiap aspek.</div><div class="bar"><i id="rb-bar" style="width:0%"></i></div></div></div>')+
+  pager(['lkpd','LKPD'],['tindak-lanjut','Tindak Lanjut']);
+},init:function(r){
+  var ans={},tp={};
+  function show(){var n=Object.keys(ans).length,sc=0;var byTp={};QZ.forEach(function(q,i){byTp[q[0]]=byTp[q[0]]||[0,0];byTp[q[0]][1]++;if(ans[i]===q[3]){sc++;byTp[q[0]][0]++}});
+    $('#qz-sc',r).textContent=sc+'/12';$('#qz-msg',r).textContent=n<12?('Terjawab '+n+' dari 12.'):(sc>=10?'Sangat baik. Siap lanjut.':sc>=7?'Baik. Ulangi bagian yang masih keliru.':'Pelajari lagi pertemuan terkait, lalu coba lagi.');
+    $('#qz-tp',r).innerHTML=Object.keys(byTp).map(function(k){var v=byTp[k];return '<span class="chip '+(n===12?(v[0]===v[1]?'ok':'bad'):'')+'">'+k+': '+v[0]+'/'+v[1]+'</span>'}).join('')}
+  function qr(){ans={};$('#qz',r).innerHTML=QZ.map(function(q,i){return '<div class="q"><div class="eyebrow" style="margin:0">'+q[0]+'</div><div class="t">'+(i+1)+'. '+esc(q[1])+'</div><div class="pick" data-i="'+i+'">'+q[2].map(function(o,j){return '<button data-j="'+j+'">'+esc(o)+'</button>'}).join('')+'</div><div class="fb" hidden></div></div>'}).join('');
+    $$('#qz .pick',r).forEach(function(p){$$('button',p).forEach(function(b){b.onclick=function(){var i=Number(p.dataset.i);if(ans[i]!==undefined)return;var j=Number(b.dataset.j);ans[i]=j;var ok=j===QZ[i][3];b.classList.add(ok?'right':'wrong');if(!ok)$$('button',p)[QZ[i][3]].classList.add('right');var fb=p.nextElementSibling;fb.hidden=false;fb.textContent=(ok?'Benar. ':'Belum tepat. ')+QZ[i][4];show()}})});show()}
+  qr();$('#qz-re',r).onclick=function(){qr();window.scrollTo({top:$('#qz',r).offsetTop,behavior:'smooth'})};
+  var sv=load('rubrik',{});
+  $('#rb',r).innerHTML=RB.map(function(a,i){return '<div class="lab rub" style="margin-top:0"><h3 style="font-size:1rem">'+a[0]+'</h3>'+a[1].map(function(d,j){return '<label><input type="radio" name="rb'+i+'" value="'+(j+1)+'"'+(sv[i]===j+1?' checked':'')+'><b>Skor '+(j+1)+'.</b> '+esc(d)+'</label>'}).reverse().join('')+'</div>'}).join('');
+  function rbs(){var s=0,n=0;RB.forEach(function(a,i){var c=$('input[name=rb'+i+']:checked',r);if(c){s+=Number(c.value);n++;sv[i]=Number(c.value)}});save('rubrik',sv);$('#rb-sc',r).textContent=s+'/16';$('#rb-bar',r).style.width=(s/16*100)+'%';
+    var avg=n?s/n:0;$('#rb-msg',r).textContent=n<4?('Terisi '+n+' dari 4 aspek.'):(avg>=3.5?'Tingkat Sangat Baik':avg>=2.5?'Tingkat Baik':avg>=1.5?'Tingkat Cukup':'Tingkat Kurang, ayo berlatih lagi')}
+  $$('#rb input',r).forEach(function(e){e.onchange=rbs});rbs();
+}};
+
+/* ============ TINDAK LANJUT ============ */
+views['tindak-lanjut']={html:function(){
+  return '<div class="hero"><div class="eyebrow">Relevansi dan program susulan</div><h1>Pengayaan dan remedial</h1><p>Sudah menguasai materi? Tantang dirimu dengan studi kasus. Masih ragu pada percabangan dan tracing? Latih sampai lancar.</p></div>'+
+  sec('Pengayaan','Efisiensi algoritma secara kualitatif','<div class="lab"><h3>Berapa langkah yang dibutuhkan?</h3><p class="hint">Geser jumlah data. Bandingkan langkah terburuk pencarian dan jumlah perbandingan pengurutan.</p><div class="row"><label class="f">jumlah data n: <b id="ef-nv">100</b><input type="range" id="ef-n" min="1" max="3" value="2" step="1" style="width:220px;accent-color:var(--accent)"></label></div><div id="ef-bars"></div><p class="hint">Quick Sort dan Merge Sort mengurutkan jauh lebih cepat pada data besar. Coba cari tahu cara kerjanya sebagai tantangan lanjutan.</p></div>')+
+  sec('Pengayaan · Aktivitas 10.2-15-UP','Studi kasus survei desa','<div class="lab"><h3>Baca array, urutkan, hitung median</h3><p class="hint">Data jumlah anggota keluarga dari beberapa rumah. Ubah datanya sesukamu.</p><label class="f">data (pisahkan dengan koma)<input type="text" id="sv-d" value="4, 3, 5, 2, 6, 4, 3, 7, 4, 5, 2, 3" style="width:100%"></label><div class="cards" id="sv-raw"></div><div class="cards" id="sv-sorted"></div><div class="out" id="sv-out"></div></div>')+
+  sec('Remedial','Tracing percabangan','<div class="lab"><h3>Tebak luaran pseudocode</h3><p class="hint">Telusuri baris demi baris dan catat nilai variabel sebelum menjawab.</p>'+code(['READ x','IF x > 10 THEN','  y ← x * 2','ELSE IF x = 10 THEN','  y ← 0','ELSE','  y ← x + 5','ENDIF','WRITE y'])+'<div class="row"><span class="chip sun" id="tr-x"></span><label class="f">luaran y<input type="number" id="tr-a"></label><button class="btn" id="tr-ok">Periksa</button><button class="btn ghost" id="tr-new">Soal baru</button><span class="chip" id="tr-sc">Benar: 0</span></div><div class="out" id="tr-out"></div></div>'+
+   '<div class="grid"><div class="card"><h3>Tutor sebaya</h3><p style="color:var(--muted);margin:0">Berpasangan: satu orang membaca pseudocode, satu orang menulis nilai variabel di kertas. Bertukar peran tiap soal.</p></div><div class="card"><h3>Kebiasaan tracing</h3><p style="color:var(--muted);margin:0">Buat tabel kecil berisi nama variabel, lalu perbarui satu baris setiap kali satu baris kode dijalankan.</p></div></div>')+
+  pager(['asesmen','Asesmen'],['beranda','Kembali ke Beranda']);
+},init:function(r){
+  function ef(){var n=Math.pow(10,Number($('#ef-n',r).value)),seq=n,bin=Math.ceil(Math.log2(n+1)),srt=n*(n-1)/2,mx=Math.max(seq,srt);$('#ef-nv',r).textContent=n.toLocaleString('id-ID');
+    function row(l,v,c){return '<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:.88rem"><span>'+l+'</span><b style="font-family:var(--f-mono)">'+v.toLocaleString('id-ID')+'</b></div><div class="bar'+(c?' h':'')+'"><i style="width:'+Math.max(1,v/mx*100)+'%"></i></div></div>'}
+    $('#ef-bars',r).innerHTML=row('Sequential Search (langkah terburuk)',seq,0)+row('Binary Search (langkah terburuk)',bin,0)+row('Bubble Sort (jumlah perbandingan)',srt,1)}
+  $('#ef-n',r).oninput=ef;ef();
+  function sv(){var d=$('#sv-d',r).value.split(',').map(function(x){return parseFloat(x.trim())}).filter(function(x){return !isNaN(x)});
+    $('#sv-raw',r).innerHTML=d.map(function(v,i){return '<div class="pc cell"><small>'+i+'</small>'+v+'</div>'}).join('');
+    var s=d.slice().sort(function(a,b){return a-b}),n=s.length;$('#sv-sorted',r).innerHTML=s.map(function(v,i){return '<div class="pc cell sorted"><small>'+i+'</small>'+v+'</div>'}).join('');
+    if(!n){$('#sv-out',r).textContent='Masukkan data.';return}
+    var med=n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2,sum=s.reduce(function(a,b){return a+b},0);
+    $('#sv-out',r).innerHTML='n = '+n+'<br>'+(n%2?'n ganjil: median = data urut ke-'+((n+1)/2)+' = '+med:'n genap: median = rata-rata data ke-'+(n/2)+' dan ke-'+(n/2+1)+' = ('+s[n/2-1]+' + '+s[n/2]+') / 2 = '+med)+'<br>rata-rata = '+Math.round(sum/n*100)/100+'   min = '+s[0]+'   maks = '+s[n-1]}
+  $('#sv-d',r).oninput=sv;sv();
+  var x,sc=0;function nx(){x=rnd(5,15);$('#tr-x',r).textContent='x = '+x;$('#tr-a',r).value='';$('#tr-out',r).className='out';$('#tr-out',r).textContent=''}
+  nx();$('#tr-new',r).onclick=nx;
+  $('#tr-ok',r).onclick=function(){var y=x>10?x*2:x===10?0:x+5,a=$('#tr-a',r).value,o=$('#tr-out',r);if(a===''){o.textContent='Isi jawabanmu dulu.';return}
+    var ok=Number(a)===y;if(ok)sc++;o.className='out '+(ok?'ok':'bad');o.textContent=ok?'Benar. y = '+y+'.':'Belum tepat. Untuk x = '+x+', kondisi yang berlaku: '+(x>10?'x > 10, jadi y = x * 2 = '+y:x===10?'x = 10, jadi y = 0':'ELSE, jadi y = x + 5 = '+y)+'.';$('#tr-sc',r).textContent='Benar: '+sc}
+}};
+
+/* ============ ROUTER ============ */
+function buildNav(cur){$('#nav').innerHTML=order.map(function(o){return '<a href="#'+o[0]+'"'+(o[0]===cur?' class="on" aria-current="page"':'')+'>'+o[1]+'</a>'}).join('');var on=$('#nav a.on');if(on&&on.scrollIntoView)try{on.scrollIntoView({inline:'center',block:'nearest'})}catch(e){}}
+var current='';
+function render(){var k=(location.hash||'').replace('#','');if(!views[k])k='beranda';current=k;var app=$('#app');app.innerHTML=views[k].html();views[k].init(app);buildNav(k);document.title='Algoritma dan Struktur Data';window.scrollTo(0,0)}
+window.addEventListener('hashchange',render);
+render();
+})();
+</script>
+
+</body></html>
